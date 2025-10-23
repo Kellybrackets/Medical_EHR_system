@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthProvider';
 import { useAuthContext } from './contexts/AuthProvider';
 import { LoginForm } from './components/auth/LoginForm';
+import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { DoctorDashboard } from './components/dashboards/DoctorDashboard';
 import { PatientView } from './components/patient/PatientView';
 import { ConsultationForm } from './components/consultation/ConsultationForm';
@@ -14,6 +15,17 @@ type ReceptionistView = 'dashboard' | 'addPatient' | 'editPatient' | 'viewPatien
 
 function AppContent() {
   const { user, loading } = useAuthContext();
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
+
+  // Check for password reset token in URL on mount
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+
+    if (type === 'recovery') {
+      setIsPasswordReset(true);
+    }
+  }, []);
   
   // Doctor state
   const [doctorView, setDoctorView] = useState<DoctorView>('dashboard');
@@ -29,6 +41,11 @@ function AppContent() {
         <LoadingSpinner size="lg" text="Loading application..." />
       </div>
     );
+  }
+
+  // Show password reset form if reset token detected
+  if (isPasswordReset) {
+    return <ResetPasswordForm />;
   }
 
   if (!user) {
