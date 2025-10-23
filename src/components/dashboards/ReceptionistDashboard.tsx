@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { PatientAvatar } from '../ui/PatientAvatar';
 import { StatusBadge } from '../ui/StatusBadge';
 import { PatientSearchFilter } from '../ui/PatientSearchFilter';
+import { useToast } from '../ui/Toast';
 import { usePatients } from '../../hooks/usePatients';
 import { calculateAge, formatPhoneNumber, getPatientStatus, sortPatients, filterPatients, formatDate } from '../../utils/patientUtils';
 
@@ -26,8 +27,9 @@ const ReceptionistDashboardComponent: React.FC<ReceptionistDashboardProps> = ({
   const [sortBy, setSortBy] = useState<'name' | 'age' | 'lastVisit'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  
+
   const { patients, loading, deletePatient } = usePatients();
+  const { showToast, ToastContainer } = useToast();
 
   const processedPatients = useMemo(() => {
     // First filter patients
@@ -61,6 +63,9 @@ const ReceptionistDashboardComponent: React.FC<ReceptionistDashboardProps> = ({
     const result = await deletePatient(patientId);
     if (result.success) {
       setDeleteConfirm(null);
+      showToast('Patient deleted successfully', 'success');
+    } else {
+      showToast(result.error || 'Failed to delete patient. Please try again.', 'error');
     }
   };
 
@@ -73,6 +78,7 @@ const ReceptionistDashboardComponent: React.FC<ReceptionistDashboardProps> = ({
   }
 
   return (
+    <>
     <AppLayout title="Receptionist Dashboard">
       <div className="space-y-6">
         {/* Enhanced Stats Cards */}
@@ -278,48 +284,51 @@ const ReceptionistDashboardComponent: React.FC<ReceptionistDashboardProps> = ({
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right">
                               <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={() => onViewPatient(patient.id)}
-                                  className="hover:bg-blue-100"
-                                >
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  View
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={() => onEditPatient(patient.id)}
-                                  className="hover:bg-green-100"
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
                                 {deleteConfirm === patient.id ? (
-                                  <div className="flex items-center space-x-1">
+                                  <div className="flex items-center space-x-1 flex-nowrap">
                                     <Button
                                       size="sm"
                                       onClick={() => handleDeletePatient(patient.id)}
-                                      className="bg-red-600 hover:bg-red-700 text-white"
+                                      className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap flex-shrink-0"
                                     >
-                                      Confirm
+                                      <span>Confirm</span>
                                     </Button>
                                     <Button
                                       size="sm"
                                       variant="secondary"
                                       onClick={() => setDeleteConfirm(null)}
+                                      className="whitespace-nowrap flex-shrink-0"
                                     >
-                                      Cancel
+                                      <span>Cancel</span>
                                     </Button>
                                   </div>
                                 ) : (
-                                  <Button
-                                    size="sm"
-                                    onClick={() => setDeleteConfirm(patient.id)}
-                                    className="bg-red-600 hover:bg-red-700 text-white"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      onClick={() => onViewPatient(patient.id)}
+                                      className="hover:bg-blue-100 whitespace-nowrap"
+                                    >
+                                      <Eye className="h-3 w-3 mr-1 flex-shrink-0" />
+                                      <span>View</span>
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      onClick={() => onEditPatient(patient.id)}
+                                      className="hover:bg-green-100 flex-shrink-0"
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => setDeleteConfirm(patient.id)}
+                                      className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </>
                                 )}
                               </div>
                             </td>
@@ -423,6 +432,8 @@ const ReceptionistDashboardComponent: React.FC<ReceptionistDashboardProps> = ({
         </Card>
       </div>
     </AppLayout>
+    <ToastContainer />
+    </>
   );
 };
 
