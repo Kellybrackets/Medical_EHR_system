@@ -71,38 +71,40 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
               className="ring-4 ring-white shadow-lg"
             />
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {patient.firstName} {patient.surname}
-                </h1>
-                <StatusBadge status={status} lastVisit={patient.createdAt} />
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                <div>
-                  <span className="text-gray-500">Patient ID:</span>
-                  <span className="ml-2 font-medium text-gray-900 font-mono">{patient.idNumber}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Age:</span>
-                  <span className="ml-2 font-medium text-gray-900">{age} years old</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Gender:</span>
-                  <span className="ml-2 font-medium text-gray-900">{patient.sex}</span>
+              <div className="flex flex-col gap-2 mb-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h1 className="text-2xl font-bold text-gray-900 break-words">
+                    {patient.firstName} {patient.surname}
+                  </h1>
+                  <StatusBadge status={status} lastVisit={patient.createdAt} />
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mt-2">
-                <div>
-                  <span className="text-gray-500">Date of Birth:</span>
-                  <span className="ml-2 font-medium text-gray-900">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-xs uppercase tracking-wide mb-1">Patient ID</span>
+                  <span className="font-medium text-gray-900 font-mono break-all">{patient.idNumber}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-xs uppercase tracking-wide mb-1">Age</span>
+                  <span className="font-medium text-gray-900">{age} years old</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-xs uppercase tracking-wide mb-1">Gender</span>
+                  <span className="font-medium text-gray-900">{patient.sex}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mt-4">
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-xs uppercase tracking-wide mb-1">Date of Birth</span>
+                  <span className="font-medium text-gray-900">
                     {patient.dateOfBirth ? formatDate(patient.dateOfBirth) : 'Not provided'}
                   </span>
                 </div>
-                <div>
-                  <span className="text-gray-500">Blood Type:</span>
-                  <span className="ml-2 font-medium text-red-600">
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-xs uppercase tracking-wide mb-1">Blood Type</span>
+                  <span className="font-medium text-red-600">
                     {patient.medicalHistory?.bloodType || 'Unknown'}
                   </span>
                 </div>
@@ -111,55 +113,55 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 lg:flex-col lg:w-48">
+          <div className="flex flex-wrap gap-2 lg:flex-nowrap lg:flex-col lg:min-w-[200px]">
             {canEdit && onEdit && (
               <Button
                 onClick={onEdit}
                 variant="secondary"
-                className="bg-white hover:bg-gray-50 border-gray-300"
+                className="w-full sm:w-auto lg:w-full bg-white hover:bg-gray-50 border-gray-300 whitespace-nowrap"
               >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Patient
+                <Edit className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span>Edit Patient</span>
               </Button>
             )}
-            
+
             <Button
               onClick={handleCopyContact}
               variant="secondary"
-              className="bg-white hover:bg-gray-50 border-gray-300"
+              className="w-full sm:w-auto lg:w-full bg-white hover:bg-gray-50 border-gray-300 whitespace-nowrap"
             >
-              <Copy className="h-4 w-4 mr-2" />
-              Copy Contact
+              <Copy className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Copy Contact</span>
             </Button>
-            
-            <div className="flex gap-2">
+
+            <div className="flex gap-2 w-full">
               <Button
                 onClick={handleExportCSV}
                 variant="secondary"
-                className="flex-1 bg-white hover:bg-gray-50 border-gray-300"
+                className="flex-1 bg-white hover:bg-gray-50 border-gray-300 whitespace-nowrap"
               >
-                <Download className="h-4 w-4 mr-1" />
-                CSV
+                <Download className="h-4 w-4 mr-1 flex-shrink-0" />
+                <span>CSV</span>
               </Button>
-              
+
               {onExportPDF && (
                 <Button
                   onClick={onExportPDF}
                   variant="secondary"
-                  className="flex-1 bg-white hover:bg-gray-50 border-gray-300"
+                  className="flex-1 bg-white hover:bg-gray-50 border-gray-300 whitespace-nowrap"
                 >
-                  <FileText className="h-4 w-4 mr-1" />
-                  PDF
+                  <FileText className="h-4 w-4 mr-1 flex-shrink-0" />
+                  <span>PDF</span>
                 </Button>
               )}
-              
+
               <Button
                 onClick={handlePrint}
                 variant="secondary"
-                className="flex-1 bg-white hover:bg-gray-50 border-gray-300"
+                className="flex-1 bg-white hover:bg-gray-50 border-gray-300 whitespace-nowrap"
               >
-                <Printer className="h-4 w-4 mr-1" />
-                Print
+                <Printer className="h-4 w-4 mr-1 flex-shrink-0" />
+                <span>Print</span>
               </Button>
             </div>
           </div>

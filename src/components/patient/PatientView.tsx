@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, memo } from 'react';
-import { User, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, ArrowLeft } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Button } from '../ui/Button';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
@@ -35,13 +35,6 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
     [patients, patientId]
   );
 
-  const currentPatientIndex = useMemo(() => 
-    patients.findIndex(p => p.id === patientId),
-    [patients, patientId]
-  );
-
-  const previousPatient = currentPatientIndex > 0 ? patients[currentPatientIndex - 1] : null;
-  const nextPatient = currentPatientIndex < patients.length - 1 ? patients[currentPatientIndex + 1] : null;
 
   const handleEditPatient = useCallback(() => {
     onEditPatient(patientId);
@@ -67,11 +60,6 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
     }
   }, [patient, showToast]);
 
-  const navigateToPatient = useCallback((_targetPatientId: string) => {
-    // This would typically trigger a route change or state update
-    // For now, we'll just show a toast
-    showToast('Navigation feature would go here', 'success');
-  }, [showToast]);
 
   if (patientsLoading) {
     return (
@@ -106,42 +94,15 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
       <AppLayout title={`${patient.firstName} ${patient.surname}`}>
         <div className="space-y-6">
           {/* Navigation Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="secondary"
-                onClick={onBack}
-                className="flex items-center"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Patients
-              </Button>
-              
-              {/* Patient Navigation */}
-              <div className="flex items-center space-x-1">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => previousPatient && navigateToPatient(previousPatient.id)}
-                  disabled={!previousPatient}
-                  className="px-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="text-sm text-gray-500 px-2">
-                  {currentPatientIndex + 1} of {patients.length}
-                </span>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => nextPatient && navigateToPatient(nextPatient.id)}
-                  disabled={!nextPatient}
-                  className="px-2"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+          <div className="flex items-center">
+            <Button
+              variant="secondary"
+              onClick={onBack}
+              className="flex items-center"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Patients
+            </Button>
           </div>
 
           {/* Enhanced Patient Header */}
