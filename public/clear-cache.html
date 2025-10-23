@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache - MedCare EHR</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .success {
+            background: #48bb78;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+        .info {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .info h3 {
+            margin-top: 0;
+            color: #2c5282;
+        }
+        .info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info li {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clear Browser Cache</h1>
+        <p>
+            This tool will clear all Supabase authentication data from your browser's local storage.
+            Use this when you've deleted users from Supabase but they can still log in.
+        </p>
+
+        <button onclick="clearSupabaseCache()">Clear Supabase Cache</button>
+        <button onclick="clearAllCache()">Clear All Cache & Reload</button>
+
+        <div id="success" class="success">
+            ✅ Cache cleared successfully! Redirecting to login...
+        </div>
+
+        <div class="info">
+            <h3>What This Does:</h3>
+            <ul>
+                <li>Clears all Supabase authentication tokens</li>
+                <li>Removes cached session data</li>
+                <li>Forces users to log in again</li>
+                <li>Prevents deleted users from accessing the app</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <h3>When to Use This:</h3>
+            <ul>
+                <li>After deleting users from Supabase</li>
+                <li>When old users can still log in</li>
+                <li>When testing user deletion</li>
+                <li>When switching between accounts</li>
+            </ul>
+        </div>
+
+        <a href="/" class="back-link">← Back to Login</a>
+    </div>
+
+    <script>
+        function clearSupabaseCache() {
+            let clearedCount = 0;
+
+            // Clear all Supabase-related localStorage items
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('sb-') || key.includes('supabase')) {
+                    localStorage.removeItem(key);
+                    clearedCount++;
+                    console.log('Cleared:', key);
+                }
+            });
+
+            // Clear sessionStorage too
+            Object.keys(sessionStorage).forEach(key => {
+                if (key.startsWith('sb-') || key.includes('supabase')) {
+                    sessionStorage.removeItem(key);
+                    clearedCount++;
+                    console.log('Cleared:', key);
+                }
+            });
+
+            console.log(`Cleared ${clearedCount} cache items`);
+
+            // Show success message
+            document.getElementById('success').style.display = 'block';
+
+            // Redirect to home after 2 seconds
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+
+        function clearAllCache() {
+            // Clear everything
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // Show success message
+            document.getElementById('success').style.display = 'block';
+            document.getElementById('success').textContent = '✅ All cache cleared! Reloading...';
+
+            // Reload page
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
+        }
+
+        // Log current storage contents for debugging
+        console.log('Current localStorage keys:', Object.keys(localStorage));
+        console.log('Current sessionStorage keys:', Object.keys(sessionStorage));
+    </script>
+</body>
+</html>

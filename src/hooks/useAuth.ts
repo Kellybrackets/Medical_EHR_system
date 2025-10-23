@@ -6,17 +6,37 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const handleAuthStateChange = useCallback((session: any) => {
+  const handleAuthStateChange = useCallback(async (session: any) => {
     console.log('🔐 Auth state change:', { session: session?.user });
-    
+
     if (session?.user) {
+      // Verify user exists in public.users table
+      // This prevents deleted users from accessing the app with cached tokens
+      const { data: publicUser, error } = await supabase
+        .from('users')
+        .select('id, username, role, name, created_at, updated_at')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error || !publicUser) {
+        console.warn('⚠️ User not found in public.users, signing out');
+        console.error('Error:', error);
+        await supabase.auth.signOut();
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // User exists in both auth.users and public.users
       const userData = {
-        id: session.user.id,
-        username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
-        role: session.user.user_metadata?.role || 'doctor',
-        name: session.user.user_metadata?.full_name || session.user.email || 'User'
+        id: publicUser.id,
+        username: publicUser.username,
+        role: publicUser.role,
+        name: publicUser.name,
+        createdAt: publicUser.created_at,
+        updatedAt: publicUser.updated_at
       };
-      
+
       console.log('👤 Setting user:', userData);
       setUser(userData);
     } else {
