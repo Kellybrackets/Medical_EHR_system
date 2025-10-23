@@ -1,5 +1,5 @@
 import React, { useState, useMemo, memo } from 'react';
-import { Users, FileText, Stethoscope, Calendar, Activity, Eye, Plus, Clock, Heart, Search } from 'lucide-react';
+import { Users, Stethoscope, Calendar, Eye, Plus, Heart } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -39,16 +39,6 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({ onViewPatien
     setSortBy('name');
     setSortOrder('asc');
   };
-
-  const recentConsultations = useMemo(() => {
-    return consultationNotes
-      .slice(0, 5)
-      .map(note => {
-        const patient = patients.find(p => p.id === note.patientId);
-        return { ...note, patient };
-      })
-      .filter(note => note.patient);
-  }, [consultationNotes, patients]);
 
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -323,67 +313,6 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({ onViewPatien
           </Card.Content>
         </Card>
 
-        {/* Recent Consultations */}
-        <Card padding={false}>
-          <Card.Header>
-            <h3 className="text-lg font-medium text-gray-900">Recent Consultations</h3>
-            <p className="text-sm text-gray-600 mt-1">Latest consultation records</p>
-          </Card.Header>
-          <Card.Content className="p-0">
-            {recentConsultations.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <FileText className="h-8 w-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No consultations yet</h3>
-                <p className="text-gray-600">Recent consultation notes will appear here</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-100">
-                {recentConsultations.map((consultation) => (
-                  <div key={consultation.id} className="p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-3">
-                        {consultation.patient && (
-                          <PatientAvatar
-                            firstName={consultation.patient.firstName}
-                            surname={consultation.patient.surname}
-                            gender={consultation.patient.sex}
-                            size="sm"
-                          />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">
-                            {consultation.patient?.firstName} {consultation.patient?.surname}
-                          </p>
-                          <p className="text-sm text-gray-600 truncate mt-1">
-                            {consultation.reasonForVisit}
-                          </p>
-                          <div className="flex items-center mt-2 text-xs text-gray-400">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {formatDate(consultation.date)}
-                          </div>
-                        </div>
-                      </div>
-                      {consultation.patient && (
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => onViewPatient(consultation.patient!.id)}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            View
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card.Content>
-        </Card>
       </div>
     </AppLayout>
   );
