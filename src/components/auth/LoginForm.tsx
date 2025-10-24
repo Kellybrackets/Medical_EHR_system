@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useEffect } from 'react';
 import { Stethoscope, ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useAuthContext } from '../../contexts/AuthProvider';
 import { Button } from '../ui/Button';
@@ -6,6 +6,8 @@ import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { MedicalIllustration } from './MedicalIllustration';
 import { validateEmail, validatePassword } from '../../utils/helpers';
+import { supabase } from '../../lib/supabase';
+import { Practice } from '../../types';
 
 type AuthMode = 'login' | 'register' | 'forgot-password';
 
@@ -15,7 +17,8 @@ interface FormData {
   confirmPassword: string;
   fullName: string;
   username: string;
-  role: 'doctor' | 'receptionist';
+  role: 'doctor' | 'receptionist' | 'admin';
+  practiceCode: string;
 }
 
 const initialFormData: FormData = {
@@ -24,7 +27,8 @@ const initialFormData: FormData = {
   confirmPassword: '',
   fullName: '',
   username: '',
-  role: 'doctor'
+  role: 'doctor',
+  practiceCode: ''
 };
 
 const LoginFormComponent: React.FC = () => {
@@ -35,8 +39,49 @@ const LoginFormComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const [practices, setPractices] = useState<Practice[]>([]);
+  const [loadingPractices, setLoadingPractices] = useState(false);
+
   const { login, register, resetPassword } = useAuthContext();
+
+  // Fetch active practices when registration form is shown
+  useEffect(() => {
+    if (authMode === 'register') {
+      fetchPractices();
+    }
+  }, [authMode]);
+
+  const fetchPractices = async () => {
+    try {
+      setLoadingPractices(true);
+      const { data, error: fetchError } = await supabase
+        .from('practices')
+        .select('*')
+        .eq('status', 'active')
+        .order('name');
+
+      if (fetchError) throw fetchError;
+
+      setPractices(
+        data?.map((p) => ({
+          id: p.id,
+          name: p.name,
+          code: p.code,
+          address: p.address,
+          city: p.city,
+          phone: p.phone,
+          email: p.email,
+          status: p.status,
+          createdAt: p.created_at,
+          updatedAt: p.updated_at,
+        })) || []
+      );
+    } catch (err) {
+      console.error('Error fetching practices:', err);
+    } finally {
+      setLoadingPractices(false);
+    }
+  };
 
   const resetForm = useCallback(() => {
     setFormData(initialFormData);
@@ -119,15 +164,23 @@ const LoginFormComponent: React.FC = () => {
       return;
     }
 
+    // Validate practice selection for doctors and receptionists
+    if ((formData.role === 'doctor' || formData.role === 'receptionist') && !formData.practiceCode) {
+      setError('Please select a practice');
+      setLoading(false);
+      return;
+    }
+
     try {
       const result = await register(
-        formData.email, 
-        formData.password, 
-        formData.fullName.trim(), 
-        formData.username.trim(), 
-        formData.role
+        formData.email,
+        formData.password,
+        formData.fullName.trim(),
+        formData.username.trim(),
+        formData.role,
+        formData.practiceCode || undefined
       );
-      
+
       if (result.success) {
         setSuccess('Registration successful! You can now sign in.');
         setError('');
@@ -142,7 +195,7 @@ const LoginFormComponent: React.FC = () => {
     } catch {
       setError('An unexpected error occurred during registration.');
     }
-    
+
     setLoading(false);
   }, [formData, register, resetForm]);
 
@@ -315,8 +368,38 @@ const LoginFormComponent: React.FC = () => {
                 >
                   <option value="doctor">Doctor</option>
                   <option value="receptionist">Receptionist</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
+
+              {/* Practice Selection - Only for Doctor and Receptionist */}
+              {(formData.role === 'doctor' || formData.role === 'receptionist') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Practice/Hospital <span className="text-red-500">*</span>
+                  </label>
+                  {loadingPractices ? (
+                    <div className="text-sm text-gray-500 py-2">Loading practices...</div>
+                  ) : (
+                    <select
+                      required
+                      value={formData.practiceCode}
+                      onChange={(e) => updateFormData('practiceCode', e.target.value)}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="">Select a practice...</option>
+                      {practices.map((practice) => (
+                        <option key={practice.code} value={practice.code}>
+                          {practice.name} - {practice.city}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Select the medical practice where you work
+                  </p>
+                </div>
+              )}
 
               <Input
                 label="Full Name"

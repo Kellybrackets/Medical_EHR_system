@@ -7,6 +7,7 @@ import { DoctorDashboard } from './components/dashboards/DoctorDashboard';
 import { PatientView } from './components/patient/PatientView';
 import { ConsultationForm } from './components/consultation/ConsultationForm';
 import { ReceptionistDashboard } from './components/dashboards/ReceptionistDashboard';
+import { AdminDashboard } from './components/dashboards/AdminDashboard';
 import { PatientForm } from './components/patient/PatientForm';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 
@@ -93,6 +94,11 @@ function AppContent() {
         }}
       />
     );
+  }
+
+  // Admin view
+  if (user?.role === 'admin') {
+    return <AdminDashboard />;
   }
 
   // Receptionist views

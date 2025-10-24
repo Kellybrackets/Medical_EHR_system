@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { Patient, PatientFormData, ApiResponse } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { formDataToPatientData, validateMedicalData } from '../utils/patientDataTransforms';
+import { useAuthContext } from '../contexts/AuthProvider';
 
 export const usePatients = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuthContext();
 
 
   const loadPatients = useCallback(async () => {
@@ -145,10 +147,15 @@ export const usePatients = () => {
       }
 
       // Start a Supabase transaction-like operation
-      // First, create the patient
+      // First, create the patient with practice_code from the logged-in user
+      const patientWithPractice = {
+        ...transformedData.patient,
+        practice_code: user?.practiceCode || null
+      };
+
       const { data: patientData, error: patientError } = await supabase
         .from('patients')
-        .insert([transformedData.patient])
+        .insert([patientWithPractice])
         .select()
         .single();
 

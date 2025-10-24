@@ -68,10 +68,34 @@ export interface InsuranceDetails {
 export interface User {
   id: string;
   username: string;
-  role: 'doctor' | 'receptionist';
+  role: 'doctor' | 'receptionist' | 'admin';
   name: string;
+  practiceCode?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Practice {
+  id: string;
+  name: string;
+  code: string;
+  address?: string;
+  city?: string;
+  phone?: string;
+  email?: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SystemSetting {
+  id: string;
+  settingKey: string;
+  settingValue: string;
+  settingType: 'string' | 'number' | 'boolean';
+  description?: string;
+  updatedAt: string;
+  updatedBy?: string;
 }
 
 export interface ConsultationNote {

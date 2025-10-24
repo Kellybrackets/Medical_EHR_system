@@ -7,7 +7,7 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, fullName: string, username: string, role: 'doctor' | 'receptionist') => Promise<{ success: boolean; error?: string | null; user?: any }>;
+  register: (email: string, password: string, fullName: string, username: string, role: 'doctor' | 'receptionist' | 'admin', practiceCode?: string) => Promise<{ success: boolean; error?: string | null; user?: any }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
 }

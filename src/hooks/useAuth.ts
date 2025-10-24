@@ -14,7 +14,7 @@ export const useAuth = () => {
       // This prevents deleted users from accessing the app with cached tokens
       const { data: publicUser, error } = await supabase
         .from('users')
-        .select('id, username, role, name, created_at, updated_at')
+        .select('id, username, role, name, practice_code, created_at, updated_at')
         .eq('id', session.user.id)
         .single();
 
@@ -33,6 +33,7 @@ export const useAuth = () => {
         username: publicUser.username,
         role: publicUser.role,
         name: publicUser.name,
+        practiceCode: publicUser.practice_code,
         createdAt: publicUser.created_at,
         updatedAt: publicUser.updated_at
       };
@@ -96,18 +97,19 @@ export const useAuth = () => {
   }, []);
 
   const signUp = useCallback(async (
-    email: string, 
-    password: string, 
-    fullName: string, 
-    username: string, 
-    role: 'doctor' | 'receptionist'
+    email: string,
+    password: string,
+    fullName: string,
+    username: string,
+    role: 'doctor' | 'receptionist' | 'admin',
+    practiceCode?: string
   ) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name: fullName, username, role }
+          data: { full_name: fullName, username, role, practice_code: practiceCode }
         }
       });
 
