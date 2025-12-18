@@ -16,6 +16,7 @@ interface PatientViewProps {
   onBack: () => void;
   onEditPatient: (patientId: string) => void;
   onAddConsultation: (patientId: string) => void;
+  onEditConsultation: (patientId: string, consultationId: string) => void;
   onEditSection?: (patientId: string, section: string) => void;
 }
 
@@ -24,6 +25,7 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
   onBack,
   onEditPatient,
   onAddConsultation,
+  onEditConsultation,
   onEditSection
 }) => {
   const { patients, loading: patientsLoading } = usePatients();
@@ -43,6 +45,10 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
   const handleAddConsultation = useCallback(() => {
     onAddConsultation(patientId);
   }, [onAddConsultation, patientId]);
+
+  const handleEditConsultation = useCallback((consultationId: string) => {
+    onEditConsultation(patientId, consultationId);
+  }, [onEditConsultation, patientId]);
 
   const handleEditSection = useCallback((section: string) => {
     if (onEditSection) {
@@ -140,7 +146,9 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
           <ConsultationHistory
             patientId={patientId}
             onAddConsultation={user?.role === 'doctor' ? handleAddConsultation : undefined}
+            onEditConsultation={user?.role === 'doctor' ? handleEditConsultation : undefined}
             canAddConsultation={user?.role === 'doctor'}
+            canEditConsultation={user?.role === 'doctor'}
           />
         </div>
       </AppLayout>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar, FileText, Plus, Search, Filter, ChevronDown, ChevronUp, Stethoscope, User } from 'lucide-react';
+import { Calendar, FileText, Plus, Search, Filter, ChevronDown, ChevronUp, Stethoscope, User, Edit2, Trash2 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { SearchInput } from '../ui/SearchInput';
@@ -9,7 +9,9 @@ import { formatDate, normalizeSearchTerm } from '../../utils/helpers';
 interface ConsultationHistoryProps {
   patientId: string;
   onAddConsultation?: () => void;
+  onEditConsultation?: (consultationId: string) => void;
   canAddConsultation?: boolean;
+  canEditConsultation?: boolean;
 }
 
 interface ConsultationNote {
@@ -26,14 +28,17 @@ interface ConsultationNote {
 export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
   patientId,
   onAddConsultation,
-  canAddConsultation = false
+  onEditConsultation,
+  canAddConsultation = false,
+  canEditConsultation = false
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedConsultations, setExpandedConsultations] = useState<Record<string, boolean>>({});
   const [showFilters, setShowFilters] = useState(false);
   const [dateFilter, setDateFilter] = useState<'all' | 'last30' | 'last90' | 'lastyear'>('all');
-  
-  const { consultationNotes, loading } = useConsultationNotes();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const { consultationNotes, loading, deleteConsultationNote } = useConsultationNotes();
 
   const patientConsultations = useMemo(() => {
     let consultations = consultationNotes
@@ -85,6 +90,21 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
       ...prev,
       [consultationId]: !prev[consultationId]
     }));
+  };
+
+  const handleDelete = async (consultationId: string) => {
+    if (!window.confirm('Are you sure you want to delete this consultation? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingId(consultationId);
+    const result = await deleteConsultationNote(consultationId);
+
+    if (!result.success) {
+      alert(`Failed to delete consultation: ${result.error || 'Unknown error'}`);
+    }
+
+    setDeletingId(null);
   };
 
   const getDateFilterLabel = (filter: string) => {
@@ -260,6 +280,31 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                       </div>
                     </div>
                     
+                    {/* Action Buttons */}
+                    {canEditConsultation && onEditConsultation && (
+                      <div className="mt-3 flex items-center space-x-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => onEditConsultation(consultation.id)}
+                          disabled={deletingId === consultation.id}
+                        >
+                          <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleDelete(consultation.id)}
+                          disabled={deletingId === consultation.id}
+                          className="text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                          {deletingId === consultation.id ? 'Deleting...' : 'Delete'}
+                        </Button>
+                      </div>
+                    )}
+
                     {/* Clinical Notes Preview/Expanded */}
                     {consultation.clinicalNotes && (
                       <div className="mt-4">

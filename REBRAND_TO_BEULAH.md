@@ -1,3 +1,4 @@
+
 # Application Rebrand: MedCare EHR → Beulah
 
 ## Summary

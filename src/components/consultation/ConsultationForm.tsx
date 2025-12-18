@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useEffect } from 'react';
 import { FileText, ArrowLeft, Save, Calendar } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Card } from '../ui/Card';
@@ -12,6 +12,7 @@ import { ClinicalNotesEditor } from './ClinicalNotesEditor';
 
 interface ConsultationFormProps {
   patientId: string;
+  consultationId?: string; // Optional - if provided, we're editing
   onBack: () => void;
   onSave: () => void;
 }
@@ -32,17 +33,38 @@ const initialFormData: ConsultationFormData = {
 
 const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   patientId,
+  consultationId,
   onBack,
   onSave
 }) => {
   const [formData, setFormData] = useState<ConsultationFormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<ConsultationFormData>>({});
   const [saving, setSaving] = useState(false);
+  const [loadingConsultation, setLoadingConsultation] = useState(false);
 
   const { patients, loading: patientsLoading } = usePatients();
-  const { addConsultationNote } = useConsultationNotes();
+  const { consultationNotes, addConsultationNote, updateConsultationNote } = useConsultationNotes();
 
   const patient = patients.find(p => p.id === patientId);
+  const isEditMode = !!consultationId;
+
+  // Load existing consultation data in edit mode
+  useEffect(() => {
+    if (isEditMode && consultationId) {
+      setLoadingConsultation(true);
+      const consultation = consultationNotes.find(c => c.id === consultationId);
+
+      if (consultation) {
+        setFormData({
+          date: consultation.date,
+          reasonForVisit: consultation.reasonForVisit,
+          icd10Code: consultation.icd10Code || '',
+          clinicalNotes: consultation.clinicalNotes || ''
+        });
+      }
+      setLoadingConsultation(false);
+    }
+  }, [isEditMode, consultationId, consultationNotes]);
 
   const updateFormField = useCallback((field: keyof ConsultationFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -75,10 +97,10 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     console.log('🔥 Form submitted!');
     console.log('📝 Form data:', formData);
-    
+
     if (!validateForm()) {
       console.log('❌ Form validation failed');
       return;
@@ -96,9 +118,16 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
         clinicalNotes: formData.clinicalNotes
       };
 
-      console.log('📊 Sending consultation data:', consultationData);
-      const result = await addConsultationNote(consultationData);
-      console.log('📋 Result from addConsultationNote:', result);
+      let result;
+      if (isEditMode && consultationId) {
+        console.log('📊 Updating consultation:', consultationId, consultationData);
+        result = await updateConsultationNote(consultationId, consultationData);
+      } else {
+        console.log('📊 Creating new consultation:', consultationData);
+        result = await addConsultationNote(consultationData);
+      }
+
+      console.log('📋 Result:', result);
 
       if (result.success) {
         console.log('🎉 Consultation saved successfully!');
@@ -114,13 +143,16 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
 
     console.log('🔄 Setting saving to false');
     setSaving(false);
-  }, [formData, validateForm, patientId, addConsultationNote, onSave]);
+  }, [formData, validateForm, patientId, isEditMode, consultationId, addConsultationNote, updateConsultationNote, onSave]);
 
   // Show loading spinner while patients data is being fetched
-  if (patientsLoading) {
+  if (patientsLoading || loadingConsultation) {
     return (
-      <AppLayout title="Add Consultation">
-        <LoadingSpinner size="lg" text="Loading patient information..." />
+      <AppLayout title={isEditMode ? "Edit Consultation" : "Add Consultation"}>
+        <LoadingSpinner
+          size="lg"
+          text={loadingConsultation ? "Loading consultation..." : "Loading patient information..."}
+        />
       </AppLayout>
     );
   }
@@ -128,7 +160,7 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   // Only show "not found" if loading is complete and patient still doesn't exist
   if (!patient) {
     return (
-      <AppLayout title="Add Consultation">
+      <AppLayout title={isEditMode ? "Edit Consultation" : "Add Consultation"}>
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Patient not found</h3>
@@ -147,7 +179,7 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   }
 
   return (
-    <AppLayout title="Add Consultation">
+    <AppLayout title={isEditMode ? "Edit Consultation" : "Add Consultation"}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-4">
@@ -161,7 +193,9 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
           <div className="flex items-center space-x-2">
             <FileText className="h-5 w-5 text-gray-400" />
             <div>
-              <h2 className="text-lg font-medium text-gray-900">New Consultation</h2>
+              <h2 className="text-lg font-medium text-gray-900">
+                {isEditMode ? 'Edit Consultation' : 'New Consultation'}
+              </h2>
               <p className="text-sm text-gray-500">
                 {patient.firstName} {patient.surname} (ID: {patient.idNumber})
               </p>
@@ -288,7 +322,7 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
                   className="sm:w-auto"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  Save Consultation
+                  {isEditMode ? 'Update Consultation' : 'Save Consultation'}
                 </Button>
               </div>
             </form>

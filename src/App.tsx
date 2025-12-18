@@ -31,6 +31,7 @@ function AppContent() {
   // Doctor state
   const [doctorView, setDoctorView] = useState<DoctorView>('dashboard');
   const [selectedPatientId, setSelectedPatientId] = useState<string>('');
+  const [editingConsultationId, setEditingConsultationId] = useState<string>('');
 
   // Receptionist state
   const [receptionistView, setReceptionistView] = useState<ReceptionistView>('dashboard');
@@ -66,6 +67,12 @@ function AppContent() {
           onEditPatient={() => {}} // Doctors can't edit patient info
           onAddConsultation={(patientId) => {
             setSelectedPatientId(patientId);
+            setEditingConsultationId(''); // Clear editing ID for new consultation
+            setDoctorView('consultation');
+          }}
+          onEditConsultation={(patientId, consultationId) => {
+            setSelectedPatientId(patientId);
+            setEditingConsultationId(consultationId);
             setDoctorView('consultation');
           }}
         />
@@ -76,11 +83,14 @@ function AppContent() {
       return (
         <ConsultationForm
           patientId={selectedPatientId}
+          consultationId={editingConsultationId || undefined}
           onBack={() => {
             setDoctorView('patient');
+            setEditingConsultationId('');
           }}
           onSave={() => {
             setDoctorView('patient');
+            setEditingConsultationId('');
           }}
         />
       );
@@ -143,6 +153,7 @@ function AppContent() {
             setReceptionistView('editPatient');
           }}
           onAddConsultation={() => {}} // Receptionists can't add consultations
+          onEditConsultation={() => {}} // Receptionists can't edit consultations
         />
       );
     }

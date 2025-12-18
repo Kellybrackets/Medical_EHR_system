@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.55.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-placeholder": "^3.13.0",
     "@tiptap/react": "^3.13.0",
     "@tiptap/starter-kit": "^3.13.0",
