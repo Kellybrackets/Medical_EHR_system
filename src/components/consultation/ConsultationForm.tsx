@@ -8,6 +8,7 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { usePatients } from '../../hooks/usePatients';
 import { useConsultationNotes } from '../../hooks/useConsultationNotes';
 import { formatDate } from '../../utils/helpers';
+import { ClinicalNotesEditor } from './ClinicalNotesEditor';
 
 interface ConsultationFormProps {
   patientId: string;
@@ -19,24 +20,14 @@ interface ConsultationFormData {
   date: string;
   reasonForVisit: string;
   icd10Code: string;
-  soap: {
-    subjective: string;
-    objective: string;
-    assessment: string;
-    plan: string;
-  };
+  clinicalNotes: string;
 }
 
 const initialFormData: ConsultationFormData = {
   date: new Date().toISOString().split('T')[0],
   reasonForVisit: '',
   icd10Code: '',
-  soap: {
-    subjective: '',
-    objective: '',
-    assessment: '',
-    plan: ''
-  }
+  clinicalNotes: ''
 };
 
 const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
@@ -47,28 +38,16 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   const [formData, setFormData] = useState<ConsultationFormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<ConsultationFormData>>({});
   const [saving, setSaving] = useState(false);
-  
-  const { patients } = usePatients();
+
+  const { patients, loading: patientsLoading } = usePatients();
   const { addConsultationNote } = useConsultationNotes();
 
   const patient = patients.find(p => p.id === patientId);
 
-  const updateFormField = useCallback((field: keyof ConsultationFormData | string, value: string) => {
-    setFormData(prev => {
-      if (field.startsWith('soap.')) {
-        const soapField = field.split('.')[1] as keyof typeof prev.soap;
-        return {
-          ...prev,
-          soap: {
-            ...prev.soap,
-            [soapField]: value
-          }
-        };
-      }
-      return { ...prev, [field]: value };
-    });
-    
-    if (errors[field as keyof ConsultationFormData]) {
+  const updateFormField = useCallback((field: keyof ConsultationFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   }, [errors]);
@@ -84,20 +63,10 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
       newErrors.reasonForVisit = 'Reason for visit is required';
     }
 
-    if (!formData.soap.subjective.trim()) {
-      newErrors.soap = { ...newErrors.soap, subjective: 'Subjective findings are required' };
-    }
-
-    if (!formData.soap.objective.trim()) {
-      newErrors.soap = { ...newErrors.soap, objective: 'Objective findings are required' };
-    }
-
-    if (!formData.soap.assessment.trim()) {
-      newErrors.soap = { ...newErrors.soap, assessment: 'Assessment is required' };
-    }
-
-    if (!formData.soap.plan.trim()) {
-      newErrors.soap = { ...newErrors.soap, plan: 'Treatment plan is required' };
+    // Validate clinical notes (check if it's not empty or just whitespace/HTML tags)
+    const strippedNotes = formData.clinicalNotes.replace(/<[^>]*>/g, '').trim();
+    if (!strippedNotes) {
+      newErrors.clinicalNotes = 'Clinical notes are required';
     }
 
     setErrors(newErrors);
@@ -124,12 +93,7 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
         date: formData.date,
         reasonForVisit: formData.reasonForVisit.trim(),
         icd10Code: formData.icd10Code.trim() || undefined,
-        soap: {
-          subjective: formData.soap.subjective.trim(),
-          objective: formData.soap.objective.trim(),
-          assessment: formData.soap.assessment.trim(),
-          plan: formData.soap.plan.trim()
-        }
+        clinicalNotes: formData.clinicalNotes
       };
 
       console.log('📊 Sending consultation data:', consultationData);
@@ -152,6 +116,16 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
     setSaving(false);
   }, [formData, validateForm, patientId, addConsultationNote, onSave]);
 
+  // Show loading spinner while patients data is being fetched
+  if (patientsLoading) {
+    return (
+      <AppLayout title="Add Consultation">
+        <LoadingSpinner size="lg" text="Loading patient information..." />
+      </AppLayout>
+    );
+  }
+
+  // Only show "not found" if loading is complete and patient still doesn't exist
   if (!patient) {
     return (
       <AppLayout title="Add Consultation">
@@ -279,86 +253,23 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
                 />
               </div>
 
-              {/* SOAP Notes Section */}
+              {/* Clinical Notes Section */}
               <div className="border-t border-gray-200 pt-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">SOAP Notes</h4>
-                <div className="space-y-6">
-                  {/* Subjective */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-blue-600 font-semibold">S</span>ubjective <span className="text-red-500">*</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">Patient's history, symptoms, and concerns in their own words</p>
-                    <textarea
-                      required
-                      value={formData.soap.subjective}
-                      onChange={(e) => updateFormField('soap.subjective', e.target.value)}
-                      placeholder="Patient reports... Chief complaint... History of present illness... Patient states..."
-                      rows={4}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                    {errors.soap?.subjective && (
-                      <p className="mt-1 text-sm text-red-600">{errors.soap.subjective}</p>
-                    )}
-                  </div>
-
-                  {/* Objective */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-green-600 font-semibold">O</span>bjective <span className="text-red-500">*</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">Observable, measurable data from physical examination and tests</p>
-                    <textarea
-                      required
-                      value={formData.soap.objective}
-                      onChange={(e) => updateFormField('soap.objective', e.target.value)}
-                      placeholder="Vital signs... Physical examination findings... Lab results... Appearance..."
-                      rows={4}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                    {errors.soap?.objective && (
-                      <p className="mt-1 text-sm text-red-600">{errors.soap.objective}</p>
-                    )}
-                  </div>
-
-                  {/* Assessment */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-orange-600 font-semibold">A</span>ssessment <span className="text-red-500">*</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">Clinical judgment, diagnosis, and interpretation of findings</p>
-                    <textarea
-                      required
-                      value={formData.soap.assessment}
-                      onChange={(e) => updateFormField('soap.assessment', e.target.value)}
-                      placeholder="Primary diagnosis... Differential diagnoses... Clinical impression... Prognosis..."
-                      rows={3}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                    {errors.soap?.assessment && (
-                      <p className="mt-1 text-sm text-red-600">{errors.soap.assessment}</p>
-                    )}
-                  </div>
-
-                  {/* Plan */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-purple-600 font-semibold">P</span>lan <span className="text-red-500">*</span>
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">Treatment plan, medications, follow-up instructions, and next steps</p>
-                    <textarea
-                      required
-                      value={formData.soap.plan}
-                      onChange={(e) => updateFormField('soap.plan', e.target.value)}
-                      placeholder="Medications prescribed... Treatment recommendations... Follow-up appointments... Patient education... Monitoring plans..."
-                      rows={4}
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
-                    {errors.soap?.plan && (
-                      <p className="mt-1 text-sm text-red-600">{errors.soap.plan}</p>
-                    )}
-                  </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Clinical Notes <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Document the consultation using the rich text editor below. Include chief complaint,
+                    history, examination findings, assessment, and treatment plan.
+                  </p>
                 </div>
+                <ClinicalNotesEditor
+                  value={formData.clinicalNotes}
+                  onChange={(html) => updateFormField('clinicalNotes', html)}
+                  error={errors.clinicalNotes}
+                  disabled={saving}
+                />
               </div>
 
               {/* Form Actions */}

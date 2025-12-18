@@ -6,6 +6,7 @@ import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useToast } from '../ui/Toast';
 import { useSystemSettings } from '../../hooks/useSystemSettings';
+import { APP_NAME } from '../../utils/constants';
 
 export const SystemSettings: React.FC = () => {
   const { settings, loading, getSettingValue, updateMultipleSettings } = useSystemSettings();
@@ -24,7 +25,7 @@ export const SystemSettings: React.FC = () => {
   useEffect(() => {
     if (settings.length > 0) {
       setFormData({
-        system_name: (getSettingValue('system_name') as string) || 'MedCare EHR',
+        system_name: (getSettingValue('system_name') as string) || APP_NAME,
         require_strong_password: Boolean(getSettingValue('require_strong_password')),
         session_timeout: Number(getSettingValue('session_timeout')) || 30,
         max_login_attempts: Number(getSettingValue('max_login_attempts')) || 5,
@@ -75,7 +76,7 @@ export const SystemSettings: React.FC = () => {
                   label="System Name"
                   value={formData.system_name}
                   onChange={(e) => setFormData({ ...formData, system_name: e.target.value })}
-                  placeholder="MedCare EHR"
+                  placeholder={APP_NAME}
                 />
               </div>
             </div>

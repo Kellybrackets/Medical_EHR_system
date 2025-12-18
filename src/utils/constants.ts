@@ -1,3 +1,7 @@
+// Application Branding
+export const APP_NAME = 'Beulah-Care' as const;
+export const APP_DESCRIPTION = 'Modern Electronic Health Records System' as const;
+
 // UI Constants
 export const BREAKPOINTS = {
   sm: '640px',

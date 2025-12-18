@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { Stethoscope, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { validatePassword } from '../../utils/helpers';
+import { BeulahCareWordmark } from '../branding/BeulahCareWordmark';
 
 export const ResetPasswordForm: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -61,12 +62,9 @@ export const ResetPasswordForm: React.FC = () => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-teal-500 shadow-lg">
-            <Stethoscope className="h-8 w-8 text-white" />
+          <div className="mx-auto mb-6 flex justify-center">
+            <BeulahCareWordmark size="xl" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            MedCare EHR
-          </h2>
           <h3 className="mt-2 text-xl font-semibold text-gray-700">
             Reset Your Password
           </h3>

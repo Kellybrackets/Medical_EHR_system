@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
-import { LogOut, Stethoscope } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuthContext } from '../../contexts/AuthProvider';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/helpers';
 import { UI_CLASSES } from '../../utils/constants';
+import { BeulahCareWordmark } from '../branding/BeulahCareWordmark';
 
 interface AppLayoutProps {
   title: string;
@@ -24,11 +25,8 @@ const AppLayoutComponent: React.FC<AppLayoutProps> = ({ title, children, classNa
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className={cn(UI_CLASSES.container, 'flex items-center justify-between h-16')}>
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg">
-              <Stethoscope className="h-5 w-5 text-blue-600" />
-            </div>
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">MedCare EHR</h1>
+              <BeulahCareWordmark size="md" />
               <p className="text-sm text-gray-500 hidden sm:block">{title}</p>
             </div>
           </div>

@@ -8,12 +8,7 @@ export interface ConsultationNote {
   date: string;
   reasonForVisit: string;
   icd10Code?: string;
-  soap: {
-    subjective: string;
-    objective: string;
-    assessment: string;
-    plan: string;
-  };
+  clinicalNotes: string;
   createdAt: string;
 }
 
@@ -22,12 +17,7 @@ interface AddConsultationData {
   date: string;
   reasonForVisit: string;
   icd10Code?: string;
-  soap: {
-    subjective: string;
-    objective: string;
-    assessment: string;
-    plan: string;
-  };
+  clinicalNotes: string;
 }
 
 interface HookResult {
@@ -59,12 +49,7 @@ export const useConsultationNotes = () => {
         date: note.date,
         reasonForVisit: note.reason_for_visit,
         icd10Code: note.icd10_code || undefined,
-        soap: {
-          subjective: note.subjective,
-          objective: note.objective,
-          assessment: note.assessment,
-          plan: note.plan
-        },
+        clinicalNotes: note.clinical_notes || '',
         createdAt: note.created_at
       })) || [];
 
@@ -118,10 +103,7 @@ export const useConsultationNotes = () => {
         date: data.date,
         reason_for_visit: data.reasonForVisit,
         icd10_code: data.icd10Code || null,
-        subjective: data.soap.subjective,
-        objective: data.soap.objective,
-        assessment: data.soap.assessment,
-        plan: data.soap.plan
+        clinical_notes: data.clinicalNotes
       };
       
       // Only add doctor_id if we have one
@@ -155,7 +137,7 @@ export const useConsultationNotes = () => {
   }, [user, loadConsultationNotes]);
 
   const updateConsultationNote = useCallback(async (
-    id: string, 
+    id: string,
     data: Partial<AddConsultationData>
   ): Promise<HookResult> => {
     try {
@@ -163,12 +145,7 @@ export const useConsultationNotes = () => {
       if (data.date) updateData.date = data.date;
       if (data.reasonForVisit) updateData.reason_for_visit = data.reasonForVisit;
       if (data.icd10Code !== undefined) updateData.icd10_code = data.icd10Code || null;
-      if (data.soap) {
-        updateData.subjective = data.soap.subjective;
-        updateData.objective = data.soap.objective;
-        updateData.assessment = data.soap.assessment;
-        updateData.plan = data.soap.plan;
-      }
+      if (data.clinicalNotes !== undefined) updateData.clinical_notes = data.clinicalNotes;
 
       const { error } = await supabase
         .from('consultation_notes')

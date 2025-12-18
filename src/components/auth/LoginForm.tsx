@@ -1,5 +1,5 @@
 import React, { useState, useCallback, memo, useEffect } from 'react';
-import { Stethoscope, ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useAuthContext } from '../../contexts/AuthProvider';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -8,6 +8,8 @@ import { MedicalIllustration } from './MedicalIllustration';
 import { validateEmail, validatePassword } from '../../utils/helpers';
 import { supabase } from '../../lib/supabase';
 import { Practice } from '../../types';
+import { APP_NAME } from '../../utils/constants';
+import { BeulahCareWordmark } from '../branding/BeulahCareWordmark';
 
 type AuthMode = 'login' | 'register' | 'forgot-password';
 
@@ -235,7 +237,7 @@ const LoginFormComponent: React.FC = () => {
 
   const getSubtitle = () => {
     switch (authMode) {
-      case 'register': return 'Create your MedCare EHR account';
+      case 'register': return `Create your ${APP_NAME} account`;
       case 'forgot-password': return 'Enter your email to reset your password';
       default: return 'Please sign in to your account';
     }
@@ -254,12 +256,9 @@ const LoginFormComponent: React.FC = () => {
           <div className="w-full max-w-md">
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-teal-500 shadow-lg mb-4">
-                <Stethoscope className="h-8 w-8 text-white" />
+              <div className="mx-auto mb-6 flex justify-center">
+                <BeulahCareWordmark size="xl" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                MedCare EHR
-              </h2>
               <h3 className="text-2xl font-semibold text-gray-800 mb-2">
                 {getTitle()}
               </h3>

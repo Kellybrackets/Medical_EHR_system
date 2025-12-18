@@ -1,5 +1,8 @@
 import React from 'react';
-import { Heart, Activity, Stethoscope, FileText, Users, Shield } from 'lucide-react';
+import { Heart, Activity, FileText, Users, Shield } from 'lucide-react';
+import { APP_DESCRIPTION } from '../../utils/constants';
+import { BeulahLogo } from '../branding/BeulahLogo';
+import { BeulahCareWordmark } from '../branding/BeulahCareWordmark';
 
 export const MedicalIllustration: React.FC = () => {
   return (
@@ -13,7 +16,7 @@ export const MedicalIllustration: React.FC = () => {
           <Activity className="h-12 w-12 text-white" />
         </div>
         <div className="absolute bottom-1/4 left-20 animate-pulse delay-200">
-          <Stethoscope className="h-20 w-20 text-white" />
+          <BeulahLogo size={80} variant="mono" className="text-white" />
         </div>
         <div className="absolute bottom-20 right-16 animate-pulse delay-300">
           <FileText className="h-14 w-14 text-white" />
@@ -30,16 +33,21 @@ export const MedicalIllustration: React.FC = () => {
       <div className="relative z-10 text-center text-white">
         <div className="mb-6 flex items-center justify-center">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-8 shadow-2xl">
-            <Stethoscope className="h-24 w-24 text-white" />
+            <BeulahLogo size={96} variant="mono" className="text-white" />
           </div>
         </div>
 
-        <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">
-          Welcome to MedCare
+        <div className="mb-4 drop-shadow-lg flex justify-center">
+          <div style={{ fontSize: '2.25rem' }}>
+            <BeulahCareWordmark size="xl" className="text-white" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-semibold mb-4 drop-shadow-lg">
+          Welcome to Healthcare Excellence
         </h2>
 
         <p className="text-xl text-white/90 mb-8 max-w-md mx-auto drop-shadow">
-          Modern Electronic Health Records System for Healthcare Professionals
+          {APP_DESCRIPTION} for Healthcare Professionals
         </p>
 
         <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">

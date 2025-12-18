@@ -12,20 +12,13 @@ interface ConsultationHistoryProps {
   canAddConsultation?: boolean;
 }
 
-interface SOAPNote {
-  subjective?: string;
-  objective?: string;
-  assessment?: string;
-  plan?: string;
-}
-
 interface ConsultationNote {
   id: string;
   patientId: string;
   doctorId: string;
   date: string;
   reasonForVisit: string;
-  soap?: SOAPNote;
+  clinicalNotes?: string;
   icd10Code?: string;
   createdAt: string;
 }
@@ -72,15 +65,16 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
     // Apply search filter
     if (searchTerm) {
       const search = normalizeSearchTerm(searchTerm);
-      consultations = consultations.filter(consultation =>
-        consultation.reasonForVisit.toLowerCase().includes(search) ||
-        consultation.soap?.assessment?.toLowerCase().includes(search) ||
-        consultation.soap?.plan?.toLowerCase().includes(search) ||
-        consultation.soap?.subjective?.toLowerCase().includes(search) ||
-        consultation.soap?.objective?.toLowerCase().includes(search) ||
-        consultation.icd10Code?.toLowerCase().includes(search) ||
-        formatDate(consultation.date).toLowerCase().includes(search)
-      );
+      consultations = consultations.filter(consultation => {
+        // Strip HTML tags from clinical notes for search
+        const strippedNotes = consultation.clinicalNotes?.replace(/<[^>]*>/g, '') || '';
+        return (
+          consultation.reasonForVisit.toLowerCase().includes(search) ||
+          strippedNotes.toLowerCase().includes(search) ||
+          consultation.icd10Code?.toLowerCase().includes(search) ||
+          formatDate(consultation.date).toLowerCase().includes(search)
+        );
+      });
     }
 
     return consultations;
@@ -192,7 +186,7 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                   </span>
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => {
                       setSearchTerm('');
                       setDateFilter('all');
@@ -266,77 +260,36 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                       </div>
                     </div>
                     
-                    {/* SOAP Notes Preview/Expanded */}
-                    {consultation.soap && (
+                    {/* Clinical Notes Preview/Expanded */}
+                    {consultation.clinicalNotes && (
                       <div className="mt-4">
                         {expandedConsultations[consultation.id] ? (
-                          <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h5 className="text-sm font-semibold text-gray-900">SOAP Notes</h5>
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h5 className="text-sm font-semibold text-gray-900">Clinical Notes</h5>
                               <Button
                                 size="sm"
-                                variant="ghost"
+                                variant="secondary"
                                 onClick={() => toggleConsultation(consultation.id)}
                               >
                                 <ChevronUp className="h-4 w-4" />
                               </Button>
                             </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {consultation.soap.subjective && (
-                                <div className="bg-white rounded-md p-3 border-l-4 border-blue-400">
-                                  <h6 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">
-                                    Subjective
-                                  </h6>
-                                  <p className="text-sm text-gray-800 leading-relaxed">
-                                    {consultation.soap.subjective}
-                                  </p>
-                                </div>
-                              )}
-                              
-                              {consultation.soap.objective && (
-                                <div className="bg-white rounded-md p-3 border-l-4 border-green-400">
-                                  <h6 className="text-xs font-bold text-green-700 uppercase tracking-wider mb-2">
-                                    Objective
-                                  </h6>
-                                  <p className="text-sm text-gray-800 leading-relaxed">
-                                    {consultation.soap.objective}
-                                  </p>
-                                </div>
-                              )}
-                              
-                              {consultation.soap.assessment && (
-                                <div className="bg-white rounded-md p-3 border-l-4 border-orange-400">
-                                  <h6 className="text-xs font-bold text-orange-700 uppercase tracking-wider mb-2">
-                                    Assessment
-                                  </h6>
-                                  <p className="text-sm text-gray-800 leading-relaxed">
-                                    {consultation.soap.assessment}
-                                  </p>
-                                </div>
-                              )}
-                              
-                              {consultation.soap.plan && (
-                                <div className="bg-white rounded-md p-3 border-l-4 border-purple-400">
-                                  <h6 className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-2">
-                                    Plan
-                                  </h6>
-                                  <p className="text-sm text-gray-800 leading-relaxed">
-                                    {consultation.soap.plan}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
+
+                            <div
+                              className="bg-white rounded-md p-4 border-l-4 border-blue-400 prose prose-sm max-w-none"
+                              dangerouslySetInnerHTML={{ __html: consultation.clinicalNotes }}
+                            />
                           </div>
                         ) : (
                           <div className="flex items-center justify-between bg-gray-50 rounded-md p-3">
                             <div className="flex items-center space-x-2">
                               <FileText className="h-4 w-4 text-gray-400" />
-                              <span className="text-sm text-gray-600">SOAP notes available</span>
+                              <span className="text-sm text-gray-600">Clinical notes available</span>
                             </div>
                             <Button
                               size="sm"
-                              variant="ghost"
+                              variant="secondary"
                               onClick={() => toggleConsultation(consultation.id)}
                             >
                               <ChevronDown className="h-4 w-4" />
