@@ -1,15 +1,15 @@
-import React, { useState, useMemo, memo } from 'react';
+import React, { useState, useMemo, memo, useEffect } from 'react';
 import { Users, Stethoscope, Calendar, Eye, Plus, Heart } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { PatientAvatar } from '../ui/PatientAvatar';
-import { StatusBadge } from '../ui/StatusBadge';
 import { PatientSearchFilter } from '../ui/PatientSearchFilter';
 import { usePatients } from '../../hooks/usePatients';
 import { useConsultationNotes } from '../../hooks/useConsultationNotes';
 import { calculateAge, getPatientStatus, sortPatients, filterPatients, formatDate } from '../../utils/patientUtils';
+import { useToast } from '../ui/Toast';
 
 interface DoctorDashboardProps {
   onViewPatient: (patientId: string) => void;
@@ -21,17 +21,46 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({ onViewPatien
   const [genderFilter, setGenderFilter] = useState<'all' | 'Male' | 'Female'>('all');
   const [sortBy, setSortBy] = useState<'name' | 'age' | 'lastVisit'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  
-  const { patients, loading: patientsLoading } = usePatients();
+
+  const { patients, loading: patientsLoading, newPatientAdded, clearNewPatientNotification } = usePatients();
   const { consultationNotes, loading: notesLoading } = useConsultationNotes();
+  const { showToast, ToastContainer } = useToast();
+
+  // Show notification when a new patient is added
+  useEffect(() => {
+    if (newPatientAdded) {
+      showToast(
+        `New patient added: ${newPatientAdded.firstName} ${newPatientAdded.surname}`,
+        'success'
+      );
+      clearNewPatientNotification();
+    }
+  }, [newPatientAdded, clearNewPatientNotification, showToast]);
 
   const processedPatients = useMemo(() => {
     // First filter patients
     const filtered = filterPatients(patients, searchTerm, genderFilter);
-    
+
     // Then sort them
     return sortPatients(filtered, sortBy, sortOrder);
   }, [patients, searchTerm, genderFilter, sortBy, sortOrder]);
+
+  // Group patients by consultation status for queue view
+  const queuedPatients = useMemo(() => {
+    const waiting = patients
+      .filter(p => p.consultationStatus === 'waiting')
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()); // FIFO
+
+    const inConsultation = patients
+      .filter(p => p.consultationStatus === 'in_consultation');
+
+    const today = new Date().toISOString().split('T')[0];
+    const servedToday = patients
+      .filter(p => p.consultationStatus === 'served' && p.lastStatusChange?.startsWith(today))
+      .sort((a, b) => new Date(b.lastStatusChange!).getTime() - new Date(a.lastStatusChange!).getTime());
+
+    return { waiting, inConsultation, servedToday };
+  }, [patients]);
 
   const clearFilters = () => {
     setSearchTerm('');
@@ -78,7 +107,8 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({ onViewPatien
   }
 
   return (
-    <AppLayout title="Doctor Dashboard">
+    <>
+      <AppLayout title="Doctor Dashboard">
       <div className="space-y-6">
         {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -164,157 +194,188 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({ onViewPatien
             </div>
           </Card.Header>
 
-          <Card.Content className="p-0">
-            {processedPatients.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Stethoscope className="h-12 w-12 text-gray-400" />
+          <Card.Content>
+            <div className="space-y-6">
+              {/* Waiting Queue */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <Users className="h-5 w-5 text-yellow-600" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Waiting Queue</h3>
+                      <p className="text-sm text-gray-600">
+                        {queuedPatients.waiting.length} patient{queuedPatients.waiting.length !== 1 ? 's' : ''} waiting
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {searchTerm || genderFilter !== 'all' ? 'No patients found' : 'No patients available'}
-                </h3>
-                <p className="text-gray-600 mb-6 max-w-sm mx-auto">
-                  {searchTerm || genderFilter !== 'all'
-                    ? 'Try adjusting your search criteria or filters.' 
-                    : 'Patients will appear here once they are registered in the system.'
-                  }
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-hidden">
-                {/* Desktop Card Grid View */}
-                <div className="hidden md:block">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 p-6">
-                    {processedPatients.map((patient) => {
-                      const age = calculateAge(patient.dateOfBirth);
-                      const status = getPatientStatus(patient);
-                      const lastVisit = formatDate(patient.createdAt);
-                      
-                      return (
-                        <Card key={patient.id} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
-                          <div className="flex items-start space-x-4">
+
+                {queuedPatients.waiting.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    No patients waiting
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {queuedPatients.waiting.map((patient, index) => (
+                      <div
+                        key={patient.id}
+                        className={`
+                          p-4 rounded-lg border-2 transition-all
+                          ${index === 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white'}
+                        `}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            {index === 0 && (
+                              <div className="flex items-center justify-center w-8 h-8 bg-yellow-500 text-white rounded-full text-sm font-bold">
+                                NEXT
+                              </div>
+                            )}
                             <PatientAvatar
                               firstName={patient.firstName}
                               surname={patient.surname}
                               gender={patient.sex}
-                              size="lg"
+                              size="md"
                             />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-2">
-                                <h4 className="text-sm font-semibold text-gray-900 truncate">
-                                  {patient.firstName} {patient.surname}
-                                </h4>
-                                <StatusBadge status={status} lastVisit={patient.createdAt} />
-                              </div>
-                              
-                              <div className="space-y-1 text-xs text-gray-600 mb-3">
-                                <div>ID: {patient.idNumber}</div>
-                                <div>{age} years old • {patient.sex}</div>
-                                <div className="flex items-center">
-                                  <Calendar className="h-3 w-3 mr-1" />
-                                  Last visit: {lastVisit}
-                                </div>
-                                {(patient.medicalHistory?.chronicConditions?.length || 0) > 0 && (
-                                  <div className="flex items-center text-red-600">
-                                    <Heart className="h-3 w-3 mr-1" />
-                                    Chronic conditions
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="flex items-center space-x-2">
-                                <Button
-                                  size="sm"
-                                  onClick={() => onViewPatient(patient.id)}
-                                  className="flex-1"
-                                >
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  View Record
-                                </Button>
-                                {onStartConsultation && (
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    onClick={() => onStartConsultation(patient.id)}
-                                    className="bg-green-50 hover:bg-green-100 text-green-700"
-                                  >
-                                    <Stethoscope className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
+                            <div>
+                              <p className="font-semibold text-gray-900">
+                                {patient.firstName} {patient.surname}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {calculateAge(patient.dateOfBirth)} years • {patient.sex}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Arrived: {formatDate(patient.createdAt)}
+                              </p>
                             </div>
                           </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </div>
 
-                {/* Mobile List View */}
-                <div className="md:hidden space-y-3 p-4">
-                  {processedPatients.map((patient) => {
-                    const age = calculateAge(patient.dateOfBirth);
-                    const status = getPatientStatus(patient);
-                    const lastVisit = formatDate(patient.createdAt);
-                    
-                    return (
-                      <Card key={patient.id} className="hover:shadow-md transition-shadow duration-200">
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              size="sm"
+                              onClick={() => onViewPatient(patient.id)}
+                              variant="secondary"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            {onStartConsultation && (
+                              <Button
+                                size="sm"
+                                onClick={() => onStartConsultation(patient.id)}
+                                disabled={queuedPatients.inConsultation.length > 0}
+                              >
+                                <Stethoscope className="h-4 w-4 mr-1" />
+                                Start
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* In Consultation */}
+              {queuedPatients.inConsultation.length > 0 && (
+                <div className="border-2 border-green-400 bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Stethoscope className="h-5 w-5 text-green-600" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">In Consultation</h3>
+                      <p className="text-sm text-gray-600">Current patient being served</p>
+                    </div>
+                  </div>
+
+                  {queuedPatients.inConsultation.map(patient => (
+                    <div key={patient.id} className="p-4 bg-white rounded-lg">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <PatientAvatar
                             firstName={patient.firstName}
                             surname={patient.surname}
                             gender={patient.sex}
-                            size="md"
+                            size="lg"
                           />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className="text-sm font-semibold text-gray-900 truncate">
-                                {patient.firstName} {patient.surname}
-                              </h4>
-                              <StatusBadge status={status} lastVisit={patient.createdAt} />
-                            </div>
-                            
-                            <div className="space-y-1 text-xs text-gray-600">
-                              <div>ID: {patient.idNumber} • {age} years • {patient.sex}</div>
-                              <div className="flex items-center">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                Last visit: {lastVisit}
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center space-x-2 mt-2">
-                              <Button
-                                size="sm"
-                                onClick={() => onViewPatient(patient.id)}
-                                className="flex-1"
-                              >
-                                <Eye className="h-3 w-3 mr-1" />
-                                View
-                              </Button>
-                              {onStartConsultation && (
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={() => onStartConsultation(patient.id)}
-                                  className="bg-green-50 hover:bg-green-100 text-green-700"
-                                >
-                                  <Stethoscope className="h-3 w-3" />
-                                </Button>
-                              )}
-                            </div>
+                          <div>
+                            <p className="text-lg font-semibold text-gray-900">
+                              {patient.firstName} {patient.surname}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {calculateAge(patient.dateOfBirth)} years • {patient.sex}
+                            </p>
+                            <p className="text-xs text-green-600 font-medium">
+                              Started: {formatDate(patient.lastStatusChange || '')}
+                            </p>
                           </div>
                         </div>
-                      </Card>
-                    );
-                  })}
+
+                        <Button
+                          size="sm"
+                          onClick={() => onViewPatient(patient.id)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Served Today */}
+              {queuedPatients.servedToday.length > 0 && (
+                <div>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Heart className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Served Today</h3>
+                      <p className="text-sm text-gray-600">
+                        {queuedPatients.servedToday.length} patient{queuedPatients.servedToday.length !== 1 ? 's' : ''} completed
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {queuedPatients.servedToday.slice(0, 5).map(patient => (
+                      <div key={patient.id} className="p-3 bg-gray-50 rounded flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <PatientAvatar
+                            firstName={patient.firstName}
+                            surname={patient.surname}
+                            gender={patient.sex}
+                            size="sm"
+                          />
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {patient.firstName} {patient.surname}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Completed: {formatDate(patient.lastStatusChange || '')}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => onViewPatient(patient.id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </Card.Content>
         </Card>
 
       </div>
     </AppLayout>
+      <ToastContainer />
+    </>
   );
 };
 

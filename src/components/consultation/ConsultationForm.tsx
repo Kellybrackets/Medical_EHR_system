@@ -7,6 +7,7 @@ import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { usePatients } from '../../hooks/usePatients';
 import { useConsultationNotes } from '../../hooks/useConsultationNotes';
+import { useAuthContext } from '../../contexts/AuthProvider';
 import { formatDate } from '../../utils/helpers';
 import { ClinicalNotesEditor } from './ClinicalNotesEditor';
 
@@ -42,8 +43,9 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   const [saving, setSaving] = useState(false);
   const [loadingConsultation, setLoadingConsultation] = useState(false);
 
-  const { patients, loading: patientsLoading } = usePatients();
+  const { patients, loading: patientsLoading, completeConsultation } = usePatients();
   const { consultationNotes, addConsultationNote, updateConsultationNote } = useConsultationNotes();
+  const { user } = useAuthContext();
 
   const patient = patients.find(p => p.id === patientId);
   const isEditMode = !!consultationId;
@@ -131,6 +133,12 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
 
       if (result.success) {
         console.log('🎉 Consultation saved successfully!');
+
+        // Mark patient as served when consultation is completed
+        if (user?.id && !isEditMode) {
+          await completeConsultation(patientId, user.id);
+        }
+
         onSave();
       } else {
         console.error('❌ Failed to save consultation:', result.error);
@@ -143,7 +151,7 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
 
     console.log('🔄 Setting saving to false');
     setSaving(false);
-  }, [formData, validateForm, patientId, isEditMode, consultationId, addConsultationNote, updateConsultationNote, onSave]);
+  }, [formData, validateForm, patientId, isEditMode, consultationId, addConsultationNote, updateConsultationNote, onSave, user, completeConsultation]);
 
   // Show loading spinner while patients data is being fetched
   if (patientsLoading || loadingConsultation) {

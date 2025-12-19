@@ -7,6 +7,7 @@ import { useAuthContext } from '../contexts/AuthProvider';
 export const usePatients = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [newPatientAdded, setNewPatientAdded] = useState<Patient | null>(null);
   const { user } = useAuthContext();
 
 
@@ -60,7 +61,7 @@ export const usePatients = () => {
             const medicalHistory = medicalHistories.data?.find(mh => mh.patient_id === patient.id);
             const insurance = insuranceDetails.data?.find(ins => ins.patient_id === patient.id);
             const nextOfKin = nextOfKinData.data?.find(nok => nok.patient_id === patient.id);
-            
+
             return {
               id: patient.id,
               firstName: patient.first_name,
@@ -78,6 +79,10 @@ export const usePatients = () => {
               postalCode: patient.postal_code,
               createdAt: patient.created_at,
               updatedAt: patient.updated_at,
+              // Queue/Consultation status
+              consultationStatus: patient.consultation_status || 'waiting',
+              currentDoctorId: patient.current_doctor_id,
+              lastStatusChange: patient.last_status_change,
               medicalHistory: medicalHistory ? {
                 id: medicalHistory.id,
                 patientId: patient.id,
@@ -133,6 +138,249 @@ export const usePatients = () => {
 
   useEffect(() => {
     loadPatients();
+  }, [loadPatients]);
+
+  // Real-time subscription for patient changes
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      console.log('⚠️ Supabase not configured, skipping realtime subscription');
+      return;
+    }
+
+    console.log('🔔 Setting up realtime subscription for patients table...');
+    console.log('📍 Current patients count:', patients.length);
+    console.log('🔧 Supabase client:', supabase ? 'OK' : 'MISSING');
+
+    // Subscribe to patient table changes
+    const channel = supabase
+      .channel('patients-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'patients'
+        },
+        async (payload) => {
+          console.log('🆕 New patient inserted:', payload.new);
+
+          // Fetch complete patient data including related tables
+          const newPatientId = payload.new.id;
+
+          try {
+            const [medicalHistory, insurance, nextOfKin] = await Promise.all([
+              supabase.from('medical_histories').select('*').eq('patient_id', newPatientId).single(),
+              supabase.from('insurance_details').select('*').eq('patient_id', newPatientId).single(),
+              supabase.from('next_of_kin').select('*').eq('patient_id', newPatientId).single()
+            ]);
+
+            const completePatient: Patient = {
+              id: payload.new.id,
+              firstName: payload.new.first_name,
+              surname: payload.new.surname,
+              idType: payload.new.id_type || 'id_number',
+              idNumber: payload.new.id_number,
+              sex: payload.new.sex,
+              dateOfBirth: payload.new.date_of_birth,
+              age: payload.new.age,
+              contactNumber: payload.new.contact_number,
+              alternateNumber: payload.new.alternate_number,
+              email: payload.new.email,
+              address: payload.new.address,
+              city: payload.new.city,
+              postalCode: payload.new.postal_code,
+              createdAt: payload.new.created_at,
+              updatedAt: payload.new.updated_at,
+              // Queue/Consultation status
+              consultationStatus: payload.new.consultation_status || 'waiting',
+              currentDoctorId: payload.new.current_doctor_id,
+              lastStatusChange: payload.new.last_status_change,
+              medicalHistory: medicalHistory.data ? {
+                id: medicalHistory.data.id,
+                patientId: newPatientId,
+                height: medicalHistory.data.height,
+                weight: medicalHistory.data.weight,
+                bloodType: medicalHistory.data.blood_type,
+                allergies: medicalHistory.data.allergies || [],
+                chronicConditions: medicalHistory.data.chronic_conditions || [],
+                currentMedications: medicalHistory.data.current_medications || [],
+                pastSurgeries: medicalHistory.data.past_surgeries || [],
+                familyHistory: medicalHistory.data.family_history,
+                smokingStatus: medicalHistory.data.smoking_status || 'never',
+                alcoholConsumption: medicalHistory.data.alcohol_consumption || 'never',
+                createdAt: medicalHistory.data.created_at,
+                updatedAt: medicalHistory.data.updated_at,
+              } : undefined,
+              insuranceDetails: insurance.data ? {
+                id: insurance.data.id,
+                patientId: newPatientId,
+                fundName: insurance.data.fund_name,
+                memberNumber: insurance.data.member_number,
+                plan: insurance.data.plan,
+                createdAt: insurance.data.created_at,
+                updatedAt: insurance.data.updated_at,
+              } : undefined,
+              nextOfKin: nextOfKin.data ? {
+                id: nextOfKin.data.id,
+                patientId: newPatientId,
+                name: nextOfKin.data.name,
+                relationship: nextOfKin.data.relationship,
+                phone: nextOfKin.data.phone,
+                alternatePhone: nextOfKin.data.alternate_phone,
+                email: nextOfKin.data.email,
+                createdAt: nextOfKin.data.created_at,
+                updatedAt: nextOfKin.data.updated_at,
+              } : undefined,
+            };
+
+            // Add to patients list if not already present (avoid duplicates)
+            setPatients(prev => {
+              const exists = prev.find(p => p.id === completePatient.id);
+              if (exists) {
+                console.log('⚠️ Patient already in list, skipping duplicate');
+                return prev;
+              }
+              console.log('✅ Adding new patient to list');
+              // Trigger notification
+              setNewPatientAdded(completePatient);
+              return [...prev, completePatient];
+            });
+          } catch (error) {
+            console.error('❌ Error fetching complete patient data:', error);
+            // Fallback: reload all patients
+            await loadPatients();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'patients'
+        },
+        async (payload) => {
+          console.log('📝 Patient updated:', payload.new);
+
+          // Update the patient in the list
+          const updatedPatientId = payload.new.id;
+
+          try {
+            const [medicalHistory, insurance, nextOfKin] = await Promise.all([
+              supabase.from('medical_histories').select('*').eq('patient_id', updatedPatientId).single(),
+              supabase.from('insurance_details').select('*').eq('patient_id', updatedPatientId).single(),
+              supabase.from('next_of_kin').select('*').eq('patient_id', updatedPatientId).single()
+            ]);
+
+            const updatedPatient: Patient = {
+              id: payload.new.id,
+              firstName: payload.new.first_name,
+              surname: payload.new.surname,
+              idType: payload.new.id_type || 'id_number',
+              idNumber: payload.new.id_number,
+              sex: payload.new.sex,
+              dateOfBirth: payload.new.date_of_birth,
+              age: payload.new.age,
+              contactNumber: payload.new.contact_number,
+              alternateNumber: payload.new.alternate_number,
+              email: payload.new.email,
+              address: payload.new.address,
+              city: payload.new.city,
+              postalCode: payload.new.postal_code,
+              createdAt: payload.new.created_at,
+              updatedAt: payload.new.updated_at,
+              // Queue/Consultation status
+              consultationStatus: payload.new.consultation_status || 'waiting',
+              currentDoctorId: payload.new.current_doctor_id,
+              lastStatusChange: payload.new.last_status_change,
+              medicalHistory: medicalHistory.data ? {
+                id: medicalHistory.data.id,
+                patientId: updatedPatientId,
+                height: medicalHistory.data.height,
+                weight: medicalHistory.data.weight,
+                bloodType: medicalHistory.data.blood_type,
+                allergies: medicalHistory.data.allergies || [],
+                chronicConditions: medicalHistory.data.chronic_conditions || [],
+                currentMedications: medicalHistory.data.current_medications || [],
+                pastSurgeries: medicalHistory.data.past_surgeries || [],
+                familyHistory: medicalHistory.data.family_history,
+                smokingStatus: medicalHistory.data.smoking_status || 'never',
+                alcoholConsumption: medicalHistory.data.alcohol_consumption || 'never',
+                createdAt: medicalHistory.data.created_at,
+                updatedAt: medicalHistory.data.updated_at,
+              } : undefined,
+              insuranceDetails: insurance.data ? {
+                id: insurance.data.id,
+                patientId: updatedPatientId,
+                fundName: insurance.data.fund_name,
+                memberNumber: insurance.data.member_number,
+                plan: insurance.data.plan,
+                createdAt: insurance.data.created_at,
+                updatedAt: insurance.data.updated_at,
+              } : undefined,
+              nextOfKin: nextOfKin.data ? {
+                id: nextOfKin.data.id,
+                patientId: updatedPatientId,
+                name: nextOfKin.data.name,
+                relationship: nextOfKin.data.relationship,
+                phone: nextOfKin.data.phone,
+                alternatePhone: nextOfKin.data.alternate_phone,
+                email: nextOfKin.data.email,
+                createdAt: nextOfKin.data.created_at,
+                updatedAt: nextOfKin.data.updated_at,
+              } : undefined,
+            };
+
+            setPatients(prev =>
+              prev.map(p => p.id === updatedPatient.id ? updatedPatient : p)
+            );
+          } catch (error) {
+            console.error('❌ Error fetching updated patient data:', error);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'patients'
+        },
+        (payload) => {
+          console.log('🗑️ Patient deleted:', payload.old);
+          setPatients(prev => prev.filter(p => p.id !== payload.old.id));
+        }
+      )
+      .subscribe((status, err) => {
+        console.log('📡 Realtime subscription status:', status);
+        if (err) {
+          console.error('❌ Realtime subscription error:', err);
+        }
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Successfully subscribed to patients changes!');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Channel error - realtime may not be enabled on patients table');
+          console.error('💡 Run this SQL in Supabase: ALTER PUBLICATION supabase_realtime ADD TABLE patients;');
+        } else if (status === 'TIMED_OUT') {
+          console.error('⏱️ Subscription timed out - check network connection');
+        } else if (status === 'CLOSED') {
+          console.warn('🔌 Channel closed');
+        }
+      });
+
+    // Fallback: Poll every 15 seconds if realtime is not working reliably
+    // This ensures data stays fresh even if WebSocket fails
+    const pollInterval = setInterval(() => {
+      console.log('🔄 Auto-refresh polling (15s interval)...');
+      loadPatients();
+    }, 15000); // 15 seconds
+
+    // Cleanup subscription on unmount
+    return () => {
+      console.log('🔌 Unsubscribing from patients realtime channel');
+      clearInterval(pollInterval);
+      supabase.removeChannel(channel);
+    };
   }, [loadPatients]);
 
   const createPatient = useCallback(async (formData: PatientFormData): Promise<ApiResponse> => {
@@ -401,6 +649,64 @@ export const usePatients = () => {
     }
   }, []);
 
+  const startConsultation = useCallback(async (patientId: string, doctorId: string): Promise<ApiResponse> => {
+    try {
+      const { data, error } = await supabase
+        .rpc('start_consultation', {
+          p_patient_id: patientId,
+          p_doctor_id: doctorId
+        });
+
+      if (error) {
+        console.error('Error starting consultation:', error);
+        return { success: false, error: error.message };
+      }
+
+      const result = data as { success: boolean; error?: string };
+
+      if (!result.success) {
+        return { success: false, error: result.error || 'Failed to start consultation' };
+      }
+
+      // Realtime will handle the update, but we can reload to be sure
+      await loadPatients();
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error starting consultation:', error);
+      return { success: false, error: error.message || 'An unexpected error occurred' };
+    }
+  }, [loadPatients]);
+
+  const completeConsultation = useCallback(async (patientId: string, doctorId: string): Promise<ApiResponse> => {
+    try {
+      const { data, error } = await supabase
+        .rpc('complete_consultation', {
+          p_patient_id: patientId,
+          p_doctor_id: doctorId
+        });
+
+      if (error) {
+        console.error('Error completing consultation:', error);
+        return { success: false, error: error.message };
+      }
+
+      const result = data as { success: boolean; error?: string };
+
+      if (!result.success) {
+        return { success: false, error: result.error || 'Failed to complete consultation' };
+      }
+
+      // Realtime will handle the update, but we can reload to be sure
+      await loadPatients();
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error completing consultation:', error);
+      return { success: false, error: error.message || 'An unexpected error occurred' };
+    }
+  }, [loadPatients]);
+
   return {
     patients,
     loading,
@@ -408,6 +714,11 @@ export const usePatients = () => {
     updatePatient,
     deletePatient,
     getPatientById,
-    reloadPatients: loadPatients
+    reloadPatients: loadPatients,
+    newPatientAdded, // For showing notifications
+    clearNewPatientNotification: () => setNewPatientAdded(null),
+    // Queue management
+    startConsultation,
+    completeConsultation
   };
 };

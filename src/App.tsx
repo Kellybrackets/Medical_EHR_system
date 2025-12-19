@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthProvider';
 import { useAuthContext } from './contexts/AuthProvider';
+import { usePatients } from './hooks/usePatients';
 import { LoginForm } from './components/auth/LoginForm';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { DoctorDashboard } from './components/dashboards/DoctorDashboard';
@@ -16,6 +17,7 @@ type ReceptionistView = 'dashboard' | 'addPatient' | 'editPatient' | 'viewPatien
 
 function AppContent() {
   const { user, loading } = useAuthContext();
+  const { startConsultation } = usePatients();
   const [isPasswordReset, setIsPasswordReset] = useState(false);
 
   // Check for password reset token in URL on mount
@@ -27,7 +29,7 @@ function AppContent() {
       setIsPasswordReset(true);
     }
   }, []);
-  
+
   // Doctor state
   const [doctorView, setDoctorView] = useState<DoctorView>('dashboard');
   const [selectedPatientId, setSelectedPatientId] = useState<string>('');
@@ -36,6 +38,21 @@ function AppContent() {
   // Receptionist state
   const [receptionistView, setReceptionistView] = useState<ReceptionistView>('dashboard');
   const [editingPatientId, setEditingPatientId] = useState<string>('');
+
+  // Handler for starting consultation from queue
+  const handleStartConsultation = async (patientId: string) => {
+    if (!user?.id) return;
+
+    const result = await startConsultation(patientId, user.id);
+
+    if (!result.success) {
+      alert(result.error || 'Failed to start consultation');
+    } else {
+      // Navigate to consultation form
+      setSelectedPatientId(patientId);
+      setDoctorView('consultation');
+    }
+  };
 
   if (loading) {
     return (
@@ -102,6 +119,7 @@ function AppContent() {
           setSelectedPatientId(patientId);
           setDoctorView('patient');
         }}
+        onStartConsultation={handleStartConsultation}
       />
     );
   }

@@ -274,7 +274,25 @@ const ReceptionistDashboardComponent: React.FC<ReceptionistDashboardProps> = ({
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <StatusBadge status={status} lastVisit={patient.createdAt} />
+                              <div className="space-y-1">
+                                <StatusBadge status={status} lastVisit={patient.createdAt} />
+                                {/* Consultation Status */}
+                                <div className="text-xs">
+                                  {patient.consultationStatus === 'in_consultation' ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">
+                                      In Consultation
+                                    </span>
+                                  ) : patient.consultationStatus === 'served' ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-medium">
+                                      Completed
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium">
+                                      Waiting
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               <div className="flex items-center">
@@ -362,7 +380,24 @@ const ReceptionistDashboardComponent: React.FC<ReceptionistDashboardProps> = ({
                               </h4>
                               <StatusBadge status={status} lastVisit={patient.createdAt} />
                             </div>
-                            
+
+                            {/* Consultation Status */}
+                            <div className="mb-2">
+                              {patient.consultationStatus === 'in_consultation' ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium text-xs">
+                                  In Consultation
+                                </span>
+                              ) : patient.consultationStatus === 'served' ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-medium text-xs">
+                                  Completed
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium text-xs">
+                                  Waiting
+                                </span>
+                              )}
+                            </div>
+
                             <div className="space-y-1 text-xs text-gray-600">
                               <div>ID: {patient.idNumber}</div>
                               <div>{age} years old • {patient.sex}</div>

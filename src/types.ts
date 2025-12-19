@@ -2,6 +2,8 @@
 // NORMALIZED DATABASE INTERFACES
 // ========================================
 
+export type ConsultationStatus = 'waiting' | 'in_consultation' | 'served';
+
 export interface Patient {
   id: string;
   firstName: string;
@@ -19,6 +21,11 @@ export interface Patient {
   postalCode?: string;
   createdAt: string;
   updatedAt: string;
+
+  // Queue/Consultation status
+  consultationStatus?: ConsultationStatus;
+  currentDoctorId?: string;
+  lastStatusChange?: string;
 
   // Related data (populated via joins)
   nextOfKin?: NextOfKin;
