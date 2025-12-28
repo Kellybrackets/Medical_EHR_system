@@ -70,7 +70,7 @@ export const useAdminUsers = () => {
       username: string;
       role: 'doctor' | 'receptionist' | 'admin';
       practiceCode: string;
-    }>
+    }>,
   ) => {
     try {
       const updateData: any = {};
@@ -101,7 +101,7 @@ export const useAdminUsers = () => {
     try {
       // Call security definer function to delete user
       const { error: rpcError } = await supabase.rpc('admin_delete_user', {
-        user_id_to_delete: userId
+        user_id_to_delete: userId,
       });
 
       if (rpcError) throw rpcError;

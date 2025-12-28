@@ -30,7 +30,7 @@ const AppLayoutComponent: React.FC<AppLayoutProps> = ({ title, children, classNa
               <p className="text-sm text-gray-500 hidden sm:block">{title}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             {user && (
               <div className="hidden sm:flex flex-col items-end">

@@ -3,6 +3,7 @@
 // ========================================
 
 export type ConsultationStatus = 'waiting' | 'in_consultation' | 'served';
+export type PaymentMethod = 'cash' | 'medical_aid';
 
 export interface Patient {
   id: string;
@@ -27,9 +28,12 @@ export interface Patient {
   currentDoctorId?: string;
   lastStatusChange?: string;
 
+  // Payment method
+  paymentMethod?: PaymentMethod;
+
   // Related data (populated via joins)
   nextOfKin?: NextOfKin;
-  medicalHistory?: MedicalHistory;
+
   insuranceDetails?: InsuranceDetails;
 }
 
@@ -45,22 +49,7 @@ export interface NextOfKin {
   updatedAt: string;
 }
 
-export interface MedicalHistory {
-  id: string;
-  patientId: string;
-  height?: number; // in cm
-  weight?: number; // in kg
-  bloodType?: string;
-  allergies: string[];
-  chronicConditions: string[];
-  currentMedications: string[];
-  pastSurgeries: string[];
-  familyHistory?: string;
-  smokingStatus: 'never' | 'former' | 'current';
-  alcoholConsumption: 'never' | 'occasional' | 'moderate' | 'heavy';
-  createdAt: string;
-  updatedAt: string;
-}
+
 
 export interface InsuranceDetails {
   id: string;
@@ -68,6 +57,7 @@ export interface InsuranceDetails {
   fundName?: string;
   memberNumber?: string;
   plan?: string;
+  dependentType?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -135,7 +125,7 @@ export interface PatientFormData {
   dateOfBirth: string;
   age: string;
   gender: 'male' | 'female' | 'other';
-  
+
   // Contact Information
   contactNumber: string;
   alternateNumber: string;
@@ -143,32 +133,22 @@ export interface PatientFormData {
   address: string;
   city: string;
   postalCode: string;
-  
+
   // Emergency Contact
   emergencyContactName: string;
   emergencyContactRelationship: string;
   emergencyContactPhone: string;
   emergencyContactAlternatePhone: string;
   emergencyContactEmail: string;
-  
-  // Medical Aid Information
+
+  // Payment & Medical Aid Information
+  paymentMethod: 'cash' | 'medical_aid';
   medicalAidProvider: string;
   medicalAidNumber: string;
   medicalAidPlan: string;
-  
-  // Medical History
-  allergies: string;
-  chronicConditions: string;
-  currentMedications: string;
-  pastSurgeries: string;
-  familyHistory: string;
-  
-  // Additional Information
-  bloodType: string;
-  height: string;
-  weight: string;
-  smokingStatus: 'never' | 'former' | 'current';
-  alcoholConsumption: 'never' | 'occasional' | 'moderate' | 'heavy';
+  dependentType: string;
+
+
 }
 
 // ========================================
@@ -184,7 +164,7 @@ export interface ApiResponse<T = any> {
 
 export interface PatientWithRelations extends Patient {
   nextOfKin: NextOfKin;
-  medicalHistory: MedicalHistory;
+
   insuranceDetails: InsuranceDetails;
 }
 
@@ -223,22 +203,7 @@ export interface NextOfKinRow {
   updated_at: string;
 }
 
-export interface MedicalHistoryRow {
-  id: string;
-  patient_id: string;
-  height?: number;
-  weight?: number;
-  blood_type?: string;
-  allergies: string[];
-  chronic_conditions: string[];
-  current_medications: string[];
-  past_surgeries: string[];
-  family_history?: string;
-  smoking_status: 'never' | 'former' | 'current';
-  alcohol_consumption: 'never' | 'occasional' | 'moderate' | 'heavy';
-  created_at: string;
-  updated_at: string;
-}
+
 
 export interface InsuranceDetailsRow {
   id: string;
@@ -246,6 +211,7 @@ export interface InsuranceDetailsRow {
   fund_name?: string;
   member_number?: string;
   plan?: string;
+  dependent_type?: string;
   created_at: string;
   updated_at: string;
 }

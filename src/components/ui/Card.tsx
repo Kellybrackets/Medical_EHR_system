@@ -36,15 +36,11 @@ export const Card: React.FC<CardProps> & {
 };
 
 Card.Header = ({ children, className }) => (
-  <header className={cn('px-6 py-4 border-b border-gray-200', className)}>
-    {children}
-  </header>
+  <header className={cn('px-6 py-4 border-b border-gray-200', className)}>{children}</header>
 );
 
 Card.Content = ({ children, className }) => (
-  <main className={cn('p-6', className)}>
-    {children}
-  </main>
+  <main className={cn('p-6', className)}>{children}</main>
 );
 
 Card.Footer = ({ children, className }) => (

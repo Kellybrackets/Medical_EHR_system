@@ -26,8 +26,7 @@ export const UsersManagement: React.FC = () => {
 
       const matchesRole = roleFilter === 'all' || user.role === roleFilter;
 
-      const matchesPractice =
-        practiceFilter === 'all' || user.practiceCode === practiceFilter;
+      const matchesPractice = practiceFilter === 'all' || user.practiceCode === practiceFilter;
 
       return matchesSearch && matchesRole && matchesPractice;
     });
@@ -151,7 +150,7 @@ export const UsersManagement: React.FC = () => {
                       <td className="py-3 px-4">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleBadgeColor(
-                            user.role
+                            user.role,
                           )}`}
                         >
                           {user.role}
@@ -183,7 +182,11 @@ export const UsersManagement: React.FC = () => {
                             <>
                               <button
                                 onClick={() =>
-                                  handleResetPassword(user.id, `${user.username}@medcare.com`, user.name)
+                                  handleResetPassword(
+                                    user.id,
+                                    `${user.username}@medcare.com`,
+                                    user.name,
+                                  )
                                 }
                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                 title="Reset Password"

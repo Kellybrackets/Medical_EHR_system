@@ -6,13 +6,13 @@ export const formatDate = (dateString: string, format: 'short' | 'long' = 'short
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       });
     }
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   } catch {
     return dateString;
@@ -24,11 +24,11 @@ export const calculateAge = (dateOfBirth: string): number => {
   const birthDate = new Date(dateOfBirth);
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
-  
+
   return age;
 };
 
@@ -75,7 +75,10 @@ export const validatePassportNumber = (passportNumber: string): boolean => {
   return passportRegex.test(passportNumber.replace(/\s/g, ''));
 };
 
-export const validateIdentification = (idType: 'id_number' | 'passport', value: string): boolean => {
+export const validateIdentification = (
+  idType: 'id_number' | 'passport',
+  value: string,
+): boolean => {
   if (idType === 'id_number') {
     return validateIdNumber(value);
   } else {
@@ -109,12 +112,12 @@ export const sanitizeCommaSeparatedList = (input: string): string[] => {
   if (!input.trim()) return [];
   return input
     .split(',')
-    .map(item => item.trim())
-    .filter(item => item.length > 0);
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 };
 
 export const formatCommaSeparatedList = (items: string[]): string => {
-  return items.filter(item => item.trim().length > 0).join(', ');
+  return items.filter((item) => item.trim().length > 0).join(', ');
 };
 
 // Form field validation with error messages
@@ -127,7 +130,7 @@ export const validateFormField = (
   field: string,
   value: string,
   required: boolean = false,
-  idType?: 'id_number' | 'passport'
+  idType?: 'id_number' | 'passport',
 ): ValidationResult => {
   if (required && !value.trim()) {
     return { isValid: false, error: `${field} is required` };
@@ -156,7 +159,10 @@ export const validateFormField = (
       if (idType === 'passport') {
         return validatePassportNumber(value)
           ? { isValid: true }
-          : { isValid: false, error: 'Please enter a valid passport number (6-20 alphanumeric characters)' };
+          : {
+              isValid: false,
+              error: 'Please enter a valid passport number (6-20 alphanumeric characters)',
+            };
       } else {
         return validateIdNumber(value)
           ? { isValid: true }
@@ -181,7 +187,10 @@ export const validateFormField = (
     case 'bloodtype':
       return validateBloodType(value)
         ? { isValid: true }
-        : { isValid: false, error: 'Please enter a valid blood type (A+, A-, B+, B-, AB+, AB-, O+, O-)' };
+        : {
+            isValid: false,
+            error: 'Please enter a valid blood type (A+, A-, B+, B-, AB+, AB-, O+, O-)',
+          };
 
     default:
       return { isValid: true };
@@ -191,7 +200,7 @@ export const validateFormField = (
 // Performance utilities
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeout: NodeJS.Timeout;
   return (...args: Parameters<T>) => {

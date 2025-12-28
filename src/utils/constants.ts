@@ -67,7 +67,8 @@ export const UI_CLASSES = {
   // Cards
   card: 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden',
   // Forms
-  input: 'block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500',
+  input:
+    'block w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500',
   label: 'block text-sm font-medium text-gray-700 mb-1',
   // Layout
   container: 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8',

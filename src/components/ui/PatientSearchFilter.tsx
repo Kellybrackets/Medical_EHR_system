@@ -8,6 +8,8 @@ interface PatientSearchFilterProps {
   onSearchChange: (value: string) => void;
   genderFilter: 'all' | 'Male' | 'Female';
   onGenderFilterChange: (value: 'all' | 'Male' | 'Female') => void;
+  paymentFilter?: 'all' | 'cash' | 'medical_aid';
+  onPaymentFilterChange?: (value: 'all' | 'cash' | 'medical_aid') => void;
   sortBy: 'name' | 'age' | 'lastVisit';
   onSortChange: (value: 'name' | 'age' | 'lastVisit') => void;
   sortOrder: 'asc' | 'desc';
@@ -23,6 +25,8 @@ export const PatientSearchFilter: React.FC<PatientSearchFilterProps> = ({
   onSearchChange,
   genderFilter,
   onGenderFilterChange,
+  paymentFilter = 'all',
+  onPaymentFilterChange,
   sortBy,
   onSortChange,
   sortOrder,
@@ -30,9 +34,10 @@ export const PatientSearchFilter: React.FC<PatientSearchFilterProps> = ({
   totalResults,
   onClearFilters,
   showFilters = true,
-  className = ''
+  className = '',
 }) => {
-  const hasActiveFilters = searchTerm || genderFilter !== 'all' || sortBy !== 'name';
+  const hasActiveFilters =
+    searchTerm || genderFilter !== 'all' || paymentFilter !== 'all' || sortBy !== 'name';
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -47,7 +52,7 @@ export const PatientSearchFilter: React.FC<PatientSearchFilterProps> = ({
             icon={<Search className="h-4 w-4 text-gray-400" />}
           />
         </div>
-        
+
         {showFilters && (
           <div className="flex gap-2">
             <Button
@@ -81,6 +86,23 @@ export const PatientSearchFilter: React.FC<PatientSearchFilterProps> = ({
             </select>
           </div>
 
+          {/* Payment Method Filter */}
+          {onPaymentFilterChange && (
+            <div className="flex items-center gap-2">
+              <select
+                value={paymentFilter}
+                onChange={(e) =>
+                  onPaymentFilterChange(e.target.value as 'all' | 'cash' | 'medical_aid')
+                }
+                className="rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="all">All Payment Methods</option>
+                <option value="cash">Cash</option>
+                <option value="medical_aid">Medical Aid</option>
+              </select>
+            </div>
+          )}
+
           {/* Sort Options */}
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">Sort by:</span>
@@ -93,13 +115,15 @@ export const PatientSearchFilter: React.FC<PatientSearchFilterProps> = ({
               <option value="age">Age</option>
               <option value="lastVisit">Last Visit</option>
             </select>
-            
+
             <button
               onClick={() => onSortOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')}
               className="p-1 rounded hover:bg-gray-100 transition-colors"
               title={`Sort ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
             >
-              <div className={`text-gray-500 transform transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}>
+              <div
+                className={`text-gray-500 transform transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
+              >
                 ↑
               </div>
             </button>
@@ -108,7 +132,9 @@ export const PatientSearchFilter: React.FC<PatientSearchFilterProps> = ({
           {/* Results Count */}
           <div className="flex items-center gap-1 text-sm text-gray-600 ml-auto">
             <Users className="h-4 w-4" />
-            <span>{totalResults} patient{totalResults !== 1 ? 's' : ''}</span>
+            <span>
+              {totalResults} patient{totalResults !== 1 ? 's' : ''}
+            </span>
           </div>
         </div>
       )}

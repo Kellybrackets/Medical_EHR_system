@@ -16,21 +16,24 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onChange,
   placeholder = 'Search...',
   className,
-  debounceMs = 300
+  debounceMs = 300,
 }) => {
   const [localValue, setLocalValue] = useState(value);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setLocalValue(newValue);
-    
-    if (debounceMs) {
-      const timeoutId = setTimeout(() => onChange(newValue), debounceMs);
-      return () => clearTimeout(timeoutId);
-    } else {
-      onChange(newValue);
-    }
-  }, [onChange, debounceMs]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setLocalValue(newValue);
+
+      if (debounceMs) {
+        const timeoutId = setTimeout(() => onChange(newValue), debounceMs);
+        return () => clearTimeout(timeoutId);
+      } else {
+        onChange(newValue);
+      }
+    },
+    [onChange, debounceMs],
+  );
 
   const handleClear = useCallback(() => {
     setLocalValue('');

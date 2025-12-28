@@ -83,7 +83,7 @@ export const PracticesManagement: React.FC = () => {
     if (result.success) {
       showToast(
         `Practice ${practice.status === 'active' ? 'deactivated' : 'activated'} successfully`,
-        'success'
+        'success',
       );
     } else {
       showToast(result.error || 'Failed to update practice status', 'error');
@@ -211,7 +211,9 @@ export const PracticesManagement: React.FC = () => {
                     label="Practice Code"
                     required
                     value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, code: e.target.value.toUpperCase() })
+                    }
                     placeholder="CGH001"
                     maxLength={20}
                     disabled={!!editingPractice}
@@ -241,9 +243,7 @@ export const PracticesManagement: React.FC = () => {
                   />
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                     <textarea
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}

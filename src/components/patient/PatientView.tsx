@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { User, ArrowLeft } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Button } from '../ui/Button';
@@ -10,6 +10,7 @@ import { useToast } from '../ui/Toast';
 import { usePatients } from '../../hooks/usePatients';
 import { useAuthContext } from '../../contexts/AuthProvider';
 import { exportPatientToPDF } from '../../utils/pdfExport';
+import { Patient } from '../../types';
 
 interface PatientViewProps {
   patientId: string;
@@ -26,17 +27,24 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
   onEditPatient,
   onAddConsultation,
   onEditConsultation,
-  onEditSection
+  onEditSection,
 }) => {
-  const { patients, loading: patientsLoading } = usePatients();
+  const { getPatientById, loading: patientsLoading } = usePatients();
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuthContext();
   const { showToast, ToastContainer } = useToast();
 
-  const patient = useMemo(() => 
-    patients.find(p => p.id === patientId), 
-    [patients, patientId]
-  );
+  useEffect(() => {
+    const fetchPatient = async () => {
+      setLoading(true);
+      const fetchedPatient = await getPatientById(patientId);
+      setPatient(fetchedPatient);
+      setLoading(false);
+    };
 
+    fetchPatient();
+  }, [patientId, getPatientById]);
 
   const handleEditPatient = useCallback(() => {
     onEditPatient(patientId);
@@ -46,18 +54,23 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
     onAddConsultation(patientId);
   }, [onAddConsultation, patientId]);
 
-  const handleEditConsultation = useCallback((consultationId: string) => {
-    onEditConsultation(patientId, consultationId);
-  }, [onEditConsultation, patientId]);
+  const handleEditConsultation = useCallback(
+    (consultationId: string) => {
+      onEditConsultation(patientId, consultationId);
+    },
+    [onEditConsultation, patientId],
+  );
 
-  const handleEditSection = useCallback((section: string) => {
-    if (onEditSection) {
-      onEditSection(patientId, section);
-    } else {
-      // Fallback to general edit
-      onEditPatient(patientId);
-    }
-  }, [onEditSection, onEditPatient, patientId]);
+  const handleEditSection = useCallback(
+    (section: string) => {
+      if (onEditSection) {
+        onEditSection(patientId, section);
+      } else {
+        onEditPatient(patientId);
+      }
+    },
+    [onEditSection, onEditPatient, patientId],
+  );
 
   const handleExportPDF = useCallback(() => {
     if (patient) {
@@ -66,8 +79,7 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
     }
   }, [patient, showToast]);
 
-
-  if (patientsLoading) {
+  if (loading || patientsLoading) {
     return (
       <AppLayout title="Patient Details">
         <LoadingSpinner size="lg" text="Loading patient details..." />
@@ -99,19 +111,13 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
     <>
       <AppLayout title={`${patient.firstName} ${patient.surname}`}>
         <div className="space-y-6">
-          {/* Navigation Header */}
           <div className="flex items-center">
-            <Button
-              variant="secondary"
-              onClick={onBack}
-              className="flex items-center"
-            >
+            <Button variant="secondary" onClick={onBack} className="flex items-center">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Patients
             </Button>
           </div>
 
-          {/* Enhanced Patient Header */}
           <PatientHeader
             patient={patient}
             onEdit={user?.role === 'receptionist' ? handleEditPatient : undefined}
@@ -120,7 +126,6 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
             showToast={showToast}
           />
 
-          {/* Patient Information Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <ContactInfoCard
               patient={patient}
@@ -128,13 +133,13 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
               canEdit={user?.role === 'receptionist'}
               showToast={showToast}
             />
-            
+
             <MedicalAidCard
               patient={patient}
               onEdit={handleEditSection}
               canEdit={user?.role === 'receptionist'}
             />
-            
+
             <MedicalHistoryCard
               patient={patient}
               onEdit={handleEditSection}
@@ -142,7 +147,6 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
             />
           </div>
 
-          {/* Enhanced Consultation History */}
           <ConsultationHistory
             patientId={patientId}
             onAddConsultation={user?.role === 'doctor' ? handleAddConsultation : undefined}
@@ -152,7 +156,7 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
           />
         </div>
       </AppLayout>
-      
+
       <ToastContainer />
     </>
   );

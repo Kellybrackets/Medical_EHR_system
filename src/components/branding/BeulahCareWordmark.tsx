@@ -67,7 +67,8 @@ export const BeulahCareWordmark: React.FC<BeulahCareWordmarkProps> = ({
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          fontFamily: '"DM Sans", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif',
+          fontFamily:
+            '"DM Sans", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif',
           fontSize: config.fontSize,
           lineHeight: 1,
           whiteSpace: 'nowrap',
@@ -152,9 +153,7 @@ export const BeulahCareWordmark: React.FC<BeulahCareWordmarkProps> = ({
  * Compact version for use in tight spaces (like mobile headers)
  * Removes underline glow to save space
  */
-export const BeulahCareWordmarkCompact: React.FC<{ className?: string }> = ({
-  className = '',
-}) => {
+export const BeulahCareWordmarkCompact: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
     <div
       className={className}

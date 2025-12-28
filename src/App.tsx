@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { AuthProvider } from './contexts/AuthProvider';
-import { useAuthContext } from './contexts/AuthProvider';
-import { usePatients } from './hooks/usePatients';
+import React from 'react';
+import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuthContext } from './contexts/AuthProvider';
 import { LoginForm } from './components/auth/LoginForm';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { DoctorDashboard } from './components/dashboards/DoctorDashboard';
@@ -12,47 +11,34 @@ import { AdminDashboard } from './components/dashboards/AdminDashboard';
 import { PatientForm } from './components/patient/PatientForm';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 
-type DoctorView = 'dashboard' | 'patient' | 'consultation';
-type ReceptionistView = 'dashboard' | 'addPatient' | 'editPatient' | 'viewPatient';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
-function AppContent() {
+const RoleBasedRedirect = () => {
+  const { user } = useAuthContext();
+  if (!user) return <Navigate to="/login" />;
+
+  switch (user.role) {
+    case 'admin':
+      return <Navigate to="/admin" />;
+    case 'doctor':
+      return <Navigate to="/doctor" />;
+    case 'receptionist':
+      return <Navigate to="/receptionist" />;
+    default:
+      return <Navigate to="/login" />;
+  }
+};
+
+const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { user, loading } = useAuthContext();
-  const { startConsultation } = usePatients();
-  const [isPasswordReset, setIsPasswordReset] = useState(false);
+  const navigate = useNavigate();
 
-  // Check for password reset token in URL on mount
-  useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get('type');
-
-    if (type === 'recovery') {
-      setIsPasswordReset(true);
+  React.useEffect(() => {
+    // Redirect to login if not authenticated and not loading
+    if (!loading && !user) {
+      navigate('/login');
     }
-  }, []);
-
-  // Doctor state
-  const [doctorView, setDoctorView] = useState<DoctorView>('dashboard');
-  const [selectedPatientId, setSelectedPatientId] = useState<string>('');
-  const [editingConsultationId, setEditingConsultationId] = useState<string>('');
-
-  // Receptionist state
-  const [receptionistView, setReceptionistView] = useState<ReceptionistView>('dashboard');
-  const [editingPatientId, setEditingPatientId] = useState<string>('');
-
-  // Handler for starting consultation from queue
-  const handleStartConsultation = async (patientId: string) => {
-    if (!user?.id) return;
-
-    const result = await startConsultation(patientId, user.id);
-
-    if (!result.success) {
-      alert(result.error || 'Failed to start consultation');
-    } else {
-      // Navigate to consultation form
-      setSelectedPatientId(patientId);
-      setDoctorView('consultation');
-    }
-  };
+  }, [user, loading, navigate]);
 
   if (loading) {
     return (
@@ -62,136 +48,167 @@ function AppContent() {
     );
   }
 
-  // Show password reset form if reset token detected
-  if (isPasswordReset) {
-    return <ResetPasswordForm />;
-  }
+  // Render children if authenticated
+  return user ? children : null;
+};
 
-  if (!user) {
-    return <LoginForm />;
-  }
+// Simplified component wrappers to handle navigation hooks
+const PatientViewWrapper = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuthContext();
 
-  // Doctor views
-  if (user?.role === 'doctor') {
-    if (doctorView === 'patient' && selectedPatientId) {
-      return (
-        <PatientView
-          patientId={selectedPatientId}
-          onBack={() => {
-            setDoctorView('dashboard');
-            setSelectedPatientId('');
-          }}
-          onEditPatient={() => {}} // Doctors can't edit patient info
-          onAddConsultation={(patientId) => {
-            setSelectedPatientId(patientId);
-            setEditingConsultationId(''); // Clear editing ID for new consultation
-            setDoctorView('consultation');
-          }}
-          onEditConsultation={(patientId, consultationId) => {
-            setSelectedPatientId(patientId);
-            setEditingConsultationId(consultationId);
-            setDoctorView('consultation');
-          }}
-        />
-      );
-    }
+  const isDoctor = user?.role === 'doctor';
+  const isReceptionist = user?.role === 'receptionist';
 
-    if (doctorView === 'consultation' && selectedPatientId) {
-      return (
-        <ConsultationForm
-          patientId={selectedPatientId}
-          consultationId={editingConsultationId || undefined}
-          onBack={() => {
-            setDoctorView('patient');
-            setEditingConsultationId('');
-          }}
-          onSave={() => {
-            setDoctorView('patient');
-            setEditingConsultationId('');
-          }}
-        />
-      );
-    }
+  return (
+    <PatientView
+      patientId={id!}
+      onBack={() => navigate(-1)}
+      onEditPatient={isReceptionist ? () => navigate(`/receptionist/patient/${id}/edit`) : () => { }}
+      onAddConsultation={isDoctor ? () => navigate(`/doctor/patient/${id}/consultation`) : () => { }}
+      onEditConsultation={
+        isDoctor
+          ? (patientId, consultationId) =>
+            navigate(`/doctor/patient/${patientId}/consultation/${consultationId}`)
+          : () => { }
+      }
+    />
+  );
+};
 
+const PatientFormWrapper = () => {
+  const { id } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
+  return (
+    <ErrorBoundary onReset={() => window.location.reload()}>
+      <PatientForm patientId={id} onBack={() => navigate(-1)} onSave={() => navigate(-1)} />
+    </ErrorBoundary>
+  );
+};
+
+const ConsultationFormWrapper = () => {
+  const { id, consultationId } = useParams<{ id: string; consultationId?: string }>();
+  const navigate = useNavigate();
+  return (
+    <ConsultationForm
+      patientId={id!}
+      consultationId={consultationId}
+      onBack={() => navigate(-1)}
+      onSave={() => navigate(`/doctor/patient/${id}`)}
+    />
+  );
+};
+
+const DoctorDashboardWrapper = () => {
+  const navigate = useNavigate();
+  return (
+    <DoctorDashboard
+      onViewPatient={(patientId) => navigate(`/doctor/patient/${patientId}`)}
+      onStartConsultation={(patientId) => navigate(`/doctor/patient/${patientId}/consultation`)}
+    />
+  );
+};
+
+const ReceptionistDashboardWrapper = () => {
+  const navigate = useNavigate();
+  return (
+    <ReceptionistDashboard
+      onAddPatient={() => navigate('/receptionist/patient/new')}
+      onEditPatient={(patientId) => navigate(`/receptionist/patient/${patientId}/edit`)}
+      onViewPatient={(patientId) => navigate(`/receptionist/patient/${patientId}`)}
+    />
+  );
+};
+
+function AppContent() {
+  const { loading } = useAuthContext();
+
+  if (loading) {
     return (
-      <DoctorDashboard
-        onViewPatient={(patientId) => {
-          setSelectedPatientId(patientId);
-          setDoctorView('patient');
-        }}
-        onStartConsultation={handleStartConsultation}
-      />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Loading application..." />
+      </div>
     );
   }
 
-  // Admin view
-  if (user?.role === 'admin') {
-    return <AdminDashboard />;
-  }
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginForm />} />
+      <Route path="/reset-password" element={<ResetPasswordForm />} />
+      <Route path="/" element={<RoleBasedRedirect />} />
 
-  // Receptionist views
-  if (user?.role === 'receptionist') {
-    if (receptionistView === 'addPatient') {
-      return (
-        <PatientForm
-          onBack={() => setReceptionistView('dashboard')}
-          onSave={() => {
-            setReceptionistView('dashboard');
-          }}
-        />
-      );
-    }
-
-    if (receptionistView === 'editPatient' && editingPatientId) {
-      return (
-        <PatientForm
-          patientId={editingPatientId}
-          onBack={() => {
-            setReceptionistView('dashboard');
-            setEditingPatientId('');
-          }}
-          onSave={() => {
-            setReceptionistView('dashboard');
-            setEditingPatientId('');
-          }}
-        />
-      );
-    }
-
-    if (receptionistView === 'viewPatient' && selectedPatientId) {
-      return (
-        <PatientView
-          patientId={selectedPatientId}
-          onBack={() => {
-            setReceptionistView('dashboard');
-            setSelectedPatientId('');
-          }}
-          onEditPatient={(patientId) => {
-            setEditingPatientId(patientId);
-            setReceptionistView('editPatient');
-          }}
-          onAddConsultation={() => {}} // Receptionists can't add consultations
-          onEditConsultation={() => {}} // Receptionists can't edit consultations
-        />
-      );
-    }
-
-    return (
-      <ReceptionistDashboard
-        onAddPatient={() => setReceptionistView('addPatient')}
-        onEditPatient={(patientId) => {
-          setEditingPatientId(patientId);
-          setReceptionistView('editPatient');
-        }}
-        onViewPatient={(patientId) => {
-          setSelectedPatientId(patientId);
-          setReceptionistView('viewPatient');
-        }}
+      {/* Protected Routes */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
       />
-    );
-  }
 
-  return <div>Unknown role</div>;
+      {/* Doctor Routes */}
+      <Route
+        path="/doctor"
+        element={
+          <ProtectedRoute>
+            <DoctorDashboardWrapper />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/patient/:id"
+        element={
+          <ProtectedRoute>
+            <PatientViewWrapper />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/patient/:id/consultation/:consultationId?"
+        element={
+          <ProtectedRoute>
+            <ConsultationFormWrapper />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Receptionist Routes */}
+      <Route
+        path="/receptionist"
+        element={
+          <ProtectedRoute>
+            <ReceptionistDashboardWrapper />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/receptionist/patient/new"
+        element={
+          <ProtectedRoute>
+            <PatientFormWrapper />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/receptionist/patient/:id/edit"
+        element={
+          <ProtectedRoute>
+            <PatientFormWrapper />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/receptionist/patient/:id"
+        element={
+          <ProtectedRoute>
+            <PatientViewWrapper />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
 }
 
 function App() {

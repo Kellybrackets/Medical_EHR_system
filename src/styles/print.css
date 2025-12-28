@@ -230,7 +230,8 @@
     margin: 10px 0;
   }
 
-  th, td {
+  th,
+  td {
     border: 1px solid #ddd;
     padding: 6px;
     text-align: left;
@@ -265,20 +266,34 @@
     margin-bottom: 20px;
   }
 
-  h1 { font-size: 18px; margin: 10px 0; }
-  h2 { font-size: 16px; margin: 8px 0; }
-  h3 { font-size: 14px; margin: 6px 0; }
-  h4 { font-size: 12px; margin: 4px 0; }
+  h1 {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+  h2 {
+    font-size: 16px;
+    margin: 8px 0;
+  }
+  h3 {
+    font-size: 14px;
+    margin: 6px 0;
+  }
+  h4 {
+    font-size: 12px;
+    margin: 4px 0;
+  }
 
-  p { margin: 4px 0; }
-  
+  p {
+    margin: 4px 0;
+  }
+
   /* Two-column layout for better space usage */
   @media print and (min-width: 8in) {
     .print-two-column {
       column-count: 2;
       column-gap: 20px;
     }
-    
+
     .print-full-width {
       column-span: all;
     }

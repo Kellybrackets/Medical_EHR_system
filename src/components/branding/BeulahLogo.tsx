@@ -20,7 +20,7 @@ export const BeulahLogo: React.FC<BeulahLogoProps> = ({
   size = 32,
   variant = 'default',
   withWordmark = false,
-  className = ''
+  className = '',
 }) => {
   const colorSchemes = {
     default: {
@@ -37,7 +37,7 @@ export const BeulahLogo: React.FC<BeulahLogoProps> = ({
       primary: 'currentColor',
       secondary: 'currentColor',
       gradientEnd: 'currentColor',
-    }
+    },
   };
 
   const colors = colorSchemes[variant];
@@ -125,7 +125,8 @@ export const BeulahLogo: React.FC<BeulahLogoProps> = ({
       {withWordmark && (
         <span
           style={{
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "DM Sans", system-ui, sans-serif',
+            fontFamily:
+              '-apple-system, BlinkMacSystemFont, "Inter", "DM Sans", system-ui, sans-serif',
             fontSize: size * 0.625, // 20px for 32px logo
             fontWeight: 600,
             color: colors.primary,
@@ -146,7 +147,7 @@ export const BeulahLogo: React.FC<BeulahLogoProps> = ({
  */
 export const BeulahLogoSimplified: React.FC<{ size?: number; color?: string }> = ({
   size = 16,
-  color = '#1A5F7A'
+  color = '#1A5F7A',
 }) => {
   return (
     <svg

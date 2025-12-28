@@ -5,13 +5,13 @@ import { Patient } from '../types';
  */
 export const calculateBMI = (height: number, weight: number) => {
   if (!height || !weight) return null;
-  
+
   const heightInMeters = height / 100;
   const bmi = weight / (heightInMeters * heightInMeters);
-  
+
   let category: string;
   let categoryColor: string;
-  
+
   if (bmi < 18.5) {
     category = 'Underweight';
     categoryColor = 'text-blue-600 bg-blue-100';
@@ -25,11 +25,11 @@ export const calculateBMI = (height: number, weight: number) => {
     category = 'Obese';
     categoryColor = 'text-red-600 bg-red-100';
   }
-  
+
   return {
     value: parseFloat(bmi.toFixed(1)),
     category,
-    categoryColor
+    categoryColor,
   };
 };
 
@@ -37,9 +37,10 @@ export const calculateBMI = (height: number, weight: number) => {
  * Generate patient summary for export
  */
 export const generatePatientSummary = (patient: Patient) => {
-  const bmi = patient.medicalHistory?.height && patient.medicalHistory?.weight 
-    ? calculateBMI(patient.medicalHistory.height, patient.medicalHistory.weight)
-    : null;
+  const bmi =
+    patient.medicalHistory?.height && patient.medicalHistory?.weight
+      ? calculateBMI(patient.medicalHistory.height, patient.medicalHistory.weight)
+      : null;
 
   return {
     // Demographics
@@ -48,42 +49,46 @@ export const generatePatientSummary = (patient: Patient) => {
     dateOfBirth: patient.dateOfBirth,
     age: patient.age,
     gender: patient.sex,
-    
+
     // Contact Information
     phone: patient.contactNumber,
     email: patient.email || 'Not provided',
     address: patient.address,
-    
+
     // Emergency Contact
     emergencyContact: {
       name: patient.nextOfKin?.name || 'Not provided',
       relationship: patient.nextOfKin?.relationship || 'Not provided',
-      phone: patient.nextOfKin?.phone || 'Not provided'
+      phone: patient.nextOfKin?.phone || 'Not provided',
     },
-    
+
     // Medical Aid
     insurance: {
       provider: patient.insuranceDetails?.fundName || 'Not specified',
       memberNumber: patient.insuranceDetails?.memberNumber || 'Not specified',
-      plan: patient.insuranceDetails?.plan || 'Not specified'
+      plan: patient.insuranceDetails?.plan || 'Not specified',
     },
-    
+
     // Health Metrics
     healthMetrics: {
-      height: patient.medicalHistory?.height ? `${patient.medicalHistory.height} cm` : 'Not recorded',
-      weight: patient.medicalHistory?.weight ? `${patient.medicalHistory.weight} kg` : 'Not recorded',
+      height: patient.medicalHistory?.height
+        ? `${patient.medicalHistory.height} cm`
+        : 'Not recorded',
+      weight: patient.medicalHistory?.weight
+        ? `${patient.medicalHistory.weight} kg`
+        : 'Not recorded',
       bmi: bmi ? `${bmi.value} (${bmi.category})` : 'Not calculated',
-      bloodType: patient.medicalHistory?.bloodType || 'Unknown'
+      bloodType: patient.medicalHistory?.bloodType || 'Unknown',
     },
-    
+
     // Medical History
     medicalHistory: {
       allergies: patient.medicalHistory?.allergies || [],
       chronicConditions: patient.medicalHistory?.chronicConditions || [],
       currentMedications: patient.medicalHistory?.currentMedications || [],
       pastSurgeries: patient.medicalHistory?.pastSurgeries || [],
-      familyHistory: patient.medicalHistory?.familyHistory || 'No family history recorded'
-    }
+      familyHistory: patient.medicalHistory?.familyHistory || 'No family history recorded',
+    },
   };
 };
 
@@ -116,7 +121,7 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
  */
 export const generatePatientCSV = (patient: Patient) => {
   const summary = generatePatientSummary(patient);
-  
+
   const csvData = [
     ['Field', 'Value'],
     ['Full Name', summary.fullName],
@@ -141,10 +146,10 @@ export const generatePatientCSV = (patient: Patient) => {
     ['Chronic Conditions', summary.medicalHistory.chronicConditions.join('; ')],
     ['Current Medications', summary.medicalHistory.currentMedications.join('; ')],
     ['Past Surgeries', summary.medicalHistory.pastSurgeries.join('; ')],
-    ['Family History', summary.medicalHistory.familyHistory]
+    ['Family History', summary.medicalHistory.familyHistory],
   ];
-  
-  return csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+
+  return csvData.map((row) => row.map((field) => `"${field}"`).join(',')).join('\n');
 };
 
 /**
@@ -175,6 +180,8 @@ export const formatContactForCopy = (patient: Patient) => {
     'Emergency Contact:',
     `Name: ${patient.nextOfKin?.name || 'Not provided'}`,
     `Relationship: ${patient.nextOfKin?.relationship || 'Not provided'}`,
-    `Phone: ${patient.nextOfKin?.phone || 'Not provided'}`
-  ].filter(Boolean).join('\n');
+    `Phone: ${patient.nextOfKin?.phone || 'Not provided'}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
 };

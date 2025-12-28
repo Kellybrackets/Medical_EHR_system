@@ -1,670 +1,782 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Portal - Beulah</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f7fafc;
-            color: #2d3748;
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: #f7fafc;
+        color: #2d3748;
+      }
 
-        /* Top Bar */
-        .top-bar {
-            background: linear-gradient(135deg, #2563eb 0%, #14b8a6 100%);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-        }
+      /* Top Bar */
+      .top-bar {
+        background: linear-gradient(135deg, #2563eb 0%, #14b8a6 100%);
+        color: white;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+      }
 
-        .top-bar h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
+      .top-bar h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
 
-        .sign-out-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
+      .sign-out-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+      }
 
-        .sign-out-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
+      .sign-out-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
 
-        /* Main Container */
-        .container {
-            display: flex;
-            margin-top: 64px;
-            min-height: calc(100vh - 64px);
-        }
+      /* Main Container */
+      .container {
+        display: flex;
+        margin-top: 64px;
+        min-height: calc(100vh - 64px);
+      }
 
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: white;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
-            padding: 2rem 0;
-            position: fixed;
-            left: 0;
-            top: 64px;
-            bottom: 0;
-            overflow-y: auto;
-        }
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        background: white;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+        padding: 2rem 0;
+        position: fixed;
+        left: 0;
+        top: 64px;
+        bottom: 0;
+        overflow-y: auto;
+      }
 
-        .sidebar-menu {
-            list-style: none;
-        }
+      .sidebar-menu {
+        list-style: none;
+      }
 
-        .sidebar-menu li {
-            padding: 1rem 2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
+      .sidebar-menu li {
+        padding: 1rem 2rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+      }
 
-        .sidebar-menu li:hover {
-            background: #f7fafc;
-            border-left-color: #2563eb;
-        }
+      .sidebar-menu li:hover {
+        background: #f7fafc;
+        border-left-color: #2563eb;
+      }
 
-        .sidebar-menu li.active {
-            background: #eff6ff;
-            border-left-color: #2563eb;
-            color: #2563eb;
-            font-weight: 600;
-        }
+      .sidebar-menu li.active {
+        background: #eff6ff;
+        border-left-color: #2563eb;
+        color: #2563eb;
+        font-weight: 600;
+      }
 
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 2rem;
-        }
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        margin-left: 250px;
+        padding: 2rem;
+      }
 
-        /* Cards */
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
+      /* Cards */
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+      }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
 
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1a202c;
-        }
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a202c;
+      }
 
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
 
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
-        }
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      }
 
-        .stat-card.green {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
+      .stat-card.green {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
 
-        .stat-card.blue {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        }
+      .stat-card.blue {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      }
 
-        .stat-card.teal {
-            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-        }
+      .stat-card.teal {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+      }
 
-        .stat-label {
-            font-size: 0.875rem;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
-        }
+      .stat-label {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+      }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-        }
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+      }
 
-        /* Chart Placeholder */
-        .chart-placeholder {
-            background: #f7fafc;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-        }
+      /* Chart Placeholder */
+      .chart-placeholder {
+        background: #f7fafc;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+      }
 
-        .chart-bars {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            height: 200px;
-            margin-top: 1rem;
-        }
+      .chart-bars {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 200px;
+        margin-top: 1rem;
+      }
 
-        .chart-bar {
-            width: 40px;
-            background: linear-gradient(180deg, #2563eb 0%, #14b8a6 100%);
-            border-radius: 4px 4px 0 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-        }
+      .chart-bar {
+        width: 40px;
+        background: linear-gradient(180deg, #2563eb 0%, #14b8a6 100%);
+        border-radius: 4px 4px 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+      }
 
-        .chart-bar-label {
-            font-size: 0.75rem;
-            margin-top: 0.5rem;
-            color: #64748b;
-        }
+      .chart-bar-label {
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+        color: #64748b;
+      }
 
-        /* Buttons */
-        .btn {
-            padding: 0.625rem 1.25rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
+      /* Buttons */
+      .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #2563eb 0%, #14b8a6 100%);
-            color: white;
-        }
+      .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #14b8a6 100%);
+        color: white;
+      }
 
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-        }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
 
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
-        }
+      .btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+      }
 
-        .btn-secondary:hover {
-            background: #e2e8f0;
-        }
+      .btn-secondary:hover {
+        background: #e2e8f0;
+      }
 
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
 
-        .btn-danger:hover {
-            background: #dc2626;
-        }
+      .btn-danger:hover {
+        background: #dc2626;
+      }
 
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.8125rem;
-        }
+      .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8125rem;
+      }
 
-        /* Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+      /* Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
 
-        th {
-            background: #f8fafc;
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: #475569;
-            border-bottom: 2px solid #e2e8f0;
-        }
+      th {
+        background: #f8fafc;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #475569;
+        border-bottom: 2px solid #e2e8f0;
+      }
 
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.875rem;
-        }
+      td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.875rem;
+      }
 
-        tr:hover {
-            background: #f8fafc;
-        }
+      tr:hover {
+        background: #f8fafc;
+      }
 
-        /* Forms */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+      /* Forms */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
 
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #374151;
-        }
+      .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #374151;
+      }
 
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 0.625rem 0.875rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
+      .form-input,
+      .form-select,
+      .form-textarea {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+      }
 
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-        }
+      .form-input:focus,
+      .form-select:focus,
+      .form-textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
 
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+      .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
 
-        .form-checkbox {
-            width: auto;
-            margin-right: 0.5rem;
-        }
+      .form-checkbox {
+        width: auto;
+        margin-right: 0.5rem;
+      }
 
-        /* Search Bar */
-        .search-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
+      /* Search Bar */
+      .search-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
 
-        .search-input {
-            flex: 1;
-            padding: 0.625rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.875rem;
-        }
+      .search-input {
+        flex: 1;
+        padding: 0.625rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+      }
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
 
-        .modal.active {
-            display: flex;
-        }
+      .modal.active {
+        display: flex;
+      }
 
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
+      .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
 
-        .modal-header {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
+      .modal-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+      }
 
-        .modal-footer {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 1.5rem;
-        }
+      .modal-footer {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+      }
 
-        /* Badge */
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+      /* Badge */
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
 
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
+      .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+      }
 
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
-        }
+      .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+      }
 
-        .badge-warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
+      .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
 
-        /* Module visibility */
-        .module {
-            display: none;
-        }
+      /* Module visibility */
+      .module {
+        display: none;
+      }
 
-        .module.active {
-            display: block;
-        }
+      .module.active {
+        display: block;
+      }
 
-        /* Action buttons */
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
+      /* Action buttons */
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Top Bar -->
     <div class="top-bar">
-        <h1>🏥 Admin Portal - Beulah</h1>
-        <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+      <h1>🏥 Admin Portal - Beulah</h1>
+      <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
     </div>
 
     <!-- Main Container -->
     <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <ul class="sidebar-menu">
-                <li class="active" onclick="showModule('dashboard')">📊 Dashboard</li>
-                <li onclick="showModule('practices')">🏥 Practices</li>
-                <li onclick="showModule('users')">👥 Users</li>
-                <li onclick="showModule('settings')">⚙️ System Settings</li>
-            </ul>
-        </nav>
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <ul class="sidebar-menu">
+          <li class="active" onclick="showModule('dashboard')">📊 Dashboard</li>
+          <li onclick="showModule('practices')">🏥 Practices</li>
+          <li onclick="showModule('users')">👥 Users</li>
+          <li onclick="showModule('settings')">⚙️ System Settings</li>
+        </ul>
+      </nav>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Dashboard Module -->
-            <div id="dashboard" class="module active">
-                <h2 style="margin-bottom: 2rem; font-size: 1.75rem; font-weight: 700;">Dashboard Overview</h2>
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Dashboard Module -->
+        <div id="dashboard" class="module active">
+          <h2 style="margin-bottom: 2rem; font-size: 1.75rem; font-weight: 700">
+            Dashboard Overview
+          </h2>
 
-                <div class="stats-grid">
-                    <div class="stat-card blue">
-                        <div class="stat-label">Total Practices</div>
-                        <div class="stat-value" id="totalPractices">3</div>
-                    </div>
-                    <div class="stat-card green">
-                        <div class="stat-label">Total Users</div>
-                        <div class="stat-value" id="totalUsers">47</div>
-                    </div>
-                    <div class="stat-card teal">
-                        <div class="stat-label">Active Today</div>
-                        <div class="stat-value">12</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">New This Week</div>
-                        <div class="stat-value">8</div>
-                    </div>
+          <div class="stats-grid">
+            <div class="stat-card blue">
+              <div class="stat-label">Total Practices</div>
+              <div class="stat-value" id="totalPractices">3</div>
+            </div>
+            <div class="stat-card green">
+              <div class="stat-label">Total Users</div>
+              <div class="stat-value" id="totalUsers">47</div>
+            </div>
+            <div class="stat-card teal">
+              <div class="stat-label">Active Today</div>
+              <div class="stat-value">12</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">New This Week</div>
+              <div class="stat-value">8</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Registrations This Week</div>
+            <div class="chart-placeholder">
+              <div class="chart-bars">
+                <div>
+                  <div class="chart-bar" style="height: 60px"></div>
+                  <div class="chart-bar-label">Mon</div>
                 </div>
-
-                <div class="card">
-                    <div class="card-title">Registrations This Week</div>
-                    <div class="chart-placeholder">
-                        <div class="chart-bars">
-                            <div>
-                                <div class="chart-bar" style="height: 60px;"></div>
-                                <div class="chart-bar-label">Mon</div>
-                            </div>
-                            <div>
-                                <div class="chart-bar" style="height: 120px;"></div>
-                                <div class="chart-bar-label">Tue</div>
-                            </div>
-                            <div>
-                                <div class="chart-bar" style="height: 80px;"></div>
-                                <div class="chart-bar-label">Wed</div>
-                            </div>
-                            <div>
-                                <div class="chart-bar" style="height: 150px;"></div>
-                                <div class="chart-bar-label">Thu</div>
-                            </div>
-                            <div>
-                                <div class="chart-bar" style="height: 90px;"></div>
-                                <div class="chart-bar-label">Fri</div>
-                            </div>
-                            <div>
-                                <div class="chart-bar" style="height: 40px;"></div>
-                                <div class="chart-bar-label">Sat</div>
-                            </div>
-                            <div>
-                                <div class="chart-bar" style="height: 30px;"></div>
-                                <div class="chart-bar-label">Sun</div>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                  <div class="chart-bar" style="height: 120px"></div>
+                  <div class="chart-bar-label">Tue</div>
                 </div>
+                <div>
+                  <div class="chart-bar" style="height: 80px"></div>
+                  <div class="chart-bar-label">Wed</div>
+                </div>
+                <div>
+                  <div class="chart-bar" style="height: 150px"></div>
+                  <div class="chart-bar-label">Thu</div>
+                </div>
+                <div>
+                  <div class="chart-bar" style="height: 90px"></div>
+                  <div class="chart-bar-label">Fri</div>
+                </div>
+                <div>
+                  <div class="chart-bar" style="height: 40px"></div>
+                  <div class="chart-bar-label">Sat</div>
+                </div>
+                <div>
+                  <div class="chart-bar" style="height: 30px"></div>
+                  <div class="chart-bar-label">Sun</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Practices Module -->
+        <div id="practices" class="module">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Manage Practices</h2>
+              <button class="btn btn-primary" onclick="showAddPracticeModal()">
+                + Add New Practice
+              </button>
             </div>
 
-            <!-- Practices Module -->
-            <div id="practices" class="module">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Manage Practices</h2>
-                        <button class="btn btn-primary" onclick="showAddPracticeModal()">+ Add New Practice</button>
-                    </div>
+            <table id="practicesTable">
+              <thead>
+                <tr>
+                  <th>Practice Name</th>
+                  <th>Practice Code</th>
+                  <th>User Count</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="practicesTableBody">
+                <!-- Populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-                    <table id="practicesTable">
-                        <thead>
-                            <tr>
-                                <th>Practice Name</th>
-                                <th>Practice Code</th>
-                                <th>User Count</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="practicesTableBody">
-                            <!-- Populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
+        <!-- Users Module -->
+        <div id="users" class="module">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Manage Users</h2>
             </div>
 
-            <!-- Users Module -->
-            <div id="users" class="module">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Manage Users</h2>
-                    </div>
-
-                    <div class="search-bar">
-                        <input type="text" class="search-input" id="userSearch" placeholder="Search by name or email..." oninput="filterUsers()">
-                        <select class="form-select" id="practiceFilter" onchange="filterUsers()" style="width: 250px;">
-                            <option value="">All Practices</option>
-                        </select>
-                    </div>
-
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th>User Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Practice</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="search-bar">
+              <input
+                type="text"
+                class="search-input"
+                id="userSearch"
+                placeholder="Search by name or email..."
+                oninput="filterUsers()"
+              />
+              <select
+                class="form-select"
+                id="practiceFilter"
+                onchange="filterUsers()"
+                style="width: 250px"
+              >
+                <option value="">All Practices</option>
+              </select>
             </div>
 
-            <!-- Settings Module -->
-            <div id="settings" class="module">
-                <div class="card">
-                    <h2 class="card-title" style="margin-bottom: 2rem;">System Settings</h2>
+            <table id="usersTable">
+              <thead>
+                <tr>
+                  <th>User Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Practice</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-                    <form onsubmit="saveSettings(event)">
-                        <div class="form-group">
-                            <label class="form-label">System Name</label>
-                            <input type="text" class="form-input" id="systemName" value="Beulah">
-                        </div>
+        <!-- Settings Module -->
+        <div id="settings" class="module">
+          <div class="card">
+            <h2 class="card-title" style="margin-bottom: 2rem">System Settings</h2>
 
-                        <div class="form-group">
-                            <label class="form-label">
-                                <input type="checkbox" class="form-checkbox" id="requireStrongPassword" checked>
-                                Require Strong Passwords
-                            </label>
-                        </div>
+            <form onsubmit="saveSettings(event)">
+              <div class="form-group">
+                <label class="form-label">System Name</label>
+                <input type="text" class="form-input" id="systemName" value="Beulah" />
+              </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Session Timeout (minutes)</label>
-                            <input type="number" class="form-input" id="sessionTimeout" value="30" min="5" max="120">
-                        </div>
+              <div class="form-group">
+                <label class="form-label">
+                  <input type="checkbox" class="form-checkbox" id="requireStrongPassword" checked />
+                  Require Strong Passwords
+                </label>
+              </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Maximum Login Attempts</label>
-                            <input type="number" class="form-input" id="maxLoginAttempts" value="5" min="3" max="10">
-                        </div>
+              <div class="form-group">
+                <label class="form-label">Session Timeout (minutes)</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="sessionTimeout"
+                  value="30"
+                  min="5"
+                  max="120"
+                />
+              </div>
 
-                        <div class="form-group">
-                            <label class="form-label">
-                                <input type="checkbox" class="form-checkbox" id="enableAuditLog" checked>
-                                Enable Audit Logging
-                            </label>
-                        </div>
+              <div class="form-group">
+                <label class="form-label">Maximum Login Attempts</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="maxLoginAttempts"
+                  value="5"
+                  min="3"
+                  max="10"
+                />
+              </div>
 
-                        <button type="submit" class="btn btn-primary">Save Settings</button>
-                    </form>
-                </div>
-            </div>
-        </main>
+              <div class="form-group">
+                <label class="form-label">
+                  <input type="checkbox" class="form-checkbox" id="enableAuditLog" checked />
+                  Enable Audit Logging
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Add/Edit Practice Modal -->
     <div id="practiceModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header" id="practiceModalTitle">Add New Practice</div>
-            <form onsubmit="savePractice(event)">
-                <input type="hidden" id="editPracticeIndex">
+      <div class="modal-content">
+        <div class="modal-header" id="practiceModalTitle">Add New Practice</div>
+        <form onsubmit="savePractice(event)">
+          <input type="hidden" id="editPracticeIndex" />
 
-                <div class="form-group">
-                    <label class="form-label">Practice Name *</label>
-                    <input type="text" class="form-input" id="practiceName" required>
-                </div>
+          <div class="form-group">
+            <label class="form-label">Practice Name *</label>
+            <input type="text" class="form-input" id="practiceName" required />
+          </div>
 
-                <div class="form-group">
-                    <label class="form-label">Practice Code * (must be unique)</label>
-                    <input type="text" class="form-input" id="practiceCode" required pattern="[A-Z0-9]+" title="Uppercase letters and numbers only">
-                </div>
+          <div class="form-group">
+            <label class="form-label">Practice Code * (must be unique)</label>
+            <input
+              type="text"
+              class="form-input"
+              id="practiceCode"
+              required
+              pattern="[A-Z0-9]+"
+              title="Uppercase letters and numbers only"
+            />
+          </div>
 
-                <div class="form-group">
-                    <label class="form-label">Address</label>
-                    <textarea class="form-textarea" id="practiceAddress"></textarea>
-                </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <textarea class="form-textarea" id="practiceAddress"></textarea>
+          </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closePracticeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </div>
-            </form>
-        </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closePracticeModal()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
-        // Data Storage
-        window.practices = [
-            { name: 'City General Hospital', code: 'CGH001', address: '123 Main Street, City Center', status: 'active' },
-            { name: 'Family Wellness Clinic', code: 'FWC002', address: '456 Oak Avenue, Suburb', status: 'active' },
-            { name: 'Downtown Medical Center', code: 'DMC003', address: '789 Pine Road, Downtown', status: 'active' }
-        ];
+      // Data Storage
+      window.practices = [
+        {
+          name: 'City General Hospital',
+          code: 'CGH001',
+          address: '123 Main Street, City Center',
+          status: 'active',
+        },
+        {
+          name: 'Family Wellness Clinic',
+          code: 'FWC002',
+          address: '456 Oak Avenue, Suburb',
+          status: 'active',
+        },
+        {
+          name: 'Downtown Medical Center',
+          code: 'DMC003',
+          address: '789 Pine Road, Downtown',
+          status: 'active',
+        },
+      ];
 
-        window.users = [
-            { name: 'Dr. Sarah Johnson', email: 'sarah.johnson@cgh.com', role: 'Doctor', practiceCode: 'CGH001', status: 'Active' },
-            { name: 'Dr. Michael Chen', email: 'michael.chen@cgh.com', role: 'Doctor', practiceCode: 'CGH001', status: 'Active' },
-            { name: 'Emily Davis', email: 'emily.davis@cgh.com', role: 'Receptionist', practiceCode: 'CGH001', status: 'Active' },
-            { name: 'Dr. Amanda Wilson', email: 'amanda.wilson@fwc.com', role: 'Doctor', practiceCode: 'FWC002', status: 'Active' },
-            { name: 'Robert Brown', email: 'robert.brown@fwc.com', role: 'Receptionist', practiceCode: 'FWC002', status: 'Active' },
-            { name: 'Dr. James Martinez', email: 'james.martinez@dmc.com', role: 'Doctor', practiceCode: 'DMC003', status: 'Active' },
-            { name: 'Lisa Anderson', email: 'lisa.anderson@dmc.com', role: 'Receptionist', practiceCode: 'DMC003', status: 'Suspended' },
-            { name: 'Dr. Patricia Taylor', email: 'patricia.taylor@cgh.com', role: 'Doctor', practiceCode: 'CGH001', status: 'Active' }
-        ];
+      window.users = [
+        {
+          name: 'Dr. Sarah Johnson',
+          email: 'sarah.johnson@cgh.com',
+          role: 'Doctor',
+          practiceCode: 'CGH001',
+          status: 'Active',
+        },
+        {
+          name: 'Dr. Michael Chen',
+          email: 'michael.chen@cgh.com',
+          role: 'Doctor',
+          practiceCode: 'CGH001',
+          status: 'Active',
+        },
+        {
+          name: 'Emily Davis',
+          email: 'emily.davis@cgh.com',
+          role: 'Receptionist',
+          practiceCode: 'CGH001',
+          status: 'Active',
+        },
+        {
+          name: 'Dr. Amanda Wilson',
+          email: 'amanda.wilson@fwc.com',
+          role: 'Doctor',
+          practiceCode: 'FWC002',
+          status: 'Active',
+        },
+        {
+          name: 'Robert Brown',
+          email: 'robert.brown@fwc.com',
+          role: 'Receptionist',
+          practiceCode: 'FWC002',
+          status: 'Active',
+        },
+        {
+          name: 'Dr. James Martinez',
+          email: 'james.martinez@dmc.com',
+          role: 'Doctor',
+          practiceCode: 'DMC003',
+          status: 'Active',
+        },
+        {
+          name: 'Lisa Anderson',
+          email: 'lisa.anderson@dmc.com',
+          role: 'Receptionist',
+          practiceCode: 'DMC003',
+          status: 'Suspended',
+        },
+        {
+          name: 'Dr. Patricia Taylor',
+          email: 'patricia.taylor@cgh.com',
+          role: 'Doctor',
+          practiceCode: 'CGH001',
+          status: 'Active',
+        },
+      ];
 
-        // Navigation
-        function showModule(moduleId) {
-            // Hide all modules
-            document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
-            // Show selected module
-            document.getElementById(moduleId).classList.add('active');
+      // Navigation
+      function showModule(moduleId) {
+        // Hide all modules
+        document.querySelectorAll('.module').forEach((m) => m.classList.remove('active'));
+        // Show selected module
+        document.getElementById(moduleId).classList.add('active');
 
-            // Update sidebar active state
-            document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
-            event.target.classList.add('active');
+        // Update sidebar active state
+        document
+          .querySelectorAll('.sidebar-menu li')
+          .forEach((li) => li.classList.remove('active'));
+        event.target.classList.add('active');
 
-            // Render data for the selected module
-            if (moduleId === 'practices') {
-                renderPractices();
-            } else if (moduleId === 'users') {
-                renderUsers();
-                populatePracticeFilter();
-            } else if (moduleId === 'dashboard') {
-                updateDashboardStats();
-            }
+        // Render data for the selected module
+        if (moduleId === 'practices') {
+          renderPractices();
+        } else if (moduleId === 'users') {
+          renderUsers();
+          populatePracticeFilter();
+        } else if (moduleId === 'dashboard') {
+          updateDashboardStats();
         }
+      }
 
-        // Dashboard
-        function updateDashboardStats() {
-            document.getElementById('totalPractices').textContent = window.practices.filter(p => p.status === 'active').length;
-            document.getElementById('totalUsers').textContent = window.users.filter(u => u.status === 'Active').length;
-        }
+      // Dashboard
+      function updateDashboardStats() {
+        document.getElementById('totalPractices').textContent = window.practices.filter(
+          (p) => p.status === 'active',
+        ).length;
+        document.getElementById('totalUsers').textContent = window.users.filter(
+          (u) => u.status === 'Active',
+        ).length;
+      }
 
-        // Practices Management
-        function renderPractices() {
-            const tbody = document.getElementById('practicesTableBody');
-            tbody.innerHTML = '';
+      // Practices Management
+      function renderPractices() {
+        const tbody = document.getElementById('practicesTableBody');
+        tbody.innerHTML = '';
 
-            window.practices.forEach((practice, index) => {
-                const userCount = window.users.filter(u => u.practiceCode === practice.code).length;
-                const row = `
+        window.practices.forEach((practice, index) => {
+          const userCount = window.users.filter((u) => u.practiceCode === practice.code).length;
+          const row = `
                     <tr>
                         <td>${practice.name}</td>
                         <td><strong>${practice.code}</strong></td>
@@ -680,104 +792,113 @@
                         </td>
                     </tr>
                 `;
-                tbody.innerHTML += row;
+          tbody.innerHTML += row;
+        });
+      }
+
+      function showAddPracticeModal() {
+        document.getElementById('practiceModalTitle').textContent = 'Add New Practice';
+        document.getElementById('editPracticeIndex').value = '';
+        document.getElementById('practiceName').value = '';
+        document.getElementById('practiceCode').value = '';
+        document.getElementById('practiceAddress').value = '';
+        document.getElementById('practiceModal').classList.add('active');
+      }
+
+      function editPractice(index) {
+        const practice = window.practices[index];
+        document.getElementById('practiceModalTitle').textContent = 'Edit Practice';
+        document.getElementById('editPracticeIndex').value = index;
+        document.getElementById('practiceName').value = practice.name;
+        document.getElementById('practiceCode').value = practice.code;
+        document.getElementById('practiceAddress').value = practice.address;
+        document.getElementById('practiceModal').classList.add('active');
+      }
+
+      function closePracticeModal() {
+        document.getElementById('practiceModal').classList.remove('active');
+      }
+
+      function savePractice(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('practiceName').value;
+        const code = document.getElementById('practiceCode').value.toUpperCase();
+        const address = document.getElementById('practiceAddress').value;
+        const editIndex = document.getElementById('editPracticeIndex').value;
+
+        // Check for duplicate code
+        const isDuplicate = window.practices.some(
+          (p, i) => p.code === code && i !== parseInt(editIndex),
+        );
+
+        if (isDuplicate) {
+          alert('Practice code already exists! Please use a unique code.');
+          return;
+        }
+
+        if (editIndex === '') {
+          // Add new practice
+          window.practices.push({ name, code, address, status: 'active' });
+          alert('Practice added successfully!');
+        } else {
+          // Edit existing practice
+          const oldCode = window.practices[editIndex].code;
+          window.practices[editIndex] = {
+            name,
+            code,
+            address,
+            status: window.practices[editIndex].status,
+          };
+
+          // Update user practice codes if code changed
+          if (oldCode !== code) {
+            window.users.forEach((user) => {
+              if (user.practiceCode === oldCode) {
+                user.practiceCode = code;
+              }
             });
+          }
+          alert('Practice updated successfully!');
         }
 
-        function showAddPracticeModal() {
-            document.getElementById('practiceModalTitle').textContent = 'Add New Practice';
-            document.getElementById('editPracticeIndex').value = '';
-            document.getElementById('practiceName').value = '';
-            document.getElementById('practiceCode').value = '';
-            document.getElementById('practiceAddress').value = '';
-            document.getElementById('practiceModal').classList.add('active');
+        closePracticeModal();
+        renderPractices();
+        updateDashboardStats();
+      }
+
+      function togglePracticeStatus(index) {
+        const practice = window.practices[index];
+        const newStatus = practice.status === 'active' ? 'inactive' : 'active';
+
+        if (newStatus === 'inactive') {
+          const userCount = window.users.filter((u) => u.practiceCode === practice.code).length;
+          if (
+            !confirm(
+              `This will deactivate ${practice.name} and affect ${userCount} users. Continue?`,
+            )
+          ) {
+            return;
+          }
         }
 
-        function editPractice(index) {
-            const practice = window.practices[index];
-            document.getElementById('practiceModalTitle').textContent = 'Edit Practice';
-            document.getElementById('editPracticeIndex').value = index;
-            document.getElementById('practiceName').value = practice.name;
-            document.getElementById('practiceCode').value = practice.code;
-            document.getElementById('practiceAddress').value = practice.address;
-            document.getElementById('practiceModal').classList.add('active');
-        }
+        window.practices[index].status = newStatus;
+        renderPractices();
+        updateDashboardStats();
+      }
 
-        function closePracticeModal() {
-            document.getElementById('practiceModal').classList.remove('active');
-        }
+      // Users Management
+      function renderUsers(filteredUsers = null) {
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
 
-        function savePractice(event) {
-            event.preventDefault();
+        const usersToRender = filteredUsers || window.users;
 
-            const name = document.getElementById('practiceName').value;
-            const code = document.getElementById('practiceCode').value.toUpperCase();
-            const address = document.getElementById('practiceAddress').value;
-            const editIndex = document.getElementById('editPracticeIndex').value;
+        usersToRender.forEach((user, index) => {
+          const practice = window.practices.find((p) => p.code === user.practiceCode);
+          const practiceName = practice ? practice.name : 'Unknown';
 
-            // Check for duplicate code
-            const isDuplicate = window.practices.some((p, i) =>
-                p.code === code && i !== parseInt(editIndex)
-            );
-
-            if (isDuplicate) {
-                alert('Practice code already exists! Please use a unique code.');
-                return;
-            }
-
-            if (editIndex === '') {
-                // Add new practice
-                window.practices.push({ name, code, address, status: 'active' });
-                alert('Practice added successfully!');
-            } else {
-                // Edit existing practice
-                const oldCode = window.practices[editIndex].code;
-                window.practices[editIndex] = { name, code, address, status: window.practices[editIndex].status };
-
-                // Update user practice codes if code changed
-                if (oldCode !== code) {
-                    window.users.forEach(user => {
-                        if (user.practiceCode === oldCode) {
-                            user.practiceCode = code;
-                        }
-                    });
-                }
-                alert('Practice updated successfully!');
-            }
-
-            closePracticeModal();
-            renderPractices();
-            updateDashboardStats();
-        }
-
-        function togglePracticeStatus(index) {
-            const practice = window.practices[index];
-            const newStatus = practice.status === 'active' ? 'inactive' : 'active';
-
-            if (newStatus === 'inactive') {
-                const userCount = window.users.filter(u => u.practiceCode === practice.code).length;
-                if (!confirm(`This will deactivate ${practice.name} and affect ${userCount} users. Continue?`)) {
-                    return;
-                }
-            }
-
-            window.practices[index].status = newStatus;
-            renderPractices();
-            updateDashboardStats();
-        }
-
-        // Users Management
-        function renderUsers(filteredUsers = null) {
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '';
-
-            const usersToRender = filteredUsers || window.users;
-
-            usersToRender.forEach((user, index) => {
-                const practice = window.practices.find(p => p.code === user.practiceCode);
-                const practiceName = practice ? practice.name : 'Unknown';
-
-                const row = `
+          const row = `
                     <tr>
                         <td>${user.name}</td>
                         <td>${user.email}</td>
@@ -794,81 +915,82 @@
                         </td>
                     </tr>
                 `;
-                tbody.innerHTML += row;
-            });
-        }
-
-        function populatePracticeFilter() {
-            const filter = document.getElementById('practiceFilter');
-            filter.innerHTML = '<option value="">All Practices</option>';
-
-            window.practices.forEach(practice => {
-                filter.innerHTML += `<option value="${practice.code}">${practice.name}</option>`;
-            });
-        }
-
-        function filterUsers() {
-            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-            const practiceCode = document.getElementById('practiceFilter').value;
-
-            const filtered = window.users.filter(user => {
-                const matchesSearch = user.name.toLowerCase().includes(searchTerm) ||
-                                    user.email.toLowerCase().includes(searchTerm);
-                const matchesPractice = !practiceCode || user.practiceCode === practiceCode;
-
-                return matchesSearch && matchesPractice;
-            });
-
-            renderUsers(filtered);
-        }
-
-        function resetPassword(email) {
-            alert(`Password reset email has been sent to ${email}`);
-        }
-
-        function toggleUserStatus(index) {
-            const user = window.users[index];
-            const newStatus = user.status === 'Active' ? 'Suspended' : 'Active';
-
-            if (!confirm(`${newStatus === 'Suspended' ? 'Suspend' : 'Activate'} user ${user.name}?`)) {
-                return;
-            }
-
-            window.users[index].status = newStatus;
-            renderUsers();
-            updateDashboardStats();
-        }
-
-        // Settings
-        function saveSettings(event) {
-            event.preventDefault();
-
-            const settings = {
-                systemName: document.getElementById('systemName').value,
-                requireStrongPassword: document.getElementById('requireStrongPassword').checked,
-                sessionTimeout: document.getElementById('sessionTimeout').value,
-                maxLoginAttempts: document.getElementById('maxLoginAttempts').value,
-                enableAuditLog: document.getElementById('enableAuditLog').checked
-            };
-
-            console.log('Settings saved:', settings);
-            alert('Settings saved successfully!');
-        }
-
-        // Sign Out
-        function signOut() {
-            if (confirm('Are you sure you want to sign out?')) {
-                window.location.href = '/';
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            updateDashboardStats();
-            renderPractices();
-            renderUsers();
-            populatePracticeFilter();
+          tbody.innerHTML += row;
         });
+      }
+
+      function populatePracticeFilter() {
+        const filter = document.getElementById('practiceFilter');
+        filter.innerHTML = '<option value="">All Practices</option>';
+
+        window.practices.forEach((practice) => {
+          filter.innerHTML += `<option value="${practice.code}">${practice.name}</option>`;
+        });
+      }
+
+      function filterUsers() {
+        const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+        const practiceCode = document.getElementById('practiceFilter').value;
+
+        const filtered = window.users.filter((user) => {
+          const matchesSearch =
+            user.name.toLowerCase().includes(searchTerm) ||
+            user.email.toLowerCase().includes(searchTerm);
+          const matchesPractice = !practiceCode || user.practiceCode === practiceCode;
+
+          return matchesSearch && matchesPractice;
+        });
+
+        renderUsers(filtered);
+      }
+
+      function resetPassword(email) {
+        alert(`Password reset email has been sent to ${email}`);
+      }
+
+      function toggleUserStatus(index) {
+        const user = window.users[index];
+        const newStatus = user.status === 'Active' ? 'Suspended' : 'Active';
+
+        if (!confirm(`${newStatus === 'Suspended' ? 'Suspend' : 'Activate'} user ${user.name}?`)) {
+          return;
+        }
+
+        window.users[index].status = newStatus;
+        renderUsers();
+        updateDashboardStats();
+      }
+
+      // Settings
+      function saveSettings(event) {
+        event.preventDefault();
+
+        const settings = {
+          systemName: document.getElementById('systemName').value,
+          requireStrongPassword: document.getElementById('requireStrongPassword').checked,
+          sessionTimeout: document.getElementById('sessionTimeout').value,
+          maxLoginAttempts: document.getElementById('maxLoginAttempts').value,
+          enableAuditLog: document.getElementById('enableAuditLog').checked,
+        };
+
+        console.log('Settings saved:', settings);
+        alert('Settings saved successfully!');
+      }
+
+      // Sign Out
+      function signOut() {
+        if (confirm('Are you sure you want to sign out?')) {
+          window.location.href = '/';
+        }
+      }
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', function () {
+        updateDashboardStats();
+        renderPractices();
+        renderUsers();
+        populatePracticeFilter();
+      });
     </script>
-</body>
+  </body>
 </html>

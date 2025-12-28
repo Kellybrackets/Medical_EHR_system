@@ -26,7 +26,7 @@ export const useSystemSettings = () => {
           description: s.description,
           updatedAt: s.updated_at,
           updatedBy: s.updated_by,
-        })) || []
+        })) || [],
       );
       setError(null);
     } catch (err: any) {
@@ -59,10 +59,7 @@ export const useSystemSettings = () => {
     }
   };
 
-  const updateSetting = async (
-    key: string,
-    value: string | number | boolean
-  ) => {
+  const updateSetting = async (key: string, value: string | number | boolean) => {
     try {
       const stringValue = String(value);
 
@@ -84,7 +81,7 @@ export const useSystemSettings = () => {
   };
 
   const updateMultipleSettings = async (
-    updates: Array<{ key: string; value: string | number | boolean }>
+    updates: Array<{ key: string; value: string | number | boolean }>,
   ) => {
     try {
       for (const update of updates) {

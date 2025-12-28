@@ -29,14 +29,14 @@ const initialFormData: ConsultationFormData = {
   date: new Date().toISOString().split('T')[0],
   reasonForVisit: '',
   icd10Code: '',
-  clinicalNotes: ''
+  clinicalNotes: '',
 };
 
 const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   patientId,
   consultationId,
   onBack,
-  onSave
+  onSave,
 }) => {
   const [formData, setFormData] = useState<ConsultationFormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<ConsultationFormData>>({});
@@ -47,34 +47,37 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   const { consultationNotes, addConsultationNote, updateConsultationNote } = useConsultationNotes();
   const { user } = useAuthContext();
 
-  const patient = patients.find(p => p.id === patientId);
+  const patient = patients.find((p) => p.id === patientId);
   const isEditMode = !!consultationId;
 
   // Load existing consultation data in edit mode
   useEffect(() => {
     if (isEditMode && consultationId) {
       setLoadingConsultation(true);
-      const consultation = consultationNotes.find(c => c.id === consultationId);
+      const consultation = consultationNotes.find((c) => c.id === consultationId);
 
       if (consultation) {
         setFormData({
           date: consultation.date,
           reasonForVisit: consultation.reasonForVisit,
           icd10Code: consultation.icd10Code || '',
-          clinicalNotes: consultation.clinicalNotes || ''
+          clinicalNotes: consultation.clinicalNotes || '',
         });
       }
       setLoadingConsultation(false);
     }
   }, [isEditMode, consultationId, consultationNotes]);
 
-  const updateFormField = useCallback((field: keyof ConsultationFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const updateFormField = useCallback(
+    (field: keyof ConsultationFormData, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
 
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  }, [errors]);
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    },
+    [errors],
+  );
 
   const validateForm = useCallback((): boolean => {
     const newErrors: Partial<ConsultationFormData> = {};
@@ -97,69 +100,83 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    console.log('🔥 Form submitted!');
-    console.log('📝 Form data:', formData);
+      console.log('🔥 Form submitted!');
+      console.log('📝 Form data:', formData);
 
-    if (!validateForm()) {
-      console.log('❌ Form validation failed');
-      return;
-    }
-
-    console.log('✅ Form validation passed');
-    setSaving(true);
-
-    try {
-      const consultationData = {
-        patientId,
-        date: formData.date,
-        reasonForVisit: formData.reasonForVisit.trim(),
-        icd10Code: formData.icd10Code.trim() || undefined,
-        clinicalNotes: formData.clinicalNotes
-      };
-
-      let result;
-      if (isEditMode && consultationId) {
-        console.log('📊 Updating consultation:', consultationId, consultationData);
-        result = await updateConsultationNote(consultationId, consultationData);
-      } else {
-        console.log('📊 Creating new consultation:', consultationData);
-        result = await addConsultationNote(consultationData);
+      if (!validateForm()) {
+        console.log('❌ Form validation failed');
+        return;
       }
 
-      console.log('📋 Result:', result);
+      console.log('✅ Form validation passed');
+      setSaving(true);
 
-      if (result.success) {
-        console.log('🎉 Consultation saved successfully!');
+      try {
+        const consultationData = {
+          patientId,
+          date: formData.date,
+          reasonForVisit: formData.reasonForVisit.trim(),
+          icd10Code: formData.icd10Code.trim() || undefined,
+          clinicalNotes: formData.clinicalNotes,
+        };
 
-        // Mark patient as served when consultation is completed
-        if (user?.id && !isEditMode) {
-          await completeConsultation(patientId, user.id);
+        let result;
+        if (isEditMode && consultationId) {
+          console.log('📊 Updating consultation:', consultationId, consultationData);
+          result = await updateConsultationNote(consultationId, consultationData);
+        } else {
+          console.log('📊 Creating new consultation:', consultationData);
+          result = await addConsultationNote(consultationData);
         }
 
-        onSave();
-      } else {
-        console.error('❌ Failed to save consultation:', result.error);
-        setErrors({ reasonForVisit: result.error || 'Failed to save consultation' });
-      }
-    } catch (error) {
-      console.error('💥 Exception during save:', error);
-      setErrors({ reasonForVisit: 'An unexpected error occurred' });
-    }
+        console.log('📋 Result:', result);
 
-    console.log('🔄 Setting saving to false');
-    setSaving(false);
-  }, [formData, validateForm, patientId, isEditMode, consultationId, addConsultationNote, updateConsultationNote, onSave, user, completeConsultation]);
+        if (result.success) {
+          console.log('🎉 Consultation saved successfully!');
+
+          // Mark patient as served when consultation is completed
+          if (user?.id && !isEditMode) {
+            await completeConsultation(patientId, user.id);
+          }
+
+          onSave();
+        } else {
+          console.error('❌ Failed to save consultation:', result.error);
+          setErrors({ reasonForVisit: result.error || 'Failed to save consultation' });
+        }
+      } catch (error) {
+        console.error('💥 Exception during save:', error);
+        setErrors({ reasonForVisit: 'An unexpected error occurred' });
+      }
+
+      console.log('🔄 Setting saving to false');
+      setSaving(false);
+    },
+    [
+      formData,
+      validateForm,
+      patientId,
+      isEditMode,
+      consultationId,
+      addConsultationNote,
+      updateConsultationNote,
+      onSave,
+      user,
+      completeConsultation,
+    ],
+  );
 
   // Show loading spinner while patients data is being fetched
   if (patientsLoading || loadingConsultation) {
     return (
-      <AppLayout title={isEditMode ? "Edit Consultation" : "Add Consultation"}>
+      <AppLayout title={isEditMode ? 'Edit Consultation' : 'Add Consultation'}>
         <LoadingSpinner
           size="lg"
-          text={loadingConsultation ? "Loading consultation..." : "Loading patient information..."}
+          text={loadingConsultation ? 'Loading consultation...' : 'Loading patient information...'}
         />
       </AppLayout>
     );
@@ -168,7 +185,7 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   // Only show "not found" if loading is complete and patient still doesn't exist
   if (!patient) {
     return (
-      <AppLayout title={isEditMode ? "Edit Consultation" : "Add Consultation"}>
+      <AppLayout title={isEditMode ? 'Edit Consultation' : 'Add Consultation'}>
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Patient not found</h3>
@@ -187,14 +204,11 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   }
 
   return (
-    <AppLayout title={isEditMode ? "Edit Consultation" : "Add Consultation"}>
+    <AppLayout title={isEditMode ? 'Edit Consultation' : 'Add Consultation'}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-4">
-          <Button
-            variant="secondary"
-            onClick={onBack}
-          >
+          <Button variant="secondary" onClick={onBack}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
@@ -232,20 +246,28 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
                 <dt className="text-sm font-medium text-gray-500">Gender</dt>
                 <dd className="mt-1 text-sm text-gray-900">{patient.sex}</dd>
               </div>
-              {(patient.medicalHistory?.allergies?.length > 0 || 
-                patient.medicalHistory?.chronicConditions?.length > 0 || 
+              {(patient.medicalHistory?.allergies?.length > 0 ||
+                patient.medicalHistory?.chronicConditions?.length > 0 ||
                 patient.medicalHistory?.pastDiagnoses?.length > 0) && (
                 <div className="md:col-span-3">
                   <dt className="text-sm font-medium text-gray-500">Medical History</dt>
                   <dd className="mt-1 text-sm text-gray-900">
                     {patient.medicalHistory.allergies?.length > 0 && (
-                      <div><strong>Allergies:</strong> {patient.medicalHistory.allergies.join(', ')}</div>
+                      <div>
+                        <strong>Allergies:</strong> {patient.medicalHistory.allergies.join(', ')}
+                      </div>
                     )}
                     {patient.medicalHistory.chronicConditions?.length > 0 && (
-                      <div><strong>Chronic Conditions:</strong> {patient.medicalHistory.chronicConditions.join(', ')}</div>
+                      <div>
+                        <strong>Chronic Conditions:</strong>{' '}
+                        {patient.medicalHistory.chronicConditions.join(', ')}
+                      </div>
                     )}
                     {patient.medicalHistory.pastDiagnoses?.length > 0 && (
-                      <div><strong>Past Diagnoses:</strong> {patient.medicalHistory.pastDiagnoses.join(', ')}</div>
+                      <div>
+                        <strong>Past Diagnoses:</strong>{' '}
+                        {patient.medicalHistory.pastDiagnoses.join(', ')}
+                      </div>
                     )}
                   </dd>
                 </div>
@@ -302,8 +324,8 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
                     Clinical Notes <span className="text-red-500">*</span>
                   </label>
                   <p className="text-xs text-gray-500 mb-3">
-                    Document the consultation using the rich text editor below. Include chief complaint,
-                    history, examination findings, assessment, and treatment plan.
+                    Document the consultation using the rich text editor below. Include chief
+                    complaint, history, examination findings, assessment, and treatment plan.
                   </p>
                 </div>
                 <ClinicalNotesEditor
@@ -316,19 +338,10 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
 
               {/* Form Actions */}
               <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 border-t border-gray-200">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={onBack}
-                  disabled={saving}
-                >
+                <Button type="button" variant="secondary" onClick={onBack} disabled={saving}>
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  loading={saving}
-                  className="sm:w-auto"
-                >
+                <Button type="submit" loading={saving} className="sm:w-auto">
                   <Save className="h-4 w-4 mr-2" />
                   {isEditMode ? 'Update Consultation' : 'Save Consultation'}
                 </Button>

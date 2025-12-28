@@ -35,7 +35,7 @@ export const useAuth = () => {
         name: publicUser.name,
         practiceCode: publicUser.practice_code,
         createdAt: publicUser.created_at,
-        updatedAt: publicUser.updated_at
+        updatedAt: publicUser.updated_at,
       };
 
       console.log('👤 Setting user:', userData);
@@ -52,7 +52,9 @@ export const useAuth = () => {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (isMounted) {
           handleAuthStateChange(session);
         }
@@ -64,7 +66,9 @@ export const useAuth = () => {
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
       if (isMounted) {
         handleAuthStateChange(session);
       }
@@ -79,7 +83,7 @@ export const useAuth = () => {
   const signIn = useCallback(async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      
+
       if (error) {
         if (error.message.includes('Email not confirmed')) {
           throw new Error('Please confirm your email address before signing in.');
@@ -89,44 +93,45 @@ export const useAuth = () => {
         }
         throw error;
       }
-      
+
       return { success: true, error: null };
     } catch (error: any) {
       return { success: false, error: error.message };
     }
   }, []);
 
-  const signUp = useCallback(async (
-    email: string,
-    password: string,
-    fullName: string,
-    username: string,
-    role: 'doctor' | 'receptionist' | 'admin',
-    practiceCode?: string
-  ) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: { full_name: fullName, username, role, practice_code: practiceCode }
-        }
-      });
+  const signUp = useCallback(
+    async (email: string, password: string, fullName: string, username: string) => {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: fullName,
+              username,
+              role: 'receptionist', // Default role
+              practice_code: null, // Default practice
+            },
+          },
+        });
 
-      if (error) throw error;
-      return { success: true, error: null, user: data.user };
-    } catch (error: any) {
-      return { success: false, error: error.message, user: null };
-    }
-  }, []);
+        if (error) throw error;
+        return { success: true, error: null, user: data.user };
+      } catch (error: any) {
+        return { success: false, error: error.message, user: null };
+      }
+    },
+    [],
+  );
 
   const resetPassword = useCallback(async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: `${window.location.origin}/reset-password`,
       });
-      
+
       if (error) throw error;
       return { success: true, error: null };
     } catch (error: any) {
@@ -143,13 +148,34 @@ export const useAuth = () => {
     }
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          redirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) throw error;
+      return { success: true, error: null, data };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }, []);
+
   return {
     user,
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     resetPassword,
     signOut,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
   };
 };

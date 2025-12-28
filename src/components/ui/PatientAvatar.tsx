@@ -37,14 +37,14 @@ export const PatientAvatar: React.FC<PatientAvatarProps> = ({
   surname,
   gender,
   size = 'md',
-  className = ''
+  className = '',
 }) => {
   const initials = `${firstName.charAt(0)}${surname.charAt(0)}`.toUpperCase();
   const colorClass = getGenderColor(gender);
   const sizeClass = getSizeClasses(size);
 
   return (
-    <div 
+    <div
       className={`
         ${sizeClass} 
         ${colorClass} 

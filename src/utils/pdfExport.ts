@@ -7,9 +7,10 @@ import { formatDate } from './patientUtils';
  */
 export const generatePatientPDFContent = (patient: Patient): string => {
   const summary = generatePatientSummary(patient);
-  const bmi = patient.medicalHistory?.height && patient.medicalHistory?.weight 
-    ? calculateBMI(patient.medicalHistory.height, patient.medicalHistory.weight)
-    : null;
+  const bmi =
+    patient.medicalHistory?.height && patient.medicalHistory?.weight
+      ? calculateBMI(patient.medicalHistory.height, patient.medicalHistory.weight)
+      : null;
 
   const styles = `
     <style>
@@ -269,9 +270,17 @@ export const generatePatientPDFContent = (patient: Patient): string => {
               <div class="metric-label">Weight (kg)</div>
             </div>
             <div class="metric-card">
-              <div class="metric-value ${bmi ? (bmi.category === 'Normal' ? 'bmi-normal' : 
-                bmi.category === 'Overweight' ? 'bmi-overweight' : 
-                bmi.category === 'Obese' ? 'bmi-obese' : 'bmi-underweight') : ''}">${bmi ? bmi.value : '--'}</div>
+              <div class="metric-value ${
+                bmi
+                  ? bmi.category === 'Normal'
+                    ? 'bmi-normal'
+                    : bmi.category === 'Overweight'
+                      ? 'bmi-overweight'
+                      : bmi.category === 'Obese'
+                        ? 'bmi-obese'
+                        : 'bmi-underweight'
+                  : ''
+              }">${bmi ? bmi.value : '--'}</div>
               <div class="metric-label">BMI ${bmi ? `(${bmi.category})` : ''}</div>
             </div>
             <div class="metric-card">
@@ -342,52 +351,72 @@ export const generatePatientPDFContent = (patient: Patient): string => {
         </div>
       </div>
 
-      ${summary.medicalHistory.allergies.length > 0 || 
-        summary.medicalHistory.chronicConditions.length > 0 || 
-        summary.medicalHistory.currentMedications.length > 0 ? `
+      ${
+        summary.medicalHistory.allergies.length > 0 ||
+        summary.medicalHistory.chronicConditions.length > 0 ||
+        summary.medicalHistory.currentMedications.length > 0
+          ? `
       <div class="section">
         <div class="section-header">
           <h3>Medical History</h3>
         </div>
         <div class="section-content">
-          ${summary.medicalHistory.allergies.length > 0 ? `
+          ${
+            summary.medicalHistory.allergies.length > 0
+              ? `
           <div style="margin-bottom: 20px;">
             <h4 style="color: #DC2626; margin-bottom: 10px;">⚠️ Allergies</h4>
             <ul class="medical-list">
-              ${summary.medicalHistory.allergies.map(allergy => `<li class="allergy-item">${allergy}</li>`).join('')}
+              ${summary.medicalHistory.allergies.map((allergy) => `<li class="allergy-item">${allergy}</li>`).join('')}
             </ul>
           </div>
-          ` : ''}
+          `
+              : ''
+          }
 
-          ${summary.medicalHistory.chronicConditions.length > 0 ? `
+          ${
+            summary.medicalHistory.chronicConditions.length > 0
+              ? `
           <div style="margin-bottom: 20px;">
             <h4 style="color: #EA580C; margin-bottom: 10px;">🩺 Chronic Conditions</h4>
             <ul class="medical-list">
-              ${summary.medicalHistory.chronicConditions.map(condition => `<li class="condition-item">${condition}</li>`).join('')}
+              ${summary.medicalHistory.chronicConditions.map((condition) => `<li class="condition-item">${condition}</li>`).join('')}
             </ul>
           </div>
-          ` : ''}
+          `
+              : ''
+          }
 
-          ${summary.medicalHistory.currentMedications.length > 0 ? `
+          ${
+            summary.medicalHistory.currentMedications.length > 0
+              ? `
           <div style="margin-bottom: 20px;">
             <h4 style="color: #2563EB; margin-bottom: 10px;">💊 Current Medications</h4>
             <ul class="medical-list">
-              ${summary.medicalHistory.currentMedications.map(medication => `<li class="medication-item">${medication}</li>`).join('')}
+              ${summary.medicalHistory.currentMedications.map((medication) => `<li class="medication-item">${medication}</li>`).join('')}
             </ul>
           </div>
-          ` : ''}
+          `
+              : ''
+          }
 
-          ${summary.medicalHistory.familyHistory !== 'No family history recorded' ? `
+          ${
+            summary.medicalHistory.familyHistory !== 'No family history recorded'
+              ? `
           <div>
             <h4 style="color: #7C3AED; margin-bottom: 10px;">👨‍👩‍👧‍👦 Family History</h4>
             <div style="background: #F3F4F6; padding: 15px; border-radius: 6px; border-left: 4px solid #7C3AED;">
               ${summary.medicalHistory.familyHistory}
             </div>
           </div>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
 
       <div class="footer">
         <p><strong>Confidential Medical Document</strong></p>
@@ -406,13 +435,13 @@ export const generatePatientPDFContent = (patient: Patient): string => {
  */
 export const exportPatientToPDF = (patient: Patient): void => {
   const pdfContent = generatePatientPDFContent(patient);
-  
+
   // Create a new window for printing
   const printWindow = window.open('', '_blank');
   if (printWindow) {
     printWindow.document.write(pdfContent);
     printWindow.document.close();
-    
+
     // Wait for content to load, then trigger print
     printWindow.onload = () => {
       setTimeout(() => {

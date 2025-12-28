@@ -16,46 +16,49 @@ export const ResetPasswordForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError('');
+      setSuccess('');
+      setLoading(true);
 
-    if (!validatePassword(password)) {
-      setError('Password must be at least 6 characters long');
+      if (!validatePassword(password)) {
+        setError('Password must be at least 6 characters long');
+        setLoading(false);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: password,
+        });
+
+        if (updateError) throw updateError;
+
+        setSuccess('Password updated successfully! Redirecting...');
+        setPassword('');
+        setConfirmPassword('');
+
+        // Sign out and redirect to login after 2 seconds
+        setTimeout(async () => {
+          await supabase.auth.signOut();
+          window.location.href = '/';
+        }, 2000);
+      } catch (error: any) {
+        setError(error.message || 'Failed to update password. Please try again.');
+      }
+
       setLoading(false);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (updateError) throw updateError;
-
-      setSuccess('Password updated successfully! Redirecting...');
-      setPassword('');
-      setConfirmPassword('');
-
-      // Sign out and redirect to login after 2 seconds
-      setTimeout(async () => {
-        await supabase.auth.signOut();
-        window.location.href = '/';
-      }, 2000);
-    } catch (error: any) {
-      setError(error.message || 'Failed to update password. Please try again.');
-    }
-
-    setLoading(false);
-  }, [password, confirmPassword]);
+    },
+    [password, confirmPassword],
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-teal-50 to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -65,12 +68,8 @@ export const ResetPasswordForm: React.FC = () => {
           <div className="mx-auto mb-6 flex justify-center">
             <BeulahCareWordmark size="xl" />
           </div>
-          <h3 className="mt-2 text-xl font-semibold text-gray-700">
-            Reset Your Password
-          </h3>
-          <p className="mt-2 text-sm text-gray-600">
-            Enter your new password below
-          </p>
+          <h3 className="mt-2 text-xl font-semibold text-gray-700">Reset Your Password</h3>
+          <p className="mt-2 text-sm text-gray-600">Enter your new password below</p>
         </div>
 
         <Card className="shadow-xl">

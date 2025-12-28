@@ -5,16 +5,16 @@ import { Patient } from '../types';
  */
 export const calculateAge = (dateOfBirth: string): number => {
   if (!dateOfBirth) return 0;
-  
+
   const today = new Date();
   const birthDate = new Date(dateOfBirth);
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
-  
+
   return Math.max(0, age);
 };
 
@@ -23,44 +23,47 @@ export const calculateAge = (dateOfBirth: string): number => {
  */
 export const formatPhoneNumber = (phone: string): string => {
   if (!phone) return '';
-  
+
   // Remove all non-digits
   const digits = phone.replace(/\D/g, '');
-  
+
   // Format as South African number if it looks like one
   if (digits.length === 10 && digits.startsWith('0')) {
     return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
   }
-  
+
   return phone;
 };
 
 /**
  * Get patient status based on creation date and last visit
  */
-export const getPatientStatus = (patient: Patient, lastVisitDate?: string): 'new' | 'active' | 'follow-up' | 'inactive' => {
+export const getPatientStatus = (
+  patient: Patient,
+  lastVisitDate?: string,
+): 'new' | 'active' | 'follow-up' | 'inactive' => {
   const now = Date.now();
   const createdAt = new Date(patient.createdAt).getTime();
   const lastVisit = lastVisitDate ? new Date(lastVisitDate).getTime() : createdAt;
-  
+
   // New patient if created within last 30 days
-  const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
   if (createdAt > thirtyDaysAgo) {
     return 'new';
   }
-  
+
   // Follow-up needed if last visit was more than 6 months ago
-  const sixMonthsAgo = now - (6 * 30 * 24 * 60 * 60 * 1000);
+  const sixMonthsAgo = now - 6 * 30 * 24 * 60 * 60 * 1000;
   if (lastVisit < sixMonthsAgo) {
     return 'follow-up';
   }
-  
+
   // Inactive if last visit was more than 1 year ago
-  const oneYearAgo = now - (365 * 24 * 60 * 60 * 1000);
+  const oneYearAgo = now - 365 * 24 * 60 * 60 * 1000;
   if (lastVisit < oneYearAgo) {
     return 'inactive';
   }
-  
+
   return 'active';
 };
 
@@ -68,26 +71,26 @@ export const getPatientStatus = (patient: Patient, lastVisitDate?: string): 'new
  * Sort patients based on criteria
  */
 export const sortPatients = (
-  patients: Patient[], 
-  sortBy: 'name' | 'age' | 'lastVisit', 
-  sortOrder: 'asc' | 'desc'
+  patients: Patient[],
+  sortBy: 'name' | 'age' | 'lastVisit',
+  sortOrder: 'asc' | 'desc',
 ): Patient[] => {
   return [...patients].sort((a, b) => {
     let comparison = 0;
-    
+
     switch (sortBy) {
       case 'name':
         const nameA = `${a.firstName} ${a.surname}`.toLowerCase();
         const nameB = `${b.firstName} ${b.surname}`.toLowerCase();
         comparison = nameA.localeCompare(nameB);
         break;
-        
+
       case 'age':
         const ageA = calculateAge(a.dateOfBirth);
         const ageB = calculateAge(b.dateOfBirth);
         comparison = ageA - ageB;
         break;
-        
+
       case 'lastVisit':
         // For now, use creation date as last visit
         const dateA = new Date(a.createdAt).getTime();
@@ -95,7 +98,7 @@ export const sortPatients = (
         comparison = dateB - dateA; // Most recent first by default
         break;
     }
-    
+
     return sortOrder === 'desc' ? -comparison : comparison;
   });
 };
@@ -106,26 +109,30 @@ export const sortPatients = (
 export const filterPatients = (
   patients: Patient[],
   searchTerm: string,
-  genderFilter: 'all' | 'Male' | 'Female'
+  genderFilter: 'all' | 'Male' | 'Female',
+  paymentFilter: 'all' | 'cash' | 'medical_aid' = 'all',
 ): Patient[] => {
-  return patients.filter(patient => {
+  return patients.filter((patient) => {
     // Gender filter
     if (genderFilter !== 'all' && patient.sex !== genderFilter) {
       return false;
     }
-    
+
+    // Payment method filter
+    if (paymentFilter !== 'all' && patient.paymentMethod !== paymentFilter) {
+      return false;
+    }
+
     // Search filter
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
       const fullName = `${patient.firstName} ${patient.surname}`.toLowerCase();
       const idNumber = patient.idNumber.toLowerCase();
       const phone = patient.contactNumber.toLowerCase();
-      
-      return fullName.includes(search) || 
-             idNumber.includes(search) || 
-             phone.includes(search);
+
+      return fullName.includes(search) || idNumber.includes(search) || phone.includes(search);
     }
-    
+
     return true;
   });
 };

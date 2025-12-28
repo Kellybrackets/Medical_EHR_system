@@ -6,10 +6,11 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
+  endIcon?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, icon, id, ...props }, ref) => {
+  ({ className, label, error, icon, endIcon, id, ...props }, ref) => {
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
     return (
@@ -31,19 +32,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               UI_CLASSES.input,
               icon && 'pl-10',
+              endIcon && 'pr-10',
               error && 'border-red-300 focus:border-red-500 focus:ring-red-500',
-              className
+              className,
             )}
             ref={ref}
             {...props}
           />
+          {endIcon && (
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">{endIcon}</div>
+          )}
         </div>
-        {error && (
-          <p className="text-sm text-red-600">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';

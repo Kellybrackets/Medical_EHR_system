@@ -10,14 +10,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props }, ref) => {
+  (
+    { className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props },
+    ref,
+  ) => {
     return (
       <button
         className={cn(
           UI_CLASSES.button.base,
           UI_CLASSES.button.sizes[size],
           variant === 'primary' ? UI_CLASSES.button.primary : UI_CLASSES.button.secondary,
-          className
+          className,
         )}
         disabled={disabled || loading}
         ref={ref}
@@ -48,7 +51,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = 'Button';

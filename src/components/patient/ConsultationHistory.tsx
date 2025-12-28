@@ -1,5 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar, FileText, Plus, Search, Filter, ChevronDown, ChevronUp, Stethoscope, User, Edit2, Trash2 } from 'lucide-react';
+import {
+  Calendar,
+  FileText,
+  Plus,
+  Search,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  Stethoscope,
+  User,
+  Edit2,
+  Trash2,
+} from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { SearchInput } from '../ui/SearchInput';
@@ -30,7 +42,7 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
   onAddConsultation,
   onEditConsultation,
   canAddConsultation = false,
-  canEditConsultation = false
+  canEditConsultation = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedConsultations, setExpandedConsultations] = useState<Record<string, boolean>>({});
@@ -42,14 +54,14 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
 
   const patientConsultations = useMemo(() => {
     let consultations = consultationNotes
-      .filter(note => note.patientId === patientId)
+      .filter((note) => note.patientId === patientId)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     // Apply date filter
     if (dateFilter !== 'all') {
       const now = new Date();
       const filterDate = new Date();
-      
+
       switch (dateFilter) {
         case 'last30':
           filterDate.setDate(now.getDate() - 30);
@@ -61,16 +73,16 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
           filterDate.setFullYear(now.getFullYear() - 1);
           break;
       }
-      
-      consultations = consultations.filter(consultation => 
-        new Date(consultation.date) >= filterDate
+
+      consultations = consultations.filter(
+        (consultation) => new Date(consultation.date) >= filterDate,
       );
     }
 
     // Apply search filter
     if (searchTerm) {
       const search = normalizeSearchTerm(searchTerm);
-      consultations = consultations.filter(consultation => {
+      consultations = consultations.filter((consultation) => {
         // Strip HTML tags from clinical notes for search
         const strippedNotes = consultation.clinicalNotes?.replace(/<[^>]*>/g, '') || '';
         return (
@@ -86,14 +98,18 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
   }, [consultationNotes, patientId, searchTerm, dateFilter]);
 
   const toggleConsultation = (consultationId: string) => {
-    setExpandedConsultations(prev => ({
+    setExpandedConsultations((prev) => ({
       ...prev,
-      [consultationId]: !prev[consultationId]
+      [consultationId]: !prev[consultationId],
     }));
   };
 
   const handleDelete = async (consultationId: string) => {
-    if (!window.confirm('Are you sure you want to delete this consultation? This action cannot be undone.')) {
+    if (
+      !window.confirm(
+        'Are you sure you want to delete this consultation? This action cannot be undone.',
+      )
+    ) {
       return;
     }
 
@@ -109,10 +125,14 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
 
   const getDateFilterLabel = (filter: string) => {
     switch (filter) {
-      case 'last30': return 'Last 30 days';
-      case 'last90': return 'Last 3 months';
-      case 'lastyear': return 'Last year';
-      default: return 'All time';
+      case 'last30':
+        return 'Last 30 days';
+      case 'last90':
+        return 'Last 3 months';
+      case 'lastyear':
+        return 'Last year';
+      default:
+        return 'All time';
     }
   };
 
@@ -138,11 +158,12 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Consultation History</h3>
               <p className="text-sm text-gray-600">
-                {patientConsultations.length} consultation{patientConsultations.length === 1 ? '' : 's'} found
+                {patientConsultations.length} consultation
+                {patientConsultations.length === 1 ? '' : 's'} found
               </p>
             </div>
           </div>
-          
+
           {canAddConsultation && onAddConsultation && (
             <Button onClick={onAddConsultation}>
               <Plus className="h-4 w-4 mr-2" />
@@ -150,7 +171,7 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
             </Button>
           )}
         </div>
-        
+
         {/* Search and Filters */}
         <div className="mt-4 space-y-3">
           <div className="flex flex-col sm:flex-row gap-3">
@@ -170,26 +191,25 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
-              {showFilters ? 
-                <ChevronUp className="h-4 w-4 ml-1" /> : 
+              {showFilters ? (
+                <ChevronUp className="h-4 w-4 ml-1" />
+              ) : (
                 <ChevronDown className="h-4 w-4 ml-1" />
-              }
+              )}
             </Button>
           </div>
-          
+
           {/* Filter Panel */}
           {showFilters && (
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Time Period
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {(['all', 'last30', 'last90', 'lastyear'] as const).map((filter) => (
                     <Button
                       key={filter}
                       size="sm"
-                      variant={dateFilter === filter ? "default" : "secondary"}
+                      variant={dateFilter === filter ? 'default' : 'secondary'}
                       onClick={() => setDateFilter(filter)}
                       className="text-xs"
                     >
@@ -198,11 +218,12 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                   ))}
                 </div>
               </div>
-              
+
               {(searchTerm || dateFilter !== 'all') && (
                 <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                   <span className="text-sm text-gray-600">
-                    Showing {patientConsultations.length} result{patientConsultations.length === 1 ? '' : 's'}
+                    Showing {patientConsultations.length} result
+                    {patientConsultations.length === 1 ? '' : 's'}
                   </span>
                   <Button
                     size="sm"
@@ -220,7 +241,7 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
           )}
         </div>
       </Card.Header>
-      
+
       <Card.Content className="p-0">
         {patientConsultations.length === 0 ? (
           <div className="p-8 text-center">
@@ -228,7 +249,9 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
               <FileText className="h-8 w-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchTerm || dateFilter !== 'all' ? 'No consultations found' : 'No consultations recorded'}
+              {searchTerm || dateFilter !== 'all'
+                ? 'No consultations found'
+                : 'No consultations recorded'}
             </h3>
             <p className="text-gray-600 mb-6">
               {searchTerm || dateFilter !== 'all'
@@ -263,7 +286,7 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Reason for Visit */}
                     <div className="mb-3">
                       <div className="flex items-start justify-between">
@@ -279,7 +302,7 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Action Buttons */}
                     {canEditConsultation && onEditConsultation && (
                       <div className="mt-3 flex items-center space-x-2">
@@ -311,7 +334,9 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                         {expandedConsultations[consultation.id] ? (
                           <div className="bg-gray-50 rounded-lg p-4">
                             <div className="flex items-center justify-between mb-3">
-                              <h5 className="text-sm font-semibold text-gray-900">Clinical Notes</h5>
+                              <h5 className="text-sm font-semibold text-gray-900">
+                                Clinical Notes
+                              </h5>
                               <Button
                                 size="sm"
                                 variant="secondary"
@@ -330,7 +355,9 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                           <div className="flex items-center justify-between bg-gray-50 rounded-md p-3">
                             <div className="flex items-center space-x-2">
                               <FileText className="h-4 w-4 text-gray-400" />
-                              <span className="text-sm text-gray-600">Clinical notes available</span>
+                              <span className="text-sm text-gray-600">
+                                Clinical notes available
+                              </span>
                             </div>
                             <Button
                               size="sm"

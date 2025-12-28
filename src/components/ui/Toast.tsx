@@ -8,12 +8,7 @@ interface ToastProps {
   duration?: number;
 }
 
-export const Toast: React.FC<ToastProps> = ({ 
-  message, 
-  type, 
-  onClose, 
-  duration = 3000 
-}) => {
+export const Toast: React.FC<ToastProps> = ({ message, type, onClose, duration = 3000 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -31,14 +26,18 @@ export const Toast: React.FC<ToastProps> = ({
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 transition-all duration-300 transform ${
-      isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
-    }`}>
-      <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg shadow-lg max-w-sm ${
-        type === 'success' 
-          ? 'bg-green-50 border border-green-200 text-green-800' 
-          : 'bg-red-50 border border-red-200 text-red-800'
-      }`}>
+    <div
+      className={`fixed top-4 right-4 z-50 transition-all duration-300 transform ${
+        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      }`}
+    >
+      <div
+        className={`flex items-center space-x-3 px-4 py-3 rounded-lg shadow-lg max-w-sm ${
+          type === 'success'
+            ? 'bg-green-50 border border-green-200 text-green-800'
+            : 'bg-red-50 border border-red-200 text-red-800'
+        }`}
+      >
         <div className="flex-shrink-0">
           {type === 'success' ? (
             <CheckCircle className="h-5 w-5 text-green-600" />
@@ -61,24 +60,26 @@ export const Toast: React.FC<ToastProps> = ({
 };
 
 export const useToast = () => {
-  const [toasts, setToasts] = useState<Array<{
-    id: string;
-    message: string;
-    type: 'success' | 'error';
-  }>>([]);
+  const [toasts, setToasts] = useState<
+    Array<{
+      id: string;
+      message: string;
+      type: 'success' | 'error';
+    }>
+  >([]);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     const id = Math.random().toString(36).substr(2, 9);
-    setToasts(prev => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type }]);
   };
 
   const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
   const ToastContainer = () => (
     <div className="fixed top-4 right-4 z-50 space-y-2">
-      {toasts.map(toast => (
+      {toasts.map((toast) => (
         <Toast
           key={toast.id}
           message={toast.message}

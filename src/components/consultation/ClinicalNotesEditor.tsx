@@ -12,7 +12,7 @@ import {
   Heading3,
   Quote,
   Undo,
-  Redo
+  Redo,
 } from 'lucide-react';
 
 interface ClinicalNotesEditorProps {
@@ -39,14 +39,14 @@ export const ClinicalNotesEditor: React.FC<ClinicalNotesEditorProps> = ({
   value,
   onChange,
   error,
-  disabled = false
+  disabled = false,
 }) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3]
-        }
+          levels: [1, 2, 3],
+        },
       }),
       Placeholder.configure({
         placeholder: `Chief complaint:
@@ -57,8 +57,8 @@ Examination findings:
 
 Assessment:
 
-Plan:`
-      })
+Plan:`,
+      }),
     ],
     content: value,
     editable: !disabled,
@@ -67,9 +67,9 @@ Plan:`
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4'
-      }
-    }
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4',
+      },
+    },
   });
 
   // Update editor content when value changes externally
@@ -97,10 +97,7 @@ Plan:`
       title={title}
       className={`
         p-2 rounded transition-colors
-        ${active
-          ? 'bg-blue-100 text-blue-700'
-          : 'text-gray-600 hover:bg-gray-100'
-        }
+        ${active ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
       `}
     >

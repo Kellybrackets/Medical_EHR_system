@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { Phone, MapPin, Shield, Heart, Pill, AlertTriangle, Users, Copy, Edit, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Phone,
+  MapPin,
+  Shield,
+  Heart,
+  Pill,
+  AlertTriangle,
+  Users,
+  Copy,
+  Edit,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Patient } from '../../types';
@@ -13,18 +25,18 @@ interface SectionCardProps {
   showToast?: (message: string, type: 'success' | 'error') => void;
 }
 
-export const ContactInfoCard: React.FC<SectionCardProps> = ({ 
-  patient, 
-  onEdit, 
+export const ContactInfoCard: React.FC<SectionCardProps> = ({
+  patient,
+  onEdit,
   canEdit = false,
-  showToast 
+  showToast,
 }) => {
   const handleCopyPhone = async () => {
     const success = await copyToClipboard(patient.contactNumber);
     if (showToast) {
       showToast(
         success ? 'Phone number copied!' : 'Failed to copy phone number',
-        success ? 'success' : 'error'
+        success ? 'success' : 'error',
       );
     }
   };
@@ -34,7 +46,7 @@ export const ContactInfoCard: React.FC<SectionCardProps> = ({
     if (showToast) {
       showToast(
         success ? 'Address copied!' : 'Failed to copy address',
-        success ? 'success' : 'error'
+        success ? 'success' : 'error',
       );
     }
   };
@@ -50,18 +62,14 @@ export const ContactInfoCard: React.FC<SectionCardProps> = ({
             <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
           </div>
           {canEdit && onEdit && (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onEdit('contact')}
-            >
+            <Button size="sm" variant="secondary" onClick={() => onEdit('contact')}>
               <Edit className="h-3 w-3 mr-1" />
               Edit
             </Button>
           )}
         </div>
       </Card.Header>
-      
+
       <Card.Content className="space-y-4">
         {/* Primary Contact */}
         <div className="bg-blue-50 rounded-lg p-4">
@@ -74,16 +82,11 @@ export const ContactInfoCard: React.FC<SectionCardProps> = ({
                   {formatPhoneNumber(patient.contactNumber)}
                 </span>
               </div>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleCopyPhone}
-                className="text-xs"
-              >
+              <Button size="sm" variant="secondary" onClick={handleCopyPhone} className="text-xs">
                 <Copy className="h-3 w-3" />
               </Button>
             </div>
-            
+
             {patient.email && (
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 flex items-center justify-center">
@@ -102,12 +105,7 @@ export const ContactInfoCard: React.FC<SectionCardProps> = ({
               <MapPin className="h-4 w-4 text-gray-600 mr-2" />
               Address
             </h4>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleCopyAddress}
-              className="text-xs"
-            >
+            <Button size="sm" variant="secondary" onClick={handleCopyAddress} className="text-xs">
               <Copy className="h-3 w-3" />
             </Button>
           </div>
@@ -123,16 +121,22 @@ export const ContactInfoCard: React.FC<SectionCardProps> = ({
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-red-700">Name:</span>
-              <span className="font-medium text-gray-900">{patient.nextOfKin?.name || 'Not provided'}</span>
+              <span className="font-medium text-gray-900">
+                {patient.nextOfKin?.name || 'Not provided'}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-700">Relationship:</span>
-              <span className="font-medium text-gray-900">{patient.nextOfKin?.relationship || 'Not provided'}</span>
+              <span className="font-medium text-gray-900">
+                {patient.nextOfKin?.relationship || 'Not provided'}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-700">Phone:</span>
               <span className="font-medium text-gray-900">
-                {patient.nextOfKin?.phone ? formatPhoneNumber(patient.nextOfKin.phone) : 'Not provided'}
+                {patient.nextOfKin?.phone
+                  ? formatPhoneNumber(patient.nextOfKin.phone)
+                  : 'Not provided'}
               </span>
             </div>
           </div>
@@ -142,10 +146,10 @@ export const ContactInfoCard: React.FC<SectionCardProps> = ({
   );
 };
 
-export const MedicalAidCard: React.FC<SectionCardProps> = ({ 
-  patient, 
-  onEdit, 
-  canEdit = false 
+export const MedicalAidCard: React.FC<SectionCardProps> = ({
+  patient,
+  onEdit,
+  canEdit = false,
 }) => {
   const hasInsurance = patient.insuranceDetails?.fundName;
 
@@ -160,18 +164,14 @@ export const MedicalAidCard: React.FC<SectionCardProps> = ({
             <h3 className="text-lg font-semibold text-gray-900">Medical Aid</h3>
           </div>
           {canEdit && onEdit && (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onEdit('insurance')}
-            >
+            <Button size="sm" variant="secondary" onClick={() => onEdit('insurance')}>
               <Edit className="h-3 w-3 mr-1" />
               Edit
             </Button>
           )}
         </div>
       </Card.Header>
-      
+
       <Card.Content>
         {hasInsurance ? (
           <div className="space-y-4">
@@ -183,7 +183,7 @@ export const MedicalAidCard: React.FC<SectionCardProps> = ({
                     {patient.insuranceDetails.fundName}
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium text-green-700">Member Number</label>
@@ -191,7 +191,7 @@ export const MedicalAidCard: React.FC<SectionCardProps> = ({
                       {patient.insuranceDetails.memberNumber}
                     </p>
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium text-green-700">Plan</label>
                     <p className="text-sm text-gray-900 mt-1">
@@ -214,17 +214,17 @@ export const MedicalAidCard: React.FC<SectionCardProps> = ({
   );
 };
 
-export const MedicalHistoryCard: React.FC<SectionCardProps> = ({ 
-  patient, 
-  onEdit, 
-  canEdit = false 
+export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
+  patient,
+  onEdit,
+  canEdit = false,
 }) => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
-  
+
   const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -235,7 +235,8 @@ export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
   const hasSurgeries = medicalHistory?.pastSurgeries?.length > 0;
   const hasFamilyHistory = medicalHistory?.familyHistory;
 
-  const hasAnyMedicalData = hasAllergies || hasConditions || hasMedications || hasSurgeries || hasFamilyHistory;
+  const hasAnyMedicalData =
+    hasAllergies || hasConditions || hasMedications || hasSurgeries || hasFamilyHistory;
 
   return (
     <Card className="h-full">
@@ -248,18 +249,14 @@ export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
             <h3 className="text-lg font-semibold text-gray-900">Medical History</h3>
           </div>
           {canEdit && onEdit && (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onEdit('medical')}
-            >
+            <Button size="sm" variant="secondary" onClick={() => onEdit('medical')}>
               <Edit className="h-3 w-3 mr-1" />
               Edit
             </Button>
           )}
         </div>
       </Card.Header>
-      
+
       <Card.Content>
         {hasAnyMedicalData ? (
           <div className="space-y-4">
@@ -271,27 +268,28 @@ export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
                     <AlertTriangle className="h-4 w-4 text-red-600 mr-2" />
                     Allergies
                   </h4>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => toggleSection('allergies')}
-                  >
-                    {expandedSections.allergies ? 
-                      <ChevronUp className="h-4 w-4" /> : 
+                  <Button size="sm" variant="ghost" onClick={() => toggleSection('allergies')}>
+                    {expandedSections.allergies ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
                       <ChevronDown className="h-4 w-4" />
-                    }
+                    )}
                   </Button>
                 </div>
                 <div className={`${expandedSections.allergies ? 'block' : 'hidden'} space-y-1`}>
                   {medicalHistory.allergies.map((allergy, index) => (
-                    <span key={index} className="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full mr-1 mb-1">
+                    <span
+                      key={index}
+                      className="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full mr-1 mb-1"
+                    >
                       {allergy}
                     </span>
                   ))}
                 </div>
                 {!expandedSections.allergies && (
                   <p className="text-sm text-red-700">
-                    {medicalHistory.allergies.length} allerg{medicalHistory.allergies.length === 1 ? 'y' : 'ies'} on file
+                    {medicalHistory.allergies.length} allerg
+                    {medicalHistory.allergies.length === 1 ? 'y' : 'ies'} on file
                   </p>
                 )}
               </div>
@@ -305,27 +303,28 @@ export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
                     <Heart className="h-4 w-4 text-orange-600 mr-2" />
                     Chronic Conditions
                   </h4>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => toggleSection('conditions')}
-                  >
-                    {expandedSections.conditions ? 
-                      <ChevronUp className="h-4 w-4" /> : 
+                  <Button size="sm" variant="ghost" onClick={() => toggleSection('conditions')}>
+                    {expandedSections.conditions ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
                       <ChevronDown className="h-4 w-4" />
-                    }
+                    )}
                   </Button>
                 </div>
                 <div className={`${expandedSections.conditions ? 'block' : 'hidden'} space-y-1`}>
                   {medicalHistory.chronicConditions.map((condition, index) => (
-                    <span key={index} className="inline-block bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full mr-1 mb-1">
+                    <span
+                      key={index}
+                      className="inline-block bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full mr-1 mb-1"
+                    >
                       {condition}
                     </span>
                   ))}
                 </div>
                 {!expandedSections.conditions && (
                   <p className="text-sm text-orange-700">
-                    {medicalHistory.chronicConditions.length} condition{medicalHistory.chronicConditions.length === 1 ? '' : 's'} monitored
+                    {medicalHistory.chronicConditions.length} condition
+                    {medicalHistory.chronicConditions.length === 1 ? '' : 's'} monitored
                   </p>
                 )}
               </div>
@@ -339,20 +338,20 @@ export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
                     <Pill className="h-4 w-4 text-blue-600 mr-2" />
                     Current Medications
                   </h4>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => toggleSection('medications')}
-                  >
-                    {expandedSections.medications ? 
-                      <ChevronUp className="h-4 w-4" /> : 
+                  <Button size="sm" variant="ghost" onClick={() => toggleSection('medications')}>
+                    {expandedSections.medications ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
                       <ChevronDown className="h-4 w-4" />
-                    }
+                    )}
                   </Button>
                 </div>
                 <div className={`${expandedSections.medications ? 'block' : 'hidden'} space-y-2`}>
                   {medicalHistory.currentMedications.map((medication, index) => (
-                    <div key={index} className="flex items-center text-sm bg-white p-2 rounded border">
+                    <div
+                      key={index}
+                      className="flex items-center text-sm bg-white p-2 rounded border"
+                    >
                       <Pill className="h-3 w-3 text-blue-500 mr-2 flex-shrink-0" />
                       <span className="text-gray-900">{medication}</span>
                     </div>
@@ -360,7 +359,8 @@ export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
                 </div>
                 {!expandedSections.medications && (
                   <p className="text-sm text-blue-700">
-                    {medicalHistory.currentMedications.length} medication{medicalHistory.currentMedications.length === 1 ? '' : 's'} prescribed
+                    {medicalHistory.currentMedications.length} medication
+                    {medicalHistory.currentMedications.length === 1 ? '' : 's'} prescribed
                   </p>
                 )}
               </div>
@@ -373,7 +373,9 @@ export const MedicalHistoryCard: React.FC<SectionCardProps> = ({
                   <Users className="h-4 w-4 text-purple-600 mr-2" />
                   Family History
                 </h4>
-                <p className="text-sm text-gray-700 leading-relaxed">{medicalHistory.familyHistory}</p>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {medicalHistory.familyHistory}
+                </p>
               </div>
             )}
           </div>

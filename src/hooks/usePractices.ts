@@ -29,7 +29,7 @@ export const usePractices = () => {
           status: p.status,
           createdAt: p.created_at,
           updatedAt: p.updated_at,
-        })) || []
+        })) || [],
       );
       setError(null);
     } catch (err: any) {
@@ -88,7 +88,7 @@ export const usePractices = () => {
       phone: string;
       email: string;
       status: 'active' | 'inactive';
-    }>
+    }>,
   ) => {
     try {
       const { error: updateError } = await supabase
@@ -111,10 +111,7 @@ export const usePractices = () => {
 
   const deletePractice = async (id: string) => {
     try {
-      const { error: deleteError } = await supabase
-        .from('practices')
-        .delete()
-        .eq('id', id);
+      const { error: deleteError } = await supabase.from('practices').delete().eq('id', id);
 
       if (deleteError) throw deleteError;
 

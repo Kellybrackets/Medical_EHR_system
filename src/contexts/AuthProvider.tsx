@@ -7,8 +7,14 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, fullName: string, username: string, role: 'doctor' | 'receptionist' | 'admin', practiceCode?: string) => Promise<{ success: boolean; error?: string | null; user?: any }>;
+  register: (
+    email: string,
+    password: string,
+    fullName: string,
+    username: string,
+  ) => Promise<{ success: boolean; error?: string | null; user?: any }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string | null; data?: any }>;
   logout: () => Promise<void>;
 }
 
@@ -35,8 +41,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: auth.isAuthenticated,
     login: auth.signIn,
     register: auth.signUp,
+    loginWithGoogle: auth.signInWithGoogle,
     resetPassword: auth.resetPassword,
-    logout: auth.signOut
+    logout: auth.signOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

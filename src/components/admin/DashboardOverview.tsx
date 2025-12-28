@@ -43,7 +43,7 @@ export const DashboardOverview: React.FC = () => {
 
       setStats({
         totalPractices: practices?.length || 0,
-        activePractices: practices?.filter(p => p.status === 'active').length || 0,
+        activePractices: practices?.filter((p) => p.status === 'active').length || 0,
         totalUsers: statsData?.totalUsers || 0,
         activeUsers: statsData?.totalUsers || 0,
         totalDoctors: statsData?.totalDoctors || 0,
@@ -111,10 +111,7 @@ export const DashboardOverview: React.FC = () => {
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card
-              key={stat.title}
-              className={`bg-gradient-to-br ${stat.color} text-white`}
-            >
+            <Card key={stat.title} className={`bg-gradient-to-br ${stat.color} text-white`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm opacity-90">{stat.title}</p>
@@ -130,9 +127,7 @@ export const DashboardOverview: React.FC = () => {
 
       {/* Chart Placeholder */}
       <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Registrations This Week
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Registrations This Week</h3>
         <div className="flex items-end justify-around h-64 bg-gray-50 rounded-lg p-6">
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => {
             const height = Math.random() * 100 + 20;

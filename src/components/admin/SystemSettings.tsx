@@ -95,7 +95,10 @@ export const SystemSettings: React.FC = () => {
                     }
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="requireStrongPassword" className="ml-2 block text-sm text-gray-900">
+                  <label
+                    htmlFor="requireStrongPassword"
+                    className="ml-2 block text-sm text-gray-900"
+                  >
                     Require Strong Passwords
                   </label>
                 </div>
@@ -175,9 +178,9 @@ export const SystemSettings: React.FC = () => {
                   <div className="ml-3">
                     <h4 className="text-sm font-medium text-blue-900">About System Settings</h4>
                     <p className="mt-1 text-sm text-blue-700">
-                      These settings apply globally to all users across all practices. Changes take effect
-                      immediately for new sessions. Existing active sessions will continue with their
-                      current settings until the next login.
+                      These settings apply globally to all users across all practices. Changes take
+                      effect immediately for new sessions. Existing active sessions will continue
+                      with their current settings until the next login.
                     </p>
                   </div>
                 </div>

@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React from 'react';
 import { Input } from '../ui/Input';
-import { PatientFormData } from '../../types';
+import { PatientFormSchema } from '../../lib/validators';
+import { UseFormRegister, FieldErrors, Control, useWatch, UseFormSetValue } from 'react-hook-form';
 
 interface PatientFormContentProps {
-  formData: PatientFormData;
-  errors: Partial<PatientFormData>;
-  updateFormField: (field: keyof PatientFormData, value: string) => void;
+  register: UseFormRegister<PatientFormSchema>;
+  errors: FieldErrors<PatientFormSchema>;
+  control: Control<PatientFormSchema>;
+  setValue: UseFormSetValue<PatientFormSchema>;
 }
 
 export const PatientFormContent: React.FC<PatientFormContentProps> = ({
-  formData,
+  register,
   errors,
-  updateFormField
+  control,
+  setValue,
 }) => {
-  const [showMedicalInfo, setShowMedicalInfo] = useState(false);
+
+
+  const idType = useWatch({ control, name: 'idType' });
+  const paymentMethod = useWatch({ control, name: 'paymentMethod' });
 
   return (
     <div className="space-y-8">
@@ -28,9 +33,8 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="First Name"
             type="text"
             required
-            value={formData.firstName}
-            onChange={(e) => updateFormField('firstName', e.target.value)}
-            error={errors.firstName}
+            {...register('firstName')}
+            error={errors.firstName?.message}
             placeholder="Enter first name"
           />
 
@@ -38,9 +42,8 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="Surname"
             type="text"
             required
-            value={formData.surname}
-            onChange={(e) => updateFormField('surname', e.target.value)}
-            error={errors.surname}
+            {...register('surname')}
+            error={errors.surname?.message}
             placeholder="Enter surname"
           />
 
@@ -50,8 +53,7 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             </label>
             <select
               required
-              value={formData.idType}
-              onChange={(e) => updateFormField('idType', e.target.value as 'id_number' | 'passport')}
+              {...register('idType')}
               className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="id_number">SA ID Number</option>
@@ -60,28 +62,26 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
           </div>
 
           <Input
-            label={formData.idType === 'passport' ? 'Passport Number' : 'ID Number'}
+            label={idType === 'passport' ? 'Passport Number' : 'ID Number'}
             type="text"
             required
-            value={formData.idNumber}
-            onChange={(e) => updateFormField('idNumber', e.target.value)}
-            error={errors.idNumber}
-            placeholder={formData.idType === 'passport' ? 'A1234567' : '0001010001088'}
+            {...register('idNumber')}
+            error={errors.idNumber?.message}
+            placeholder={idType === 'passport' ? 'A1234567' : '0001010001088'}
           />
 
           <Input
             label="Date of Birth"
             type="date"
             required
-            value={formData.dateOfBirth}
-            onChange={(e) => updateFormField('dateOfBirth', e.target.value)}
-            error={errors.dateOfBirth}
+            {...register('dateOfBirth')}
+            error={errors.dateOfBirth?.message}
           />
 
           <Input
             label="Age"
             type="number"
-            value={formData.age}
+            {...register('age')}
             readOnly
             className="bg-gray-50"
             placeholder="Auto-calculated"
@@ -93,8 +93,7 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             </label>
             <select
               required
-              value={formData.gender}
-              onChange={(e) => updateFormField('gender', e.target.value)}
+              {...register('gender')}
               className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="male">Male</option>
@@ -115,27 +114,24 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="Primary Phone"
             type="tel"
             required
-            value={formData.contactNumber}
-            onChange={(e) => updateFormField('contactNumber', e.target.value)}
-            error={errors.contactNumber}
+            {...register('contactNumber')}
+            error={errors.contactNumber?.message}
             placeholder="082 123 4567"
           />
 
           <Input
             label="Alternate Phone"
             type="tel"
-            value={formData.alternateNumber}
-            onChange={(e) => updateFormField('alternateNumber', e.target.value)}
-            error={errors.alternateNumber}
+            {...register('alternateNumber')}
+            error={errors.alternateNumber?.message}
             placeholder="081 234 5678 (optional)"
           />
 
           <Input
             label="Email Address"
             type="email"
-            value={formData.email}
-            onChange={(e) => updateFormField('email', e.target.value)}
-            error={errors.email}
+            {...register('email')}
+            error={errors.email?.message}
             placeholder="email@example.com (optional)"
           />
 
@@ -143,9 +139,8 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="Street Address"
             type="text"
             required
-            value={formData.address}
-            onChange={(e) => updateFormField('address', e.target.value)}
-            error={errors.address}
+            {...register('address')}
+            error={errors.address?.message}
             placeholder="123 Main Street"
           />
 
@@ -153,18 +148,16 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="City"
             type="text"
             required
-            value={formData.city}
-            onChange={(e) => updateFormField('city', e.target.value)}
-            error={errors.city}
+            {...register('city')}
+            error={errors.city?.message}
             placeholder="Cape Town"
           />
 
           <Input
             label="Postal Code"
             type="text"
-            value={formData.postalCode}
-            onChange={(e) => updateFormField('postalCode', e.target.value)}
-            error={errors.postalCode}
+            {...register('postalCode')}
+            error={errors.postalCode?.message}
             placeholder="8001"
           />
         </div>
@@ -180,9 +173,8 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="Full Name"
             type="text"
             required
-            value={formData.emergencyContactName}
-            onChange={(e) => updateFormField('emergencyContactName', e.target.value)}
-            error={errors.emergencyContactName}
+            {...register('emergencyContactName')}
+            error={errors.emergencyContactName?.message}
             placeholder="John Doe"
           />
 
@@ -190,9 +182,8 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="Relationship"
             type="text"
             required
-            value={formData.emergencyContactRelationship}
-            onChange={(e) => updateFormField('emergencyContactRelationship', e.target.value)}
-            error={errors.emergencyContactRelationship}
+            {...register('emergencyContactRelationship')}
+            error={errors.emergencyContactRelationship?.message}
             placeholder="Father, Mother, Spouse"
           />
 
@@ -200,246 +191,101 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
             label="Phone Number"
             type="tel"
             required
-            value={formData.emergencyContactPhone}
-            onChange={(e) => updateFormField('emergencyContactPhone', e.target.value)}
-            error={errors.emergencyContactPhone}
+            {...register('emergencyContactPhone')}
+            error={errors.emergencyContactPhone?.message}
             placeholder="082 123 4567"
           />
 
           <Input
             label="Alternate Phone"
             type="tel"
-            value={formData.emergencyContactAlternatePhone}
-            onChange={(e) => updateFormField('emergencyContactAlternatePhone', e.target.value)}
-            error={errors.emergencyContactAlternatePhone}
+            {...register('emergencyContactAlternatePhone')}
+            error={errors.emergencyContactAlternatePhone?.message}
             placeholder="081 234 5678 (optional)"
           />
 
           <Input
             label="Email Address"
             type="email"
-            value={formData.emergencyContactEmail}
-            onChange={(e) => updateFormField('emergencyContactEmail', e.target.value)}
-            error={errors.emergencyContactEmail}
+            {...register('emergencyContactEmail')}
+            error={errors.emergencyContactEmail?.message}
             placeholder="contact@example.com (optional)"
           />
         </div>
       </div>
 
-      {/* Medical Aid Information */}
+      {/* Payment Method & Medical Aid Information */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-          Medical Aid Information
+          Payment Method & Medical Aid Information
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Input
-            label="Medical Aid Provider"
-            type="text"
-            value={formData.medicalAidProvider}
-            onChange={(e) => updateFormField('medicalAidProvider', e.target.value)}
-            error={errors.medicalAidProvider}
-            placeholder="Discovery Health, Momentum"
-          />
 
-          <Input
-            label="Member Number"
-            type="text"
-            value={formData.medicalAidNumber}
-            onChange={(e) => updateFormField('medicalAidNumber', e.target.value)}
-            error={errors.medicalAidNumber}
-            placeholder="123456789"
-          />
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Payment Method <span className="text-red-500">*</span>
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setValue('paymentMethod', 'cash')}
+              className={`
+                p-4 border-2 rounded-lg text-center transition-all
+                ${paymentMethod === 'cash'
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                }
+              `}
+            >
+              <div className="font-semibold mb-1">Cash / Self Pay</div>
+              <div className="text-xs text-gray-600">Patient pays directly</div>
+            </button>
 
-          <Input
-            label="Plan"
-            type="text"
-            value={formData.medicalAidPlan}
-            onChange={(e) => updateFormField('medicalAidPlan', e.target.value)}
-            error={errors.medicalAidPlan}
-            placeholder="Comprehensive, Executive"
-          />
+            <button
+              type="button"
+              onClick={() => setValue('paymentMethod', 'medical_aid')}
+              className={`
+                p-4 border-2 rounded-lg text-center transition-all
+                ${paymentMethod === 'medical_aid'
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                }
+              `}
+            >
+              <div className="font-semibold mb-1">Medical Aid</div>
+              <div className="text-xs text-gray-600">Insured patient</div>
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Health Information & Medical History - Collapsible */}
-      <div>
-        <button
-          type="button"
-          onClick={() => setShowMedicalInfo(!showMedicalInfo)}
-          className="w-full flex items-center justify-between text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200 hover:text-blue-600 transition-colors"
-        >
-          <span>Health Information & Medical History (Optional)</span>
-          {showMedicalInfo ? (
-            <ChevronUp className="h-5 w-5" />
-          ) : (
-            <ChevronDown className="h-5 w-5" />
-          )}
-        </button>
+        {paymentMethod === 'medical_aid' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Input
+              label="Medical Aid Provider"
+              type="text"
+              {...register('medicalAidProvider')}
+              error={errors.medicalAidProvider?.message}
+              placeholder="Discovery Health, Momentum"
+            />
 
-        {showMedicalInfo && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-top-2 duration-200">
-            {/* Health Information */}
-            <div>
-              <h4 className="text-md font-medium text-gray-800 mb-4">
-                Health Information
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Blood Type
-                  </label>
-                  <select
-                    value={formData.bloodType}
-                    onChange={(e) => updateFormField('bloodType', e.target.value)}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">Select blood type</option>
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                  </select>
-                </div>
+            <Input
+              label="Member Number"
+              type="text"
+              {...register('medicalAidNumber')}
+              error={errors.medicalAidNumber?.message}
+              placeholder="123456789"
+            />
 
-                <Input
-                  label="Height (cm)"
-                  type="number"
-                  value={formData.height}
-                  onChange={(e) => updateFormField('height', e.target.value)}
-                  error={errors.height}
-                  placeholder="175"
-                  min="30"
-                  max="300"
-                />
-
-                <Input
-                  label="Weight (kg)"
-                  type="number"
-                  value={formData.weight}
-                  onChange={(e) => updateFormField('weight', e.target.value)}
-                  error={errors.weight}
-                  placeholder="70"
-                  min="1"
-                  max="500"
-                />
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Smoking Status
-                  </label>
-                  <select
-                    value={formData.smokingStatus}
-                    onChange={(e) => updateFormField('smokingStatus', e.target.value)}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="never">Never smoked</option>
-                    <option value="former">Former smoker</option>
-                    <option value="current">Current smoker</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Alcohol Consumption
-                  </label>
-                  <select
-                    value={formData.alcoholConsumption}
-                    onChange={(e) => updateFormField('alcoholConsumption', e.target.value)}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="never">Never drinks</option>
-                    <option value="occasional">Occasional</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="heavy">Heavy</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Medical History */}
-            <div>
-              <h4 className="text-md font-medium text-gray-800 mb-4">
-                Medical History
-              </h4>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Known Allergies
-                  </label>
-                  <textarea
-                    value={formData.allergies}
-                    onChange={(e) => updateFormField('allergies', e.target.value)}
-                    placeholder="Enter allergies separated by commas (e.g., Penicillin, Shellfish, Peanuts)"
-                    rows={2}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Separate multiple allergies with commas</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Chronic Conditions
-                  </label>
-                  <textarea
-                    value={formData.chronicConditions}
-                    onChange={(e) => updateFormField('chronicConditions', e.target.value)}
-                    placeholder="Enter chronic conditions separated by commas (e.g., Hypertension, Diabetes, Asthma)"
-                    rows={2}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Separate multiple conditions with commas</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Current Medications
-                  </label>
-                  <textarea
-                    value={formData.currentMedications}
-                    onChange={(e) => updateFormField('currentMedications', e.target.value)}
-                    placeholder="Enter current medications separated by commas (e.g., Amlodipine 5mg, Metformin 500mg)"
-                    rows={2}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Include dosage where known, separate with commas</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Past Surgeries/Major Procedures
-                  </label>
-                  <textarea
-                    value={formData.pastSurgeries}
-                    onChange={(e) => updateFormField('pastSurgeries', e.target.value)}
-                    placeholder="Enter past surgeries or procedures separated by commas (e.g., Appendectomy 2019, Knee surgery 2021)"
-                    rows={2}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Include approximate dates where known</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Family Medical History
-                  </label>
-                  <textarea
-                    value={formData.familyHistory}
-                    onChange={(e) => updateFormField('familyHistory', e.target.value)}
-                    placeholder="Enter relevant family medical history (e.g., Father - Heart disease, Mother - Diabetes)"
-                    rows={3}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Include major conditions in immediate family</p>
-                </div>
-              </div>
-            </div>
+            <Input
+              label="Plan"
+              type="text"
+              {...register('medicalAidPlan')}
+              error={errors.medicalAidPlan?.message}
+              placeholder="Comprehensive, Executive"
+            />
           </div>
         )}
       </div>
+
     </div>
   );
 };
