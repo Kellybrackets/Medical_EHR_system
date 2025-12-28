@@ -4,7 +4,7 @@ import { AppLayout } from '../layout/AppLayout';
 import { Button } from '../ui/Button';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { PatientHeader } from './PatientHeader';
-import { ContactInfoCard, MedicalAidCard, MedicalHistoryCard } from './PatientSectionCards';
+import { ContactInfoCard, MedicalAidCard } from './PatientSectionCards';
 import { ConsultationHistory } from './ConsultationHistory';
 import { useToast } from '../ui/Toast';
 import { usePatients } from '../../hooks/usePatients';
@@ -140,11 +140,7 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
               canEdit={user?.role === 'receptionist'}
             />
 
-            <MedicalHistoryCard
-              patient={patient}
-              onEdit={handleEditSection}
-              canEdit={user?.role === 'receptionist'}
-            />
+
           </div>
 
           <ConsultationHistory

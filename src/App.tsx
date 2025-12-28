@@ -95,7 +95,7 @@ const ConsultationFormWrapper = () => {
       patientId={id!}
       consultationId={consultationId}
       onBack={() => navigate(-1)}
-      onSave={() => navigate(`/doctor/patient/${id}`)}
+      onSave={() => navigate(`/doctor/patient/${id}`, { replace: true })}
     />
   );
 };

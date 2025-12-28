@@ -1,5 +1,5 @@
 import React, { useState, useMemo, memo, useEffect } from 'react';
-import { Users, Stethoscope, Calendar, Eye, Plus, Heart } from 'lucide-react';
+import { Users, Stethoscope, Calendar, Eye, Heart } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -104,13 +104,7 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
 
     const newPatients = patients.filter((p) => getPatientStatus(p) === 'new').length;
     const followUpNeeded = patients.filter((p) => getPatientStatus(p) === 'follow-up').length;
-    const criticalPatients = patients.filter((p) => {
-      // Consider patients with chronic conditions or multiple medications as critical
-      return (
-        (p.medicalHistory?.chronicConditions?.length || 0) > 0 ||
-        (p.medicalHistory?.currentMedications?.length || 0) > 2
-      );
-    }).length;
+
 
     return {
       totalPatients: patients.length,
@@ -119,7 +113,7 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
       weekConsultations,
       newPatients,
       followUpNeeded,
-      criticalPatients,
+
     };
   }, [patients, consultationNotes]);
 
@@ -173,17 +167,7 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
               </div>
             </Card>
 
-            <Card className="bg-gradient-to-r from-red-50 to-red-100 border-red-200">
-              <div className="flex items-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-red-500 rounded-lg">
-                  <Heart className="h-6 w-6 text-white" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-red-700">Critical</p>
-                  <p className="text-2xl font-bold text-red-900">{stats.criticalPatients}</p>
-                </div>
-              </div>
-            </Card>
+
           </div>
 
           {/* Patient Management */}
@@ -196,12 +180,7 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
                     View and manage patient consultations
                   </p>
                 </div>
-                {onStartConsultation && (
-                  <Button onClick={() => onStartConsultation('')} className="sm:w-auto">
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Consultation
-                  </Button>
-                )}
+                {/* New Consultation button removed as per user request */}
               </div>
 
               {/* Search and Filter */}
@@ -248,10 +227,15 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
                         <div
                           key={patient.id}
                           className={`
-                          p-4 rounded-lg border-2 transition-all
+                          p-4 rounded-lg border-2 transition-all relative
                           ${index === 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white'}
                         `}
                         >
+                          {patient.visitType === 'follow_up' && (
+                            <div className="absolute top-0 right-0 px-2 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded-bl-lg rounded-tr-lg border-b border-l border-orange-200">
+                              FOLLOW UP
+                            </div>
+                          )}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               {index === 0 && (
@@ -272,6 +256,11 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
                                 <p className="text-sm text-gray-600">
                                   {calculateAge(patient.dateOfBirth)} years • {patient.sex}
                                 </p>
+                                {patient.visitReason && (
+                                  <p className="text-xs text-orange-600 font-medium mt-0.5">
+                                    Reason: {patient.visitReason}
+                                  </p>
+                                )}
                                 <p className="text-xs text-gray-500">
                                   Arrived: {formatDate(patient.createdAt)}
                                 </p>

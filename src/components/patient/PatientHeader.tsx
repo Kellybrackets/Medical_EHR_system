@@ -7,7 +7,7 @@ import { StatusBadge } from '../ui/StatusBadge';
 import { Patient } from '../../types';
 import { calculateAge, getPatientStatus, formatDate } from '../../utils/patientUtils';
 import {
-  calculateBMI,
+
   copyToClipboard,
   formatContactForCopy,
   generatePatientCSV,
@@ -31,10 +31,7 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
 }) => {
   const age = calculateAge(patient.dateOfBirth);
   const status = getPatientStatus(patient);
-  const bmi =
-    patient.medicalHistory?.height && patient.medicalHistory?.weight
-      ? calculateBMI(patient.medicalHistory.height, patient.medicalHistory.weight)
-      : null;
+
 
   const handleCopyContact = async () => {
     const contactText = formatContactForCopy(patient);
@@ -115,14 +112,7 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
                     {patient.dateOfBirth ? formatDate(patient.dateOfBirth) : 'Not provided'}
                   </span>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-gray-500 text-xs uppercase tracking-wide mb-1">
-                    Blood Type
-                  </span>
-                  <span className="font-medium text-red-600">
-                    {patient.medicalHistory?.bloodType || 'Unknown'}
-                  </span>
-                </div>
+
               </div>
             </div>
           </div>
@@ -184,62 +174,7 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
       </Card>
 
       {/* Quick Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-700">
-              {patient.medicalHistory?.height ? `${patient.medicalHistory.height}` : '--'}
-            </div>
-            <div className="text-sm text-green-600 font-medium">Height (cm)</div>
-          </div>
-        </Card>
 
-        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-700">
-              {patient.medicalHistory?.weight ? `${patient.medicalHistory.weight}` : '--'}
-            </div>
-            <div className="text-sm text-blue-600 font-medium">Weight (kg)</div>
-          </div>
-        </Card>
-
-        <Card
-          className={`bg-gradient-to-r border-2 ${
-            bmi
-              ? bmi.categoryColor.includes('green')
-                ? 'from-green-50 to-emerald-50 border-green-200'
-                : bmi.categoryColor.includes('yellow')
-                  ? 'from-yellow-50 to-amber-50 border-yellow-200'
-                  : bmi.categoryColor.includes('red')
-                    ? 'from-red-50 to-rose-50 border-red-200'
-                    : 'from-blue-50 to-cyan-50 border-blue-200'
-              : 'from-gray-50 to-slate-50 border-gray-200'
-          }`}
-        >
-          <div className="text-center">
-            <div
-              className={`text-2xl font-bold ${bmi ? bmi.categoryColor.split(' ')[0] : 'text-gray-500'}`}
-            >
-              {bmi ? bmi.value : '--'}
-            </div>
-            <div
-              className={`text-sm font-medium ${bmi ? bmi.categoryColor.split(' ')[0] : 'text-gray-500'}`}
-            >
-              BMI {bmi ? `(${bmi.category})` : ''}
-            </div>
-          </div>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-700">
-              {(patient.medicalHistory?.allergies?.length || 0) +
-                (patient.medicalHistory?.chronicConditions?.length || 0)}
-            </div>
-            <div className="text-sm text-purple-600 font-medium">Medical Alerts</div>
-          </div>
-        </Card>
-      </div>
     </div>
   );
 };

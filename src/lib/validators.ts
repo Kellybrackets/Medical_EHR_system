@@ -13,6 +13,10 @@ export const patientFormSchema = z
     age: z.string().optional(),
     gender: z.enum(['male', 'female', 'other']),
 
+    // Parent/Child Linking
+    parentId: z.string().optional(),
+    isDependent: z.boolean().optional(),
+
     // Contact Information
     contactNumber: z.string().regex(phoneRegex, 'Please enter a valid phone number'),
     alternateNumber: z.string().optional(),
@@ -37,6 +41,7 @@ export const patientFormSchema = z
     medicalAidProvider: z.string().optional(),
     medicalAidNumber: z.string().optional(),
     medicalAidPlan: z.string().optional(),
+    medicalAidSchemeCode: z.string().optional(),
     dependentType: z.string().optional(),
 
 

@@ -50,10 +50,14 @@ export const usePatients = () => {
             postalCode: patient.postal_code,
             createdAt: patient.created_at,
             updatedAt: patient.updated_at,
-            consultationStatus: patient.consultation_status || 'waiting',
+            consultationStatus: patient.consultation_status,
             currentDoctorId: patient.current_doctor_id,
             lastStatusChange: patient.last_status_change,
+            visitType: patient.visit_type,
+            visitReason: patient.visit_reason,
             paymentMethod: patient.payment_method || 'cash',
+            parentId: patient.parent_id,
+            isDependent: patient.is_dependent,
 
             insuranceDetails: insurance
               ? {
@@ -62,6 +66,7 @@ export const usePatients = () => {
                 fundName: insurance.fund_name,
                 memberNumber: insurance.member_number,
                 plan: insurance.plan,
+                schemeCode: insurance.scheme_code,
                 createdAt: patient.created_at,
                 updatedAt: patient.updated_at,
               }
@@ -142,9 +147,13 @@ export const usePatients = () => {
               postalCode: payload.new.postal_code,
               createdAt: payload.new.created_at,
               updatedAt: payload.new.updated_at,
-              consultationStatus: payload.new.consultation_status || 'waiting',
+              consultationStatus: payload.new.consultation_status,
               currentDoctorId: payload.new.current_doctor_id,
               lastStatusChange: payload.new.last_status_change,
+              visitType: payload.new.visit_type,
+              visitReason: payload.new.visit_reason,
+              parentId: payload.new.parent_id,
+              isDependent: payload.new.is_dependent,
 
               insuranceDetails: insurance.data
                 ? {
@@ -153,6 +162,7 @@ export const usePatients = () => {
                   fundName: insurance.data.fund_name,
                   memberNumber: insurance.data.member_number,
                   plan: insurance.data.plan,
+                  schemeCode: insurance.data.scheme_code,
                   createdAt: insurance.data.created_at,
                   updatedAt: insurance.data.updated_at,
                 }
@@ -197,12 +207,7 @@ export const usePatients = () => {
           const updatedPatientId = payload.new.id;
 
           try {
-            const [medicalHistory, insurance, nextOfKin] = await Promise.all([
-              supabase
-                .from('medical_histories')
-                .select('*')
-                .eq('patient_id', updatedPatientId)
-                .single(),
+            const [insurance, nextOfKin] = await Promise.all([
               supabase
                 .from('insurance_details')
                 .select('*')
@@ -228,27 +233,14 @@ export const usePatients = () => {
               postalCode: payload.new.postal_code,
               createdAt: payload.new.created_at,
               updatedAt: payload.new.updated_at,
-              consultationStatus: payload.new.consultation_status || 'waiting',
+              consultationStatus: payload.new.consultation_status,
               currentDoctorId: payload.new.current_doctor_id,
               lastStatusChange: payload.new.last_status_change,
-              medicalHistory: medicalHistory.data
-                ? {
-                  id: medicalHistory.data.id,
-                  patientId: updatedPatientId,
-                  height: medicalHistory.data.height,
-                  weight: medicalHistory.data.weight,
-                  bloodType: medicalHistory.data.blood_type,
-                  allergies: medicalHistory.data.allergies || [],
-                  chronicConditions: medicalHistory.data.chronic_conditions || [],
-                  currentMedications: medicalHistory.data.current_medications || [],
-                  pastSurgeries: medicalHistory.data.past_surgeries || [],
-                  familyHistory: medicalHistory.data.family_history,
-                  smokingStatus: medicalHistory.data.smoking_status || 'never',
-                  alcoholConsumption: medicalHistory.data.alcohol_consumption || 'never',
-                  createdAt: medicalHistory.data.created_at,
-                  updatedAt: medicalHistory.data.updated_at,
-                }
-                : undefined,
+              visitType: payload.new.visit_type,
+              visitReason: payload.new.visit_reason,
+              parentId: payload.new.parent_id,
+              isDependent: payload.new.is_dependent,
+
               insuranceDetails: insurance.data
                 ? {
                   id: insurance.data.id,
@@ -294,7 +286,7 @@ export const usePatients = () => {
           setPatients((prev) => prev.filter((p) => p.id !== payload.old.id));
         },
       )
-      .subscribe((status, err) => {
+      .subscribe((_status, err) => {
         if (err) {
           console.error('Realtime subscription error:', err);
         }
@@ -320,6 +312,7 @@ export const usePatients = () => {
         const patientWithPractice = {
           ...transformedData.patient,
           practice_code: user?.practiceCode || null,
+          consultation_status: null,
         };
 
         const { data: patientData, error: patientError } = await supabase
@@ -500,6 +493,10 @@ export const usePatients = () => {
         postalCode: data.postalCode,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
+        visitType: data.visit_type,
+        visitReason: data.visit_reason,
+        parentId: data.parent_id,
+        isDependent: data.is_dependent,
 
         insuranceDetails: data.insuranceDetails
           ? {
@@ -508,6 +505,7 @@ export const usePatients = () => {
             fundName: data.insuranceDetails.fundName,
             memberNumber: data.insuranceDetails.memberNumber,
             plan: data.insuranceDetails.plan,
+            schemeCode: data.insuranceDetails.scheme_code,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
           }
@@ -590,6 +588,37 @@ export const usePatients = () => {
     [loadPatients],
   );
 
+  const addToQueue = useCallback(
+    async (
+      patientId: string,
+      visitType: 'regular' | 'follow_up' | 'emergency' = 'regular',
+      visitReason?: string
+    ): Promise<ApiResponse> => {
+      try {
+        const { error } = await supabase
+          .from('patients')
+          .update({
+            consultation_status: 'waiting',
+            last_status_change: new Date().toISOString(),
+            visit_type: visitType,
+            visit_reason: visitReason
+          })
+          .eq('id', patientId);
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        await loadPatients();
+
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message || 'An unexpected error occurred' };
+      }
+    },
+    [loadPatients],
+  );
+
   return {
     patients,
     loading,
@@ -602,5 +631,6 @@ export const usePatients = () => {
     clearNewPatientNotification: () => setNewPatientAdded(null),
     startConsultation,
     completeConsultation,
+    addToQueue,
   };
 };

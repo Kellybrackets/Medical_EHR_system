@@ -56,17 +56,8 @@ const PatientFormComponent: React.FC<PatientFormProps> = ({ patientId, onBack, o
       medicalAidProvider: '',
       medicalAidNumber: '',
       medicalAidPlan: '',
+      medicalAidSchemeCode: '',
       dependentType: '',
-      allergies: '',
-      chronicConditions: '',
-      currentMedications: '',
-      pastSurgeries: '',
-      familyHistory: '',
-      bloodType: '',
-      height: '',
-      weight: '',
-      smokingStatus: 'never',
-      alcoholConsumption: 'never',
     },
   });
 
@@ -181,6 +172,7 @@ const PatientFormComponent: React.FC<PatientFormProps> = ({ patientId, onBack, o
               errors={errors}
               control={control}
               setValue={setValue}
+              patients={patients}
             />
             <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 border-t border-gray-200">
               <Button type="button" variant="secondary" onClick={onBack} disabled={isSubmitting}>

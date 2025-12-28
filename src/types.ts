@@ -27,6 +27,12 @@ export interface Patient {
   consultationStatus?: ConsultationStatus;
   currentDoctorId?: string;
   lastStatusChange?: string;
+  visitType?: 'regular' | 'follow_up' | 'emergency';
+  visitReason?: string;
+
+  // Parent/Child linking
+  parentId?: string;
+  isDependent?: boolean;
 
   // Payment method
   paymentMethod?: PaymentMethod;
@@ -57,6 +63,7 @@ export interface InsuranceDetails {
   fundName?: string;
   memberNumber?: string;
   plan?: string;
+  schemeCode?: string;
   dependentType?: string;
   createdAt: string;
   updatedAt: string;
@@ -123,12 +130,12 @@ export interface PatientFormData {
   idType: 'id_number' | 'passport';
   idNumber: string;
   dateOfBirth: string;
-  age: string;
+  age?: string;
   gender: 'male' | 'female' | 'other';
 
   // Contact Information
   contactNumber: string;
-  alternateNumber: string;
+  alternateNumber?: string;
   email: string;
   address: string;
   city: string;
@@ -146,7 +153,12 @@ export interface PatientFormData {
   medicalAidProvider: string;
   medicalAidNumber: string;
   medicalAidPlan: string;
+  medicalAidSchemeCode: string;
   dependentType: string;
+
+  // Parent/Child linking
+  parentId?: string;
+  isDependent?: boolean;
 
 
 }
@@ -187,6 +199,8 @@ export interface PatientRow {
   address: string;
   city?: string;
   postal_code?: string;
+  parent_id?: string;
+  is_dependent?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -211,6 +225,7 @@ export interface InsuranceDetailsRow {
   fund_name?: string;
   member_number?: string;
   plan?: string;
+  scheme_code?: string;
   dependent_type?: string;
   created_at: string;
   updated_at: string;
@@ -234,3 +249,6 @@ export interface SoapNote {
   assessment: string;
   plan: string;
 }
+
+
+

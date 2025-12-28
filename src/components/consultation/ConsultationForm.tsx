@@ -43,12 +43,26 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   const [saving, setSaving] = useState(false);
   const [loadingConsultation, setLoadingConsultation] = useState(false);
 
-  const { patients, loading: patientsLoading, completeConsultation } = usePatients();
+  const { patients, loading: patientsLoading, completeConsultation, startConsultation } = usePatients();
   const { consultationNotes, addConsultationNote, updateConsultationNote } = useConsultationNotes();
   const { user } = useAuthContext();
 
   const patient = patients.find((p) => p.id === patientId);
   const isEditMode = !!consultationId;
+
+  // Start consultation status when entering the form (only for new consultations)
+  useEffect(() => {
+    const initConsultation = async () => {
+      if (!isEditMode && user?.id && patientId) {
+        // We only start if it's not already in consultation (optimization happen likely in DB or check here)
+        // But simply calling it ensures it updates.
+        console.log('🏁 Starting consultation for patient:', patientId);
+        await startConsultation(patientId, user.id);
+      }
+    };
+
+    initConsultation();
+  }, [isEditMode, patientId, user?.id, startConsultation]);
 
   // Load existing consultation data in edit mode
   useEffect(() => {
@@ -246,32 +260,7 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
                 <dt className="text-sm font-medium text-gray-500">Gender</dt>
                 <dd className="mt-1 text-sm text-gray-900">{patient.sex}</dd>
               </div>
-              {(patient.medicalHistory?.allergies?.length > 0 ||
-                patient.medicalHistory?.chronicConditions?.length > 0 ||
-                patient.medicalHistory?.pastDiagnoses?.length > 0) && (
-                <div className="md:col-span-3">
-                  <dt className="text-sm font-medium text-gray-500">Medical History</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    {patient.medicalHistory.allergies?.length > 0 && (
-                      <div>
-                        <strong>Allergies:</strong> {patient.medicalHistory.allergies.join(', ')}
-                      </div>
-                    )}
-                    {patient.medicalHistory.chronicConditions?.length > 0 && (
-                      <div>
-                        <strong>Chronic Conditions:</strong>{' '}
-                        {patient.medicalHistory.chronicConditions.join(', ')}
-                      </div>
-                    )}
-                    {patient.medicalHistory.pastDiagnoses?.length > 0 && (
-                      <div>
-                        <strong>Past Diagnoses:</strong>{' '}
-                        {patient.medicalHistory.pastDiagnoses.join(', ')}
-                      </div>
-                    )}
-                  </dd>
-                </div>
-              )}
+
             </div>
           </Card.Content>
         </Card>

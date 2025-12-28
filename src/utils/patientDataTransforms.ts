@@ -28,6 +28,10 @@ export const patientToFormData = (patient: Patient): PatientFormData => {
       | 'female'
       | 'other',
 
+    // Parent/Child Linking
+    parentId: patient.parentId || '',
+    isDependent: patient.isDependent || false,
+
     // Contact Information
     contactNumber: patient.contactNumber || '',
     alternateNumber: patient.alternateNumber || '',
@@ -48,6 +52,7 @@ export const patientToFormData = (patient: Patient): PatientFormData => {
     medicalAidProvider: patient.insuranceDetails?.fundName || '',
     medicalAidNumber: patient.insuranceDetails?.memberNumber || '',
     medicalAidPlan: patient.insuranceDetails?.plan || '',
+    medicalAidSchemeCode: patient.insuranceDetails?.schemeCode || '',
     dependentType: patient.insuranceDetails?.dependentType || '',
 
 
@@ -85,7 +90,7 @@ export const formDataToPatientData = (formData: PatientFormData) => {
             ? ('Female' as const)
             : ('Other' as const),
       date_of_birth: cleaned.dateOfBirth,
-      age: parseInt(cleaned.age) || 0,
+      age: parseInt(cleaned.age || '0') || 0,
       contact_number: cleaned.contactNumber.trim(),
       alternate_number: cleaned.alternateNumber.trim() || null,
       email: cleaned.email.trim() || null,
@@ -93,6 +98,8 @@ export const formDataToPatientData = (formData: PatientFormData) => {
       city: cleaned.city.trim() || null,
       postal_code: cleaned.postalCode.trim() || null,
       payment_method: cleaned.paymentMethod,
+      parent_id: cleaned.parentId || null,
+      is_dependent: cleaned.isDependent || false,
     },
 
     // Next of kin table data
@@ -111,6 +118,7 @@ export const formDataToPatientData = (formData: PatientFormData) => {
       fund_name: cleaned.medicalAidProvider.trim() || null,
       member_number: cleaned.medicalAidNumber.trim() || null,
       plan: cleaned.medicalAidPlan.trim() || null,
+      scheme_code: cleaned.medicalAidSchemeCode.trim() || null,
     },
   };
 };

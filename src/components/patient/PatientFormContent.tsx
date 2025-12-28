@@ -1,5 +1,6 @@
 import React from 'react';
 import { Input } from '../ui/Input';
+import { Patient } from '../../types';
 import { PatientFormSchema } from '../../lib/validators';
 import { UseFormRegister, FieldErrors, Control, useWatch, UseFormSetValue } from 'react-hook-form';
 
@@ -8,6 +9,7 @@ interface PatientFormContentProps {
   errors: FieldErrors<PatientFormSchema>;
   control: Control<PatientFormSchema>;
   setValue: UseFormSetValue<PatientFormSchema>;
+  patients: Patient[];
 }
 
 export const PatientFormContent: React.FC<PatientFormContentProps> = ({
@@ -15,11 +17,20 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
   errors,
   control,
   setValue,
+  patients,
 }) => {
 
 
   const idType = useWatch({ control, name: 'idType' });
   const paymentMethod = useWatch({ control, name: 'paymentMethod' });
+  const age = useWatch({ control, name: 'age' });
+  const isDependent = useWatch({ control, name: 'isDependent' });
+
+  const isMinor = age ? parseInt(age) < 18 : false;
+  const showParentLink = isMinor || isDependent;
+
+  // Filter out the current patient from the list if trying to edit (though we don't have current patient ID here easily, but typically can't be own parent)
+  // For simplicity, just show all.
 
   return (
     <div className="space-y-8">
@@ -103,6 +114,55 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
           </div>
         </div>
       </div>
+
+
+      {/* Parent/Guardian Linking */}
+      {
+        (showParentLink || true) && (
+          <div>
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Parent / Guardian Link
+              </h3>
+              <div className="flex items-center">
+                <input
+                  id="isDependent"
+                  type="checkbox"
+                  {...register('isDependent')}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isDependent" className="ml-2 block text-sm text-gray-900">
+                  Link to Parent/Guardian
+                </label>
+              </div>
+            </div>
+
+            {showParentLink && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Select Parent / Guardian
+                  </label>
+                  <select
+                    {...register('parentId')}
+                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">-- Select Parent --</option>
+                    {patients && patients.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.firstName} {p.surname} ({p.uidNumber || p.idNumber})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Link this patient to an existing main member/parent.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      }
 
       {/* Contact Information */}
       <div>
@@ -282,10 +342,18 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
               error={errors.medicalAidPlan?.message}
               placeholder="Comprehensive, Executive"
             />
+
+            <Input
+              label="Scheme Code"
+              type="text"
+              {...register('medicalAidSchemeCode')}
+              error={errors.medicalAidSchemeCode?.message}
+              placeholder="Code (e.g. DIG001)"
+            />
           </div>
         )}
       </div>
 
-    </div>
+    </div >
   );
 };

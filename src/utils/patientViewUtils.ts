@@ -1,47 +1,13 @@
 import { Patient } from '../types';
 
-/**
- * Calculate BMI and category from height and weight
- */
-export const calculateBMI = (height: number, weight: number) => {
-  if (!height || !weight) return null;
 
-  const heightInMeters = height / 100;
-  const bmi = weight / (heightInMeters * heightInMeters);
-
-  let category: string;
-  let categoryColor: string;
-
-  if (bmi < 18.5) {
-    category = 'Underweight';
-    categoryColor = 'text-blue-600 bg-blue-100';
-  } else if (bmi < 25) {
-    category = 'Normal';
-    categoryColor = 'text-green-600 bg-green-100';
-  } else if (bmi < 30) {
-    category = 'Overweight';
-    categoryColor = 'text-yellow-600 bg-yellow-100';
-  } else {
-    category = 'Obese';
-    categoryColor = 'text-red-600 bg-red-100';
-  }
-
-  return {
-    value: parseFloat(bmi.toFixed(1)),
-    category,
-    categoryColor,
-  };
-};
 
 /**
  * Generate patient summary for export
  */
-export const generatePatientSummary = (patient: Patient) => {
-  const bmi =
-    patient.medicalHistory?.height && patient.medicalHistory?.weight
-      ? calculateBMI(patient.medicalHistory.height, patient.medicalHistory.weight)
-      : null;
 
+
+export const generatePatientSummary = (patient: Patient) => {
   return {
     // Demographics
     fullName: `${patient.firstName} ${patient.surname}`,
@@ -69,26 +35,7 @@ export const generatePatientSummary = (patient: Patient) => {
       plan: patient.insuranceDetails?.plan || 'Not specified',
     },
 
-    // Health Metrics
-    healthMetrics: {
-      height: patient.medicalHistory?.height
-        ? `${patient.medicalHistory.height} cm`
-        : 'Not recorded',
-      weight: patient.medicalHistory?.weight
-        ? `${patient.medicalHistory.weight} kg`
-        : 'Not recorded',
-      bmi: bmi ? `${bmi.value} (${bmi.category})` : 'Not calculated',
-      bloodType: patient.medicalHistory?.bloodType || 'Unknown',
-    },
 
-    // Medical History
-    medicalHistory: {
-      allergies: patient.medicalHistory?.allergies || [],
-      chronicConditions: patient.medicalHistory?.chronicConditions || [],
-      currentMedications: patient.medicalHistory?.currentMedications || [],
-      pastSurgeries: patient.medicalHistory?.pastSurgeries || [],
-      familyHistory: patient.medicalHistory?.familyHistory || 'No family history recorded',
-    },
   };
 };
 
@@ -138,15 +85,7 @@ export const generatePatientCSV = (patient: Patient) => {
     ['Insurance Provider', summary.insurance.provider],
     ['Insurance Member Number', summary.insurance.memberNumber],
     ['Insurance Plan', summary.insurance.plan],
-    ['Height', summary.healthMetrics.height],
-    ['Weight', summary.healthMetrics.weight],
-    ['BMI', summary.healthMetrics.bmi],
-    ['Blood Type', summary.healthMetrics.bloodType],
-    ['Allergies', summary.medicalHistory.allergies.join('; ')],
-    ['Chronic Conditions', summary.medicalHistory.chronicConditions.join('; ')],
-    ['Current Medications', summary.medicalHistory.currentMedications.join('; ')],
-    ['Past Surgeries', summary.medicalHistory.pastSurgeries.join('; ')],
-    ['Family History', summary.medicalHistory.familyHistory],
+
   ];
 
   return csvData.map((row) => row.map((field) => `"${field}"`).join(',')).join('\n');
