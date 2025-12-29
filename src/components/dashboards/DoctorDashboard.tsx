@@ -105,7 +105,6 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
     const newPatients = patients.filter((p) => getPatientStatus(p) === 'new').length;
     const followUpNeeded = patients.filter((p) => getPatientStatus(p) === 'follow-up').length;
 
-
     return {
       totalPatients: patients.length,
       totalConsultations: validConsultationNotes.length,
@@ -113,7 +112,6 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
       weekConsultations,
       newPatients,
       followUpNeeded,
-
     };
   }, [patients, consultationNotes]);
 
@@ -166,8 +164,6 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
                 </div>
               </div>
             </Card>
-
-
           </div>
 
           {/* Patient Management */}
@@ -239,7 +235,7 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               {index === 0 && (
-                                <div className="flex items-center justify-center w-8 h-8 bg-yellow-500 text-white rounded-full text-sm font-bold">
+                                <div className="flex items-center justify-center w-12 h-12 bg-yellow-500 text-white rounded-full text-xs font-bold shadow-sm shrink-0">
                                   NEXT
                                 </div>
                               )}

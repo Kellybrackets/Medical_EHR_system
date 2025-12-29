@@ -19,8 +19,6 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
   setValue,
   patients,
 }) => {
-
-
   const idType = useWatch({ control, name: 'idType' });
   const paymentMethod = useWatch({ control, name: 'paymentMethod' });
   const age = useWatch({ control, name: 'age' });
@@ -115,54 +113,50 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
         </div>
       </div>
 
-
       {/* Parent/Guardian Linking */}
-      {
-        (showParentLink || true) && (
-          <div>
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Parent / Guardian Link
-              </h3>
-              <div className="flex items-center">
-                <input
-                  id="isDependent"
-                  type="checkbox"
-                  {...register('isDependent')}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="isDependent" className="ml-2 block text-sm text-gray-900">
-                  Link to Parent/Guardian
-                </label>
-              </div>
+      {(showParentLink || true) && (
+        <div>
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Parent / Guardian Link</h3>
+            <div className="flex items-center">
+              <input
+                id="isDependent"
+                type="checkbox"
+                {...register('isDependent')}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="isDependent" className="ml-2 block text-sm text-gray-900">
+                Link to Parent/Guardian
+              </label>
             </div>
+          </div>
 
-            {showParentLink && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Select Parent / Guardian
-                  </label>
-                  <select
-                    {...register('parentId')}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">-- Select Parent --</option>
-                    {patients && patients.map((p) => (
+          {showParentLink && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Parent / Guardian
+                </label>
+                <select
+                  {...register('parentId')}
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">-- Select Parent --</option>
+                  {patients &&
+                    patients.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.firstName} {p.surname} ({p.uidNumber || p.idNumber})
                       </option>
                     ))}
-                  </select>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Link this patient to an existing main member/parent.
-                  </p>
-                </div>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  Link this patient to an existing main member/parent.
+                </p>
               </div>
-            )}
-          </div>
-        )
-      }
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Contact Information */}
       <div>
@@ -290,9 +284,10 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
               onClick={() => setValue('paymentMethod', 'cash')}
               className={`
                 p-4 border-2 rounded-lg text-center transition-all
-                ${paymentMethod === 'cash'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                ${
+                  paymentMethod === 'cash'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                 }
               `}
             >
@@ -305,9 +300,10 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
               onClick={() => setValue('paymentMethod', 'medical_aid')}
               className={`
                 p-4 border-2 rounded-lg text-center transition-all
-                ${paymentMethod === 'medical_aid'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                ${
+                  paymentMethod === 'medical_aid'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                 }
               `}
             >
@@ -353,7 +349,6 @@ export const PatientFormContent: React.FC<PatientFormContentProps> = ({
           </div>
         )}
       </div>
-
-    </div >
+    </div>
   );
 };

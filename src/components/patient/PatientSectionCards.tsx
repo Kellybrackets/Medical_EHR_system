@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Phone,
-  MapPin,
-  Shield,
-  AlertTriangle,
-  Copy,
-  Edit,
-} from 'lucide-react';
+import { Phone, MapPin, Shield, AlertTriangle, Copy, Edit } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Patient } from '../../types';
@@ -208,5 +201,3 @@ export const MedicalAidCard: React.FC<SectionCardProps> = ({
     </Card>
   );
 };
-
-

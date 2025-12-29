@@ -43,8 +43,6 @@ export const patientFormSchema = z
     medicalAidPlan: z.string().optional(),
     medicalAidSchemeCode: z.string().optional(),
     dependentType: z.string().optional(),
-
-
   })
   .superRefine((data, ctx) => {
     if (data.idType === 'id_number' && !/^\d{13}$/.test(data.idNumber)) {
@@ -61,7 +59,6 @@ export const patientFormSchema = z
         message: 'Please enter a valid passport number (6-20 alphanumeric characters)',
       });
     }
-
   });
 
 export type PatientFormSchema = z.infer<typeof patientFormSchema>;

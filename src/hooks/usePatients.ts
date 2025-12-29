@@ -61,28 +61,28 @@ export const usePatients = () => {
 
             insuranceDetails: insurance
               ? {
-                id: insurance.id,
-                patientId: patient.id,
-                fundName: insurance.fund_name,
-                memberNumber: insurance.member_number,
-                plan: insurance.plan,
-                schemeCode: insurance.scheme_code,
-                createdAt: patient.created_at,
-                updatedAt: patient.updated_at,
-              }
+                  id: insurance.id,
+                  patientId: patient.id,
+                  fundName: insurance.fund_name,
+                  memberNumber: insurance.member_number,
+                  plan: insurance.plan,
+                  schemeCode: insurance.scheme_code,
+                  createdAt: patient.created_at,
+                  updatedAt: patient.updated_at,
+                }
               : undefined,
             nextOfKin: nextOfKin
               ? {
-                id: nextOfKin.id,
-                patientId: patient.id,
-                name: nextOfKin.name,
-                relationship: nextOfKin.relationship,
-                phone: nextOfKin.phone,
-                alternatePhone: nextOfKin.alternate_phone,
-                email: nextOfKin.email,
-                createdAt: patient.created_at,
-                updatedAt: patient.updated_at,
-              }
+                  id: nextOfKin.id,
+                  patientId: patient.id,
+                  name: nextOfKin.name,
+                  relationship: nextOfKin.relationship,
+                  phone: nextOfKin.phone,
+                  alternatePhone: nextOfKin.alternate_phone,
+                  email: nextOfKin.email,
+                  createdAt: patient.created_at,
+                  updatedAt: patient.updated_at,
+                }
               : undefined,
           };
         });
@@ -157,28 +157,28 @@ export const usePatients = () => {
 
               insuranceDetails: insurance.data
                 ? {
-                  id: insurance.data.id,
-                  patientId: newPatientId,
-                  fundName: insurance.data.fund_name,
-                  memberNumber: insurance.data.member_number,
-                  plan: insurance.data.plan,
-                  schemeCode: insurance.data.scheme_code,
-                  createdAt: insurance.data.created_at,
-                  updatedAt: insurance.data.updated_at,
-                }
+                    id: insurance.data.id,
+                    patientId: newPatientId,
+                    fundName: insurance.data.fund_name,
+                    memberNumber: insurance.data.member_number,
+                    plan: insurance.data.plan,
+                    schemeCode: insurance.data.scheme_code,
+                    createdAt: insurance.data.created_at,
+                    updatedAt: insurance.data.updated_at,
+                  }
                 : undefined,
               nextOfKin: nextOfKin.data
                 ? {
-                  id: nextOfKin.data.id,
-                  patientId: newPatientId,
-                  name: nextOfKin.data.name,
-                  relationship: nextOfKin.data.relationship,
-                  phone: nextOfKin.data.phone,
-                  alternatePhone: nextOfKin.data.alternate_phone,
-                  email: nextOfKin.data.email,
-                  createdAt: nextOfKin.data.created_at,
-                  updatedAt: nextOfKin.data.updated_at,
-                }
+                    id: nextOfKin.data.id,
+                    patientId: newPatientId,
+                    name: nextOfKin.data.name,
+                    relationship: nextOfKin.data.relationship,
+                    phone: nextOfKin.data.phone,
+                    alternatePhone: nextOfKin.data.alternate_phone,
+                    email: nextOfKin.data.email,
+                    createdAt: nextOfKin.data.created_at,
+                    updatedAt: nextOfKin.data.updated_at,
+                  }
                 : undefined,
             };
 
@@ -243,27 +243,27 @@ export const usePatients = () => {
 
               insuranceDetails: insurance.data
                 ? {
-                  id: insurance.data.id,
-                  patientId: updatedPatientId,
-                  fundName: insurance.data.fund_name,
-                  memberNumber: insurance.data.member_number,
-                  plan: insurance.data.plan,
-                  createdAt: insurance.data.created_at,
-                  updatedAt: insurance.data.updated_at,
-                }
+                    id: insurance.data.id,
+                    patientId: updatedPatientId,
+                    fundName: insurance.data.fund_name,
+                    memberNumber: insurance.data.member_number,
+                    plan: insurance.data.plan,
+                    createdAt: insurance.data.created_at,
+                    updatedAt: insurance.data.updated_at,
+                  }
                 : undefined,
               nextOfKin: nextOfKin.data
                 ? {
-                  id: nextOfKin.data.id,
-                  patientId: updatedPatientId,
-                  name: nextOfKin.data.name,
-                  relationship: nextOfKin.data.relationship,
-                  phone: nextOfKin.data.phone,
-                  alternatePhone: nextOfKin.data.alternate_phone,
-                  email: nextOfKin.data.email,
-                  createdAt: nextOfKin.data.created_at,
-                  updatedAt: nextOfKin.data.updated_at,
-                }
+                    id: nextOfKin.data.id,
+                    patientId: updatedPatientId,
+                    name: nextOfKin.data.name,
+                    relationship: nextOfKin.data.relationship,
+                    phone: nextOfKin.data.phone,
+                    alternatePhone: nextOfKin.data.alternate_phone,
+                    email: nextOfKin.data.email,
+                    createdAt: nextOfKin.data.created_at,
+                    updatedAt: nextOfKin.data.updated_at,
+                  }
                 : undefined,
             };
 
@@ -307,8 +307,6 @@ export const usePatients = () => {
       try {
         const transformedData = formDataToPatientData(formData);
 
-
-
         const patientWithPractice = {
           ...transformedData.patient,
           practice_code: user?.practiceCode || null,
@@ -350,8 +348,6 @@ export const usePatients = () => {
           return { success: false, error: 'Failed to create emergency contact information' };
         }
 
-
-
         const { error: insuranceError } = await supabase.from('insurance_details').insert([
           {
             patient_id: patientId,
@@ -379,8 +375,6 @@ export const usePatients = () => {
     async (patientId: string, formData: PatientFormData): Promise<ApiResponse> => {
       try {
         const transformedData = formDataToPatientData(formData);
-
-
 
         const { error: patientError } = await supabase
           .from('patients')
@@ -415,8 +409,6 @@ export const usePatients = () => {
         if (nextOfKinError) {
           return { success: false, error: 'Failed to update emergency contact information' };
         }
-
-
 
         const { error: insuranceError } = await supabase.from('insurance_details').upsert(
           [
@@ -500,28 +492,28 @@ export const usePatients = () => {
 
         insuranceDetails: data.insuranceDetails
           ? {
-            id: data.insuranceDetails.id,
-            patientId: data.id,
-            fundName: data.insuranceDetails.fundName,
-            memberNumber: data.insuranceDetails.memberNumber,
-            plan: data.insuranceDetails.plan,
-            schemeCode: data.insuranceDetails.scheme_code,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-          }
+              id: data.insuranceDetails.id,
+              patientId: data.id,
+              fundName: data.insuranceDetails.fundName,
+              memberNumber: data.insuranceDetails.memberNumber,
+              plan: data.insuranceDetails.plan,
+              schemeCode: data.insuranceDetails.scheme_code,
+              createdAt: data.createdAt,
+              updatedAt: data.updatedAt,
+            }
           : undefined,
         nextOfKin: data.nextOfKin
           ? {
-            id: data.nextOfKin.id,
-            patientId: data.id,
-            name: data.nextOfKin.name,
-            relationship: data.nextOfKin.relationship,
-            phone: data.nextOfKin.phone,
-            alternatePhone: data.nextOfKin.alternatePhone,
-            email: data.nextOfKin.email,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-          }
+              id: data.nextOfKin.id,
+              patientId: data.id,
+              name: data.nextOfKin.name,
+              relationship: data.nextOfKin.relationship,
+              phone: data.nextOfKin.phone,
+              alternatePhone: data.nextOfKin.alternatePhone,
+              email: data.nextOfKin.email,
+              createdAt: data.createdAt,
+              updatedAt: data.updatedAt,
+            }
           : undefined,
       };
 
@@ -592,7 +584,7 @@ export const usePatients = () => {
     async (
       patientId: string,
       visitType: 'regular' | 'follow_up' | 'emergency' = 'regular',
-      visitReason?: string
+      visitReason?: string,
     ): Promise<ApiResponse> => {
       try {
         const { error } = await supabase
@@ -601,7 +593,7 @@ export const usePatients = () => {
             consultation_status: 'waiting',
             last_status_change: new Date().toISOString(),
             visit_type: visitType,
-            visit_reason: visitReason
+            visit_reason: visitReason,
           })
           .eq('id', patientId);
 

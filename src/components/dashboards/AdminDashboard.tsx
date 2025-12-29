@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Users, Building2, Settings, BarChart3 } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Card } from '../ui/Card';

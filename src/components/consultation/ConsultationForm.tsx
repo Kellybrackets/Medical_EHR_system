@@ -8,7 +8,7 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { usePatients } from '../../hooks/usePatients';
 import { useConsultationNotes } from '../../hooks/useConsultationNotes';
 import { useAuthContext } from '../../contexts/AuthProvider';
-import { formatDate } from '../../utils/helpers';
+
 import { ClinicalNotesEditor } from './ClinicalNotesEditor';
 
 interface ConsultationFormProps {
@@ -43,7 +43,12 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
   const [saving, setSaving] = useState(false);
   const [loadingConsultation, setLoadingConsultation] = useState(false);
 
-  const { patients, loading: patientsLoading, completeConsultation, startConsultation } = usePatients();
+  const {
+    patients,
+    loading: patientsLoading,
+    completeConsultation,
+    startConsultation,
+  } = usePatients();
   const { consultationNotes, addConsultationNote, updateConsultationNote } = useConsultationNotes();
   const { user } = useAuthContext();
 
@@ -260,7 +265,6 @@ const ConsultationFormComponent: React.FC<ConsultationFormProps> = ({
                 <dt className="text-sm font-medium text-gray-500">Gender</dt>
                 <dd className="mt-1 text-sm text-gray-900">{patient.sex}</dd>
               </div>
-
             </div>
           </Card.Content>
         </Card>

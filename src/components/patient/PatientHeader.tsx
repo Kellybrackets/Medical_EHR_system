@@ -7,7 +7,6 @@ import { StatusBadge } from '../ui/StatusBadge';
 import { Patient } from '../../types';
 import { calculateAge, getPatientStatus, formatDate } from '../../utils/patientUtils';
 import {
-
   copyToClipboard,
   formatContactForCopy,
   generatePatientCSV,
@@ -31,7 +30,6 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
 }) => {
   const age = calculateAge(patient.dateOfBirth);
   const status = getPatientStatus(patient);
-
 
   const handleCopyContact = async () => {
     const contactText = formatContactForCopy(patient);
@@ -112,7 +110,6 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
                     {patient.dateOfBirth ? formatDate(patient.dateOfBirth) : 'Not provided'}
                   </span>
                 </div>
-
               </div>
             </div>
           </div>
@@ -174,7 +171,6 @@ export const PatientHeader: React.FC<PatientHeaderProps> = ({
       </Card>
 
       {/* Quick Stats Cards */}
-
     </div>
   );
 };

@@ -8,7 +8,6 @@ import { formatDate } from './patientUtils';
 export const generatePatientPDFContent = (patient: Patient): string => {
   const summary = generatePatientSummary(patient);
 
-
   const styles = `
     <style>
       @media print {

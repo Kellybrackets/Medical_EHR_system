@@ -129,7 +129,7 @@ export const DashboardOverview: React.FC = () => {
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Registrations This Week</h3>
         <div className="flex items-end justify-around h-64 bg-gray-50 rounded-lg p-6">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => {
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
             const height = Math.random() * 100 + 20;
             return (
               <div key={day} className="flex flex-col items-center gap-2">

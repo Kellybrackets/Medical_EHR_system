@@ -19,7 +19,6 @@ export const debugPatientData = (patient: Patient, context: string = '') => {
 
   // Specific medical data checks
 
-
   console.groupEnd();
 };
 
@@ -31,8 +30,6 @@ export const debugFormData = (formData: any, context: string = '') => {
     number: formData.medicalAidNumber,
     plan: formData.medicalAidPlan,
   });
-
-
 
   console.groupEnd();
 };

@@ -55,8 +55,6 @@ export interface NextOfKin {
   updatedAt: string;
 }
 
-
-
 export interface InsuranceDetails {
   id: string;
   patientId: string;
@@ -159,8 +157,6 @@ export interface PatientFormData {
   // Parent/Child linking
   parentId?: string;
   isDependent?: boolean;
-
-
 }
 
 // ========================================
@@ -217,8 +213,6 @@ export interface NextOfKinRow {
   updated_at: string;
 }
 
-
-
 export interface InsuranceDetailsRow {
   id: string;
   patient_id: string;
@@ -249,6 +243,3 @@ export interface SoapNote {
   assessment: string;
   plan: string;
 }
-
-
-

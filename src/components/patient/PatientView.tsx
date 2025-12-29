@@ -139,8 +139,6 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
               onEdit={handleEditSection}
               canEdit={user?.role === 'receptionist'}
             />
-
-
           </div>
 
           <ConsultationHistory

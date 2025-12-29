@@ -79,24 +79,23 @@ export const sortPatients = (
     let comparison = 0;
 
     switch (sortBy) {
-      case 'name':
+      case 'name': {
         const nameA = `${a.firstName} ${a.surname}`.toLowerCase();
         const nameB = `${b.firstName} ${b.surname}`.toLowerCase();
         comparison = nameA.localeCompare(nameB);
         break;
+      }
 
-      case 'age':
-        const ageA = calculateAge(a.dateOfBirth);
-        const ageB = calculateAge(b.dateOfBirth);
-        comparison = ageA - ageB;
-        break;
-
-      case 'lastVisit':
-        // For now, use creation date as last visit
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
-        comparison = dateB - dateA; // Most recent first by default
-        break;
+      case 'age': {
+        const dateA = new Date(a.dateOfBirth).getTime();
+        const dateB = new Date(b.dateOfBirth).getTime();
+        return sortOrder === 'asc' ? dateB - dateA : dateA - dateB;
+      }
+      case 'lastVisit': {
+        const dateA = new Date(a.lastStatusChange || a.createdAt).getTime();
+        const dateB = new Date(b.lastStatusChange || b.createdAt).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      }
     }
 
     return sortOrder === 'desc' ? -comparison : comparison;

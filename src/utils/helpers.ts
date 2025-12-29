@@ -58,7 +58,7 @@ export const validatePassword = (password: string): boolean => {
 };
 
 export const validatePhone = (phone: string): boolean => {
-  const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,15}$/;
+  const phoneRegex = /^\+?\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
   return phoneRegex.test(phone.replace(/\s/g, ''));
 };
 
@@ -160,9 +160,9 @@ export const validateFormField = (
         return validatePassportNumber(value)
           ? { isValid: true }
           : {
-              isValid: false,
-              error: 'Please enter a valid passport number (6-20 alphanumeric characters)',
-            };
+            isValid: false,
+            error: 'Please enter a valid passport number (6-20 alphanumeric characters)',
+          };
       } else {
         return validateIdNumber(value)
           ? { isValid: true }
@@ -188,9 +188,9 @@ export const validateFormField = (
       return validateBloodType(value)
         ? { isValid: true }
         : {
-            isValid: false,
-            error: 'Please enter a valid blood type (A+, A-, B+, B-, AB+, AB-, O+, O-)',
-          };
+          isValid: false,
+          error: 'Please enter a valid blood type (A+, A-, B+, B-, AB+, AB-, O+, O-)',
+        };
 
     default:
       return { isValid: true };

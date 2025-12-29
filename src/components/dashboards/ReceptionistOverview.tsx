@@ -1,5 +1,19 @@
 import React, { useState, useMemo } from 'react';
-import { Users, UserPlus, Edit, Trash2, Eye, Phone, Calendar, Stethoscope, Heart, Clock, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+    Users,
+    UserPlus,
+    Edit,
+    Trash2,
+    Eye,
+    Phone,
+    Calendar,
+    Stethoscope,
+    Heart,
+    Clock,
+    FileDown,
+    ChevronLeft,
+    ChevronRight,
+} from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { PatientAvatar } from '../ui/PatientAvatar';
@@ -46,8 +60,6 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
     const { patients, deletePatient, addToQueue } = usePatients();
     const { showToast } = useToast();
 
-
-
     const handleFollowUpClick = (patientId: string) => {
         setSelectedPatientId(patientId);
         setFollowUpReason('');
@@ -78,7 +90,6 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
         }
     };
 
-
     const processedPatients = useMemo(() => {
         // First filter patients
         const filtered = filterPatients(patients, searchTerm, genderFilter, paymentFilter);
@@ -92,9 +103,11 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
 
     const isToday = (date: Date) => {
         const today = new Date();
-        return date.getDate() === today.getDate() &&
+        return (
+            date.getDate() === today.getDate() &&
             date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear();
+            date.getFullYear() === today.getFullYear()
+        );
     };
 
     const handlePrevDay = () => {
@@ -114,24 +127,36 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
     };
 
     // Helper to check if a date string matches selected date
-    const isSameDate = (dateStr: string | null | undefined) => {
-        if (!dateStr) return false;
-        const d = new Date(dateStr);
-        return d.getDate() === selectedDate.getDate() &&
-            d.getMonth() === selectedDate.getMonth() &&
-            d.getFullYear() === selectedDate.getFullYear();
-    };
+    const isSameDate = React.useCallback(
+        (dateStr: string | null | undefined) => {
+            if (!dateStr) return false;
+            const d = new Date(dateStr);
+            return (
+                d.getDate() === selectedDate.getDate() &&
+                d.getMonth() === selectedDate.getMonth() &&
+                d.getFullYear() === selectedDate.getFullYear()
+            );
+        },
+        [selectedDate],
+    );
 
     // Group patients by consultation status for queue view
     const queuedPatients = useMemo(() => {
-        const selectedDateStr = selectedDate.toISOString().split('T')[0];
-
         const waiting = patients
-            .filter((p) => p.consultationStatus === 'waiting' && (isSameDate(p.lastStatusChange) || isSameDate(p.createdAt)))
-            .sort((a, b) => new Date(a.lastStatusChange || a.createdAt).getTime() - new Date(b.lastStatusChange || b.createdAt).getTime());
+            .filter(
+                (p) =>
+                    p.consultationStatus === 'waiting' &&
+                    (isSameDate(p.lastStatusChange) || isSameDate(p.createdAt)),
+            )
+            .sort(
+                (a, b) =>
+                    new Date(a.lastStatusChange || a.createdAt).getTime() -
+                    new Date(b.lastStatusChange || b.createdAt).getTime(),
+            );
 
-        const inConsultation = patients
-            .filter((p) => p.consultationStatus === 'in_consultation' && isSameDate(p.lastStatusChange));
+        const inConsultation = patients.filter(
+            (p) => p.consultationStatus === 'in_consultation' && isSameDate(p.lastStatusChange),
+        );
 
         const servedToday = patients
             .filter((p) => p.consultationStatus === 'served' && isSameDate(p.lastStatusChange))
@@ -140,7 +165,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
             );
 
         return { waiting, inConsultation, servedToday };
-    }, [patients, selectedDate]);
+    }, [patients, selectedDate, isSameDate]);
 
     const stats = useMemo(() => {
         // Stats should probably reflect the SELECTED date now, or remain global?
@@ -150,7 +175,9 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
         const newPatients = patients.filter((p) => getPatientStatus(p) === 'new').length; // Total new (ever) or today? "New Patients" usually implies recent. Let's keep as is for now unless requested.
 
         // Update "Follow-ups Today" to "Follow-ups [Selected Date]"
-        const followUps = patients.filter(p => p.visitType === 'follow_up' && isSameDate(p.lastStatusChange)).length;
+        const followUps = patients.filter(
+            (p) => p.visitType === 'follow_up' && isSameDate(p.lastStatusChange),
+        ).length;
 
         return {
             totalPatients: patients.length,
@@ -161,7 +188,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
             cashPatients: patients.filter((p) => p.paymentMethod === 'cash').length,
             medicalAidPatients: patients.filter((p) => p.paymentMethod === 'medical_aid').length,
         };
-    }, [patients, selectedDate]);
+    }, [patients, selectedDate, isSameDate]);
 
     const clearFilters = () => {
         setSearchTerm('');
@@ -272,10 +299,10 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                             {/* Date Navigation */}
                             <div className="flex items-center bg-gray-50 rounded-lg p-1 border border-gray-200 shadow-sm">
                                 <Button
-                                    variant="ghost"
+                                    variant="secondary"
                                     size="sm"
                                     onClick={handlePrevDay}
-                                    className="text-gray-500 hover:text-gray-700"
+                                    className="border-none shadow-none bg-transparent hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                                 >
                                     <ChevronLeft className="h-4 w-4" />
                                 </Button>
@@ -284,7 +311,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                     {selectedDate.toLocaleDateString('en-US', {
                                         weekday: 'short',
                                         month: 'short',
-                                        day: 'numeric'
+                                        day: 'numeric',
                                     })}
                                     {isToday(selectedDate) && (
                                         <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
@@ -293,20 +320,20 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                     )}
                                 </div>
                                 <Button
-                                    variant="ghost"
+                                    variant="secondary"
                                     size="sm"
                                     onClick={handleNextDay}
                                     disabled={isToday(selectedDate)}
-                                    className={`text-gray-500 hover:text-gray-700 ${isToday(selectedDate) ? 'opacity-25 cursor-not-allowed' : ''}`}
+                                    className={`border-none shadow-none bg-transparent hover:bg-gray-100 text-gray-500 hover:text-gray-700 ${isToday(selectedDate) ? 'opacity-25 cursor-not-allowed' : ''}`}
                                 >
                                     <ChevronRight className="h-4 w-4" />
                                 </Button>
                                 {!isToday(selectedDate) && (
                                     <Button
-                                        variant="ghost"
+                                        variant="secondary"
                                         size="sm"
                                         onClick={handleToday}
-                                        className="ml-2 text-xs text-blue-600 hover:bg-blue-50"
+                                        className="ml-2 text-xs text-blue-600 hover:bg-blue-50 border-none shadow-none bg-transparent"
                                     >
                                         Jump to Today
                                     </Button>
@@ -319,7 +346,10 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                             <div className="mb-6 p-3 bg-blue-50 border border-blue-100 rounded-md flex items-center justify-center text-sm text-blue-700">
                                 <Calendar className="h-4 w-4 mr-2" />
                                 You are viewing history for {selectedDate.toLocaleDateString()}.
-                                <button onClick={handleToday} className="ml-2 underline font-medium hover:text-blue-900">
+                                <button
+                                    onClick={handleToday}
+                                    className="ml-2 underline font-medium hover:text-blue-900"
+                                >
                                     Return to Today
                                 </button>
                             </div>
@@ -387,7 +417,8 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                                             )}
                                                             <div className="mt-1 flex items-center gap-2">
                                                                 <p className="text-xs text-gray-500">
-                                                                    Check-in: {formatDate(patient.lastStatusChange || patient.createdAt)}
+                                                                    Check-in:{' '}
+                                                                    {formatDate(patient.lastStatusChange || patient.createdAt)}
                                                                 </p>
                                                                 {patient.paymentMethod === 'medical_aid' ? (
                                                                     <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-purple-100 text-purple-800 font-medium">
@@ -441,7 +472,10 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                         </div>
 
                                         {queuedPatients.inConsultation.map((patient) => (
-                                            <div key={patient.id} className="p-4 bg-white rounded-lg border border-green-100 shadow-sm relative overflow-hidden">
+                                            <div
+                                                key={patient.id}
+                                                className="p-4 bg-white rounded-lg border border-green-100 shadow-sm relative overflow-hidden"
+                                            >
                                                 <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center space-x-3">
@@ -531,9 +565,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div>
                             <h3 className="text-lg font-medium text-gray-900">Patient Management</h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                                Search and manage patient records
-                            </p>
+                            <p className="text-sm text-gray-600 mt-1">Search and manage patient records</p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <div className="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
@@ -610,7 +642,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                     ) : (
                         <div className="overflow-hidden">
                             {/* Desktop Table View */}
-                            <div className="hidden md:block">
+                            <div className="hidden md:block overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                                         <tr>
@@ -639,7 +671,9 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                             const age = calculateAge(patient.dateOfBirth);
                                             const status = getPatientStatus(patient);
                                             const registeredDate = formatDate(patient.createdAt);
-                                            const isQueued = patient.consultationStatus === 'waiting' || patient.consultationStatus === 'in_consultation';
+                                            const isQueued =
+                                                patient.consultationStatus === 'waiting' ||
+                                                patient.consultationStatus === 'in_consultation';
 
                                             return (
                                                 <tr
@@ -659,9 +693,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                                                 <div className="text-sm font-semibold text-gray-900">
                                                                     {patient.firstName} {patient.surname}
                                                                 </div>
-                                                                <div className="text-xs text-gray-500">
-                                                                    ID: {patient.idNumber}
-                                                                </div>
+                                                                <div className="text-xs text-gray-500">ID: {patient.idNumber}</div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -741,7 +773,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                                                            whitespace-nowrap 
                                                                            ${isQueued ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'hover:bg-yellow-100 text-yellow-700'}
                                                                         `}
-                                                                        title={isQueued ? "Already in Queue" : "Check In to Queue"}
+                                                                        title={isQueued ? 'Already in Queue' : 'Check In to Queue'}
                                                                     >
                                                                         Check In
                                                                     </Button>
@@ -754,7 +786,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                                                            whitespace-nowrap 
                                                                            ${isQueued ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'hover:bg-orange-100 text-orange-700'}
                                                                         `}
-                                                                        title={isQueued ? "Already in Queue" : "Add as Follow-up"}
+                                                                        title={isQueued ? 'Already in Queue' : 'Add as Follow-up'}
                                                                     >
                                                                         Follow Up
                                                                     </Button>
@@ -798,7 +830,9 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                 {processedPatients.map((patient) => {
                                     const age = calculateAge(patient.dateOfBirth);
                                     const status = getPatientStatus(patient);
-                                    const isQueued = patient.consultationStatus === 'waiting' || patient.consultationStatus === 'in_consultation';
+                                    const isQueued =
+                                        patient.consultationStatus === 'waiting' ||
+                                        patient.consultationStatus === 'in_consultation';
 
                                     return (
                                         <Card
@@ -850,10 +884,20 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                                                     <div className="flex items-center space-x-2 mt-3">
                                                         {!isQueued && (
                                                             <>
-                                                                <Button size="sm" onClick={() => handleRegularCheckIn(patient.id)} variant="secondary" className="flex-1 text-xs">
+                                                                <Button
+                                                                    size="sm"
+                                                                    onClick={() => handleRegularCheckIn(patient.id)}
+                                                                    variant="secondary"
+                                                                    className="flex-1 text-xs"
+                                                                >
                                                                     Check In
                                                                 </Button>
-                                                                <Button size="sm" onClick={() => handleFollowUpClick(patient.id)} variant="secondary" className="flex-1 text-xs text-orange-700">
+                                                                <Button
+                                                                    size="sm"
+                                                                    onClick={() => handleFollowUpClick(patient.id)}
+                                                                    variant="secondary"
+                                                                    className="flex-1 text-xs text-orange-700"
+                                                                >
                                                                     Follow Up
                                                                 </Button>
                                                             </>
@@ -898,10 +942,7 @@ export const ReceptionistOverview: React.FC<ReceptionistOverviewProps> = ({
                     </div>
 
                     <div className="flex justify-end space-x-3 pt-4">
-                        <Button
-                            variant="secondary"
-                            onClick={() => setIsFollowUpModalOpen(false)}
-                        >
+                        <Button variant="secondary" onClick={() => setIsFollowUpModalOpen(false)}>
                             Cancel
                         </Button>
                         <Button

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Building2 } from 'lucide-react';
+import { Plus, Edit, Building2 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -7,12 +7,14 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useToast } from '../ui/Toast';
 import { usePractices } from '../../hooks/usePractices';
 
+import { Practice } from '../../types';
+
 export const PracticesManagement: React.FC = () => {
   const { practices, loading, addPractice, updatePractice, togglePracticeStatus } = usePractices();
   const { showToast, ToastContainer } = useToast();
 
   const [showModal, setShowModal] = useState(false);
-  const [editingPractice, setEditingPractice] = useState<any>(null);
+  const [editingPractice, setEditingPractice] = useState<Practice | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -34,7 +36,7 @@ export const PracticesManagement: React.FC = () => {
     setEditingPractice(null);
   };
 
-  const handleOpenModal = (practice?: any) => {
+  const handleOpenModal = (practice?: Practice) => {
     if (practice) {
       setEditingPractice(practice);
       setFormData({
@@ -78,7 +80,7 @@ export const PracticesManagement: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = async (practice: any) => {
+  const handleToggleStatus = async (practice: Practice) => {
     const result = await togglePracticeStatus(practice.id, practice.status);
     if (result.success) {
       showToast(

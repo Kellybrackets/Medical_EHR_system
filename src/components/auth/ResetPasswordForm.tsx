@@ -51,8 +51,10 @@ export const ResetPasswordForm: React.FC = () => {
           await supabase.auth.signOut();
           window.location.href = '/';
         }, 2000);
-      } catch (error: any) {
-        setError(error.message || 'Failed to update password. Please try again.');
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Failed to update password. Please try again.';
+        setError(message);
       }
 
       setLoading(false);

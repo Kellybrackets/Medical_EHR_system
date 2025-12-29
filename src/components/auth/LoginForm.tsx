@@ -73,7 +73,7 @@ const LoginFormComponent: React.FC = () => {
         setError(result.error);
       }
       // Success will redirect automatically via OAuth flow
-    } catch (error) {
+    } catch {
       setError('Failed to initiate Google sign in. Please try again.');
     }
   }, [loginWithGoogle]);
@@ -221,7 +221,7 @@ const LoginFormComponent: React.FC = () => {
       case 'register':
         return 'Start your journey with us today.';
       case 'forgot-password':
-        return 'We\'ll help you get back on track.';
+        return "We'll help you get back on track.";
       default:
         return 'Log in to access your workspace.';
     }
@@ -235,7 +235,7 @@ const LoginFormComponent: React.FC = () => {
     type = 'text',
     endIcon,
     required,
-    placeholder
+    placeholder,
   }: {
     label: string;
     value: string;
@@ -300,12 +300,8 @@ const LoginFormComponent: React.FC = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center lg:text-left">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
-              {getTitle()}
-            </h1>
-            <p className="text-gray-500">
-              {getSubtitle()}
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">{getTitle()}</h1>
+            <p className="text-gray-500">{getSubtitle()}</p>
           </div>
 
           <div className="space-y-6">
@@ -343,8 +339,12 @@ const LoginFormComponent: React.FC = () => {
                     onClick={() => setRememberMe(!rememberMe)}
                     className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 focus:outline-none"
                   >
-                    <div className={`w-10 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${rememberMe ? 'bg-blue-600' : 'bg-gray-200'}`}>
-                      <div className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ease-in-out ${rememberMe ? 'translate-x-4' : 'translate-x-0'}`} />
+                    <div
+                      className={`w-10 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${rememberMe ? 'bg-blue-600' : 'bg-gray-200'}`}
+                    >
+                      <div
+                        className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ease-in-out ${rememberMe ? 'translate-x-4' : 'translate-x-0'}`}
+                      />
                     </div>
                     <span>Remember sign in details</span>
                   </button>
@@ -474,14 +474,10 @@ const LoginFormComponent: React.FC = () => {
                 />
 
                 {error && (
-                  <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">
-                    {error}
-                  </div>
+                  <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>
                 )}
                 {success && (
-                  <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg">
-                    {success}
-                  </div>
+                  <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg">{success}</div>
                 )}
 
                 <Button
@@ -516,14 +512,10 @@ const LoginFormComponent: React.FC = () => {
                 />
 
                 {error && (
-                  <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">
-                    {error}
-                  </div>
+                  <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>
                 )}
                 {success && (
-                  <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg">
-                    {success}
-                  </div>
+                  <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg">{success}</div>
                 )}
 
                 <Button

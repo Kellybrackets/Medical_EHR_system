@@ -1,11 +1,8 @@
 import { Patient } from '../types';
 
-
-
 /**
  * Generate patient summary for export
  */
-
 
 export const generatePatientSummary = (patient: Patient) => {
   return {
@@ -34,8 +31,6 @@ export const generatePatientSummary = (patient: Patient) => {
       memberNumber: patient.insuranceDetails?.memberNumber || 'Not specified',
       plan: patient.insuranceDetails?.plan || 'Not specified',
     },
-
-
   };
 };
 
@@ -46,7 +41,7 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(text);
     return true;
-  } catch (err) {
+  } catch {
     // Fallback for older browsers
     try {
       const textArea = document.createElement('textarea');
@@ -85,7 +80,6 @@ export const generatePatientCSV = (patient: Patient) => {
     ['Insurance Provider', summary.insurance.provider],
     ['Insurance Member Number', summary.insurance.memberNumber],
     ['Insurance Plan', summary.insurance.plan],
-
   ];
 
   return csvData.map((row) => row.map((field) => `"${field}"`).join(',')).join('\n');

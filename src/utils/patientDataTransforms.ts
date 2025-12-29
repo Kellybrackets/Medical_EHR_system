@@ -6,9 +6,6 @@ import { Patient, PatientFormData } from '../types';
 
 // Format height for form display (filter out invalid default values)
 
-
-
-
 // Transform patient database object to form data
 export const patientToFormData = (patient: Patient): PatientFormData => {
   console.log('🔧 patientToFormData input:', patient);
@@ -54,8 +51,6 @@ export const patientToFormData = (patient: Patient): PatientFormData => {
     medicalAidPlan: patient.insuranceDetails?.plan || '',
     medicalAidSchemeCode: patient.insuranceDetails?.schemeCode || '',
     dependentType: patient.insuranceDetails?.dependentType || '',
-
-
   };
 
   console.log('🔄 patientToFormData output:', formData);
@@ -70,7 +65,6 @@ export const cleanMedicalData = (formData: PatientFormData): PatientFormData => 
 };
 
 // Clean comma-separated string by removing malformed entries
-
 
 // Transform form data to database format for patient creation/update
 export const formDataToPatientData = (formData: PatientFormData) => {
@@ -111,8 +105,6 @@ export const formDataToPatientData = (formData: PatientFormData) => {
       email: cleaned.emergencyContactEmail.trim() || null,
     },
 
-
-
     // Insurance details table data
     insuranceDetails: {
       fund_name: cleaned.medicalAidProvider.trim() || null,
@@ -122,5 +114,3 @@ export const formDataToPatientData = (formData: PatientFormData) => {
     },
   };
 };
-
-

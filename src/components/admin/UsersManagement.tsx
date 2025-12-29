@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Mail, UserX, Users as UsersIcon } from 'lucide-react';
 import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
+
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useToast } from '../ui/Toast';
 import { useAdminUsers } from '../../hooks/useAdminUsers';

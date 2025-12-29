@@ -65,13 +65,13 @@ const PatientViewWrapper = () => {
     <PatientView
       patientId={id!}
       onBack={() => navigate(-1)}
-      onEditPatient={isReceptionist ? () => navigate(`/receptionist/patient/${id}/edit`) : () => { }}
-      onAddConsultation={isDoctor ? () => navigate(`/doctor/patient/${id}/consultation`) : () => { }}
+      onEditPatient={isReceptionist ? () => navigate(`/receptionist/patient/${id}/edit`) : () => {}}
+      onAddConsultation={isDoctor ? () => navigate(`/doctor/patient/${id}/consultation`) : () => {}}
       onEditConsultation={
         isDoctor
           ? (patientId, consultationId) =>
-            navigate(`/doctor/patient/${patientId}/consultation/${consultationId}`)
-          : () => { }
+              navigate(`/doctor/patient/${patientId}/consultation/${consultationId}`)
+          : () => {}
       }
     />
   );
