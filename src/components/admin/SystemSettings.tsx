@@ -4,7 +4,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { useToast } from '../ui/Toast';
+import { useToast } from '../../hooks/useToast';
 import { useSystemSettings } from '../../hooks/useSystemSettings';
 import { APP_NAME } from '../../utils/constants';
 

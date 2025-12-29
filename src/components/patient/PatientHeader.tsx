@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Download, Printer, Edit, Copy, CheckCircle, FileText } from 'lucide-react';
+import { Download, Printer, Edit, Copy, FileText } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { PatientAvatar } from '../ui/PatientAvatar';

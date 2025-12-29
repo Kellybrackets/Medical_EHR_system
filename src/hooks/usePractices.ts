@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Practice } from '../types';
@@ -53,7 +54,7 @@ export const usePractices = () => {
     email?: string;
   }) => {
     try {
-      const { data, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('practices')
         .insert([
           {

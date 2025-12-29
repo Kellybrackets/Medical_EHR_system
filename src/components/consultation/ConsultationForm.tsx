@@ -7,7 +7,7 @@ import { Input } from '../ui/Input';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { usePatients } from '../../hooks/usePatients';
 import { useConsultationNotes } from '../../hooks/useConsultationNotes';
-import { useAuthContext } from '../../contexts/AuthProvider';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 import { ClinicalNotesEditor } from './ClinicalNotesEditor';
 

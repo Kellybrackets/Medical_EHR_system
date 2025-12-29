@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react';
 import { Patient, PatientFormData, ApiResponse } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { formDataToPatientData } from '../utils/patientDataTransforms';
-import { useAuthContext } from '../contexts/AuthProvider';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export const usePatients = () => {
   const [patients, setPatients] = useState<Patient[]>([]);

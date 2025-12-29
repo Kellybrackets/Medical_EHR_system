@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { LogOut } from 'lucide-react';
-import { useAuthContext } from '../../contexts/AuthProvider';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { cn } from '../../utils/helpers';
 import { UI_CLASSES } from '../../utils/constants';

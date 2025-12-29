@@ -6,6 +6,9 @@ import { MemoryRouter } from 'react-router-dom';
 // Mock the AuthProvider and useAuthContext
 vi.mock('../../contexts/AuthProvider', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+vi.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => ({
     login: vi.fn(),
     loginWithGoogle: vi.fn(),
@@ -22,7 +25,7 @@ describe('LoginForm', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /log in/i })).toBeInTheDocument();

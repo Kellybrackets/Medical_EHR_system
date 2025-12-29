@@ -1,32 +1,6 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { User } from '../types';
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (
-    email: string,
-    password: string,
-    fullName: string,
-    username: string,
-  ) => Promise<{ success: boolean; error?: string | null; user?: any }>;
-  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string | null; data?: any }>;
-  logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuthContext = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
-  }
-  return context;
-};
+import { AuthContext, AuthContextType } from './AuthContext';
 
 interface AuthProviderProps {
   children: ReactNode;

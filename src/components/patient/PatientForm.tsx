@@ -137,7 +137,7 @@ const PatientFormComponent: React.FC<PatientFormProps> = ({ patientId, onBack, o
           });
         }
       }
-    } catch (error) {
+    } catch {
       setError('firstName', { type: 'manual', message: 'An unexpected error occurred' });
     }
   };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Debug utilities to help diagnose patient data loading issues
  */

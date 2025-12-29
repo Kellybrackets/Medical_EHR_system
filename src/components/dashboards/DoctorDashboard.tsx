@@ -15,7 +15,7 @@ import {
   filterPatients,
   formatDate,
 } from '../../utils/patientUtils';
-import { useToast } from '../ui/Toast';
+import { useToast } from '../../hooks/useToast';
 
 interface DoctorDashboardProps {
   onViewPatient: (patientId: string) => void;

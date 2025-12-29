@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { User, ArrowLeft } from 'lucide-react';
 import { AppLayout } from '../layout/AppLayout';
 import { Button } from '../ui/Button';
@@ -6,9 +6,9 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { PatientHeader } from './PatientHeader';
 import { ContactInfoCard, MedicalAidCard } from './PatientSectionCards';
 import { ConsultationHistory } from './ConsultationHistory';
-import { useToast } from '../ui/Toast';
+import { useToast } from '../../hooks/useToast';
 import { usePatients } from '../../hooks/usePatients';
-import { useAuthContext } from '../../contexts/AuthProvider';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { exportPatientToPDF } from '../../utils/pdfExport';
 import { Patient } from '../../types';
 

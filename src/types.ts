@@ -134,25 +134,25 @@ export interface PatientFormData {
   // Contact Information
   contactNumber: string;
   alternateNumber?: string;
-  email: string;
+  email?: string;
   address: string;
   city: string;
-  postalCode: string;
+  postalCode?: string;
 
   // Emergency Contact
   emergencyContactName: string;
   emergencyContactRelationship: string;
   emergencyContactPhone: string;
-  emergencyContactAlternatePhone: string;
-  emergencyContactEmail: string;
+  emergencyContactAlternatePhone?: string;
+  emergencyContactEmail?: string;
 
   // Payment & Medical Aid Information
   paymentMethod: 'cash' | 'medical_aid';
-  medicalAidProvider: string;
-  medicalAidNumber: string;
-  medicalAidPlan: string;
-  medicalAidSchemeCode: string;
-  dependentType: string;
+  medicalAidProvider?: string;
+  medicalAidNumber?: string;
+  medicalAidPlan?: string;
+  medicalAidSchemeCode?: string;
+  dependentType?: string;
 
   // Parent/Child linking
   parentId?: string;
@@ -163,6 +163,7 @@ export interface PatientFormData {
 // API RESPONSE INTERFACES
 // ========================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

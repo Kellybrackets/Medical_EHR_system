@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuthContext } from '../contexts/AuthProvider';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export interface ConsultationNote {
   id: string;

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card } from '../ui/Card';
 import { usePatients } from '../../hooks/usePatients';
 import { calculateAge } from '../../utils/patientUtils';
@@ -14,11 +14,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
 } from 'recharts';
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export const ReceptionistStatistics = () => {
   const { patients } = usePatients();
@@ -126,7 +122,7 @@ export const ReceptionistStatistics = () => {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {paymentData.map((entry, index) => (
+                    {paymentData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : '#8b5cf6'} />
                     ))}
                   </Pie>

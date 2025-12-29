@@ -9,6 +9,7 @@ interface SearchInputProps {
   placeholder?: string;
   className?: string;
   debounceMs?: number;
+  icon?: React.ReactNode;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -17,6 +18,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = 'Search...',
   className,
   debounceMs = 300,
+  icon,
 }) => {
   const [localValue, setLocalValue] = useState(value);
 
@@ -47,7 +49,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         placeholder={placeholder}
         value={localValue}
         onChange={handleChange}
-        icon={<Search className="h-4 w-4 text-gray-400" />}
+        icon={icon || <Search className="h-4 w-4 text-gray-400" />}
         className="pr-10"
       />
       {localValue && (

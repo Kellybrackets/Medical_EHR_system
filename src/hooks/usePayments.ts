@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { useToast } from '../components/ui/Toast';
+import { useToast } from './useToast';
 
 export interface Payment {
   id: string;

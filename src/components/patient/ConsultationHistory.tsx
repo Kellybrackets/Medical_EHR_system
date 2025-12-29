@@ -26,17 +26,6 @@ interface ConsultationHistoryProps {
   canEditConsultation?: boolean;
 }
 
-interface ConsultationNote {
-  id: string;
-  patientId: string;
-  doctorId: string;
-  date: string;
-  reasonForVisit: string;
-  clinicalNotes?: string;
-  icd10Code?: string;
-  createdAt: string;
-}
-
 export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
   patientId,
   onAddConsultation,
@@ -209,7 +198,7 @@ export const ConsultationHistory: React.FC<ConsultationHistoryProps> = ({
                     <Button
                       key={filter}
                       size="sm"
-                      variant={dateFilter === filter ? 'default' : 'secondary'}
+                      variant={dateFilter === filter ? 'primary' : 'secondary'}
                       onClick={() => setDateFilter(filter)}
                       className="text-xs"
                     >

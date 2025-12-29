@@ -3,7 +3,7 @@ import { Search, Mail, UserX, Users as UsersIcon } from 'lucide-react';
 import { Card } from '../ui/Card';
 
 import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { useToast } from '../ui/Toast';
+import { useToast } from '../../hooks/useToast';
 import { useAdminUsers } from '../../hooks/useAdminUsers';
 import { usePractices } from '../../hooks/usePractices';
 

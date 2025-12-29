@@ -1,7 +1,7 @@
 import React, { useState, useCallback, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, Stethoscope } from 'lucide-react';
-import { useAuthContext } from '../../contexts/AuthProvider';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { validateEmail, validatePassword } from '../../utils/helpers';
 // import { supabase } from '../../lib/supabase';
@@ -227,7 +227,6 @@ const LoginFormComponent: React.FC = () => {
     }
   };
 
-  // Custom Input Component for Floating Label Style
   const CustomInput = ({
     label,
     value,
@@ -236,6 +235,7 @@ const LoginFormComponent: React.FC = () => {
     endIcon,
     required,
     placeholder,
+    id,
   }: {
     label: string;
     value: string;
@@ -244,23 +244,32 @@ const LoginFormComponent: React.FC = () => {
     endIcon?: React.ReactNode;
     required?: boolean;
     placeholder?: string;
-  }) => (
-    <div className="relative border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all shadow-sm group">
-      <label className="block text-xs font-semibold text-gray-500 mb-0.5 group-focus-within:text-blue-600">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="flex items-center">
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          className="block w-full border-0 p-0 text-gray-900 placeholder-transparent focus:ring-0 sm:text-sm bg-transparent"
-          placeholder={placeholder || label}
-        />
-        {endIcon && <div className="ml-2">{endIcon}</div>}
+    id?: string;
+  }) => {
+    const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
+
+    return (
+      <div className="relative border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all shadow-sm group">
+        <label
+          htmlFor={inputId}
+          className="block text-xs font-semibold text-gray-500 mb-0.5 group-focus-within:text-blue-600"
+        >
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <div className="flex items-center">
+          <input
+            id={inputId}
+            type={type}
+            value={value}
+            onChange={onChange}
+            className="block w-full border-0 p-0 text-gray-900 placeholder-transparent focus:ring-0 sm:text-sm bg-transparent"
+            placeholder={placeholder || label}
+          />
+          {endIcon && <div className="ml-2">{endIcon}</div>}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen flex bg-white">

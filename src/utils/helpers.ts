@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Date utilities
 export const formatDate = (dateString: string, format: 'short' | 'long' = 'short'): string => {
   try {
@@ -160,9 +161,9 @@ export const validateFormField = (
         return validatePassportNumber(value)
           ? { isValid: true }
           : {
-            isValid: false,
-            error: 'Please enter a valid passport number (6-20 alphanumeric characters)',
-          };
+              isValid: false,
+              error: 'Please enter a valid passport number (6-20 alphanumeric characters)',
+            };
       } else {
         return validateIdNumber(value)
           ? { isValid: true }
@@ -188,9 +189,9 @@ export const validateFormField = (
       return validateBloodType(value)
         ? { isValid: true }
         : {
-          isValid: false,
-          error: 'Please enter a valid blood type (A+, A-, B+, B-, AB+, AB-, O+, O-)',
-        };
+            isValid: false,
+            error: 'Please enter a valid blood type (A+, A-, B+, B-, AB+, AB-, O+, O-)',
+          };
 
     default:
       return { isValid: true };

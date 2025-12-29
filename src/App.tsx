@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
-import { AuthProvider, useAuthContext } from './contexts/AuthProvider';
+import { AuthProvider } from './contexts/AuthProvider';
+import { useAuthContext } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { DoctorDashboard } from './components/dashboards/DoctorDashboard';
