@@ -102,7 +102,13 @@ export const useAuth = () => {
   }, []);
 
   const signUp = useCallback(
-    async (email: string, password: string, fullName: string, username: string) => {
+    async (
+      email: string,
+      password: string,
+      fullName: string,
+      username: string,
+      practiceCode?: string,
+    ) => {
       try {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -113,7 +119,7 @@ export const useAuth = () => {
               full_name: fullName,
               username,
               role: 'receptionist', // Default role
-              practice_code: null, // Default practice
+              practice_code: practiceCode || null, // Default practice
             },
           },
         });

@@ -12,6 +12,7 @@ export interface AuthContextType {
     password: string,
     fullName: string,
     username: string,
+    practiceCode?: string,
   ) => Promise<{ success: boolean; error?: string | null; user?: any }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string | null; data?: any }>;

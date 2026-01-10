@@ -7,6 +7,7 @@ import { validateEmail, validatePassword } from '../../utils/helpers';
 // import { supabase } from '../../lib/supabase';
 // import { Practice } from '../../types';
 import { APP_NAME } from '../../utils/constants';
+import { usePractices } from '../../hooks/usePractices';
 
 type AuthMode = 'login' | 'register' | 'forgot-password';
 
@@ -16,6 +17,7 @@ interface FormData {
   confirmPassword: string;
   fullName: string;
   username: string;
+  practiceCode: string;
 }
 
 const initialFormData: FormData = {
@@ -24,6 +26,53 @@ const initialFormData: FormData = {
   confirmPassword: '',
   fullName: '',
   username: '',
+  practiceCode: '',
+};
+
+interface CustomInputProps {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  endIcon?: React.ReactNode;
+  required?: boolean;
+  placeholder?: string;
+  id?: string;
+}
+
+const CustomInput: React.FC<CustomInputProps> = ({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  endIcon,
+  required,
+  placeholder,
+  id,
+}) => {
+  const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
+
+  return (
+    <div className="relative border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all shadow-sm group">
+      <label
+        htmlFor={inputId}
+        className="block text-xs font-semibold text-gray-500 mb-0.5 group-focus-within:text-blue-600"
+      >
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className="flex items-center">
+        <input
+          id={inputId}
+          type={type}
+          value={value}
+          onChange={onChange}
+          className="block w-full border-0 p-0 text-gray-900 placeholder-transparent focus:ring-0 sm:text-sm bg-transparent"
+          placeholder={placeholder || label}
+        />
+        {endIcon && <div className="ml-2">{endIcon}</div>}
+      </div>
+    </div>
+  );
 };
 
 const LoginFormComponent: React.FC = () => {
@@ -34,8 +83,15 @@ const LoginFormComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { practices, loading: loadingPractices, refetch: fetchPractices } = usePractices();
   // const [loadingPractices, setLoadingPractices] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    if (authMode === 'register') {
+      fetchPractices();
+    }
+  }, [authMode, fetchPractices]);
 
   const { login, register, resetPassword, user, loginWithGoogle } = useAuthContext();
   const navigate = useNavigate();
@@ -148,12 +204,20 @@ const LoginFormComponent: React.FC = () => {
         return;
       }
 
+      const selectedPractice = practices.find((p) => p.code === formData.practiceCode);
+      if (!selectedPractice && formData.practiceCode) {
+        setError('Invalid practice code');
+        setLoading(false);
+        return;
+      }
+
       try {
         const result = await register(
           formData.email,
           formData.password,
           formData.fullName.trim(),
           formData.username.trim(),
+          formData.practiceCode || undefined,
         );
 
         if (result.success) {
@@ -227,49 +291,6 @@ const LoginFormComponent: React.FC = () => {
     }
   };
 
-  const CustomInput = ({
-    label,
-    value,
-    onChange,
-    type = 'text',
-    endIcon,
-    required,
-    placeholder,
-    id,
-  }: {
-    label: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    type?: string;
-    endIcon?: React.ReactNode;
-    required?: boolean;
-    placeholder?: string;
-    id?: string;
-  }) => {
-    const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
-
-    return (
-      <div className="relative border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all shadow-sm group">
-        <label
-          htmlFor={inputId}
-          className="block text-xs font-semibold text-gray-500 mb-0.5 group-focus-within:text-blue-600"
-        >
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-        <div className="flex items-center">
-          <input
-            id={inputId}
-            type={type}
-            value={value}
-            onChange={onChange}
-            className="block w-full border-0 p-0 text-gray-900 placeholder-transparent focus:ring-0 sm:text-sm bg-transparent"
-            placeholder={placeholder || label}
-          />
-          {endIcon && <div className="ml-2">{endIcon}</div>}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen flex bg-white">
@@ -442,6 +463,28 @@ const LoginFormComponent: React.FC = () => {
                   onChange={(e) => updateFormData('username', e.target.value)}
                   required
                 />
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-0.5">
+                    Select Practice (Optional)
+                  </label>
+                  <select
+                    value={formData.practiceCode}
+                    onChange={(e) => updateFormData('practiceCode', e.target.value)}
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                    disabled={loadingPractices}
+                  >
+                    <option value="">Select a practice...</option>
+                    {practices
+                      .filter((p) => p.status === 'active')
+                      .map((practice) => (
+                        <option key={practice.id} value={practice.code}>
+                          {practice.name} ({practice.code})
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
                 <CustomInput
                   label="Email"
                   value={formData.email}

@@ -16,6 +16,7 @@ import {
   formatDate,
 } from '../../utils/patientUtils';
 import { useToast } from '../../hooks/useToast';
+import { CriticalLabAlerts } from './CriticalLabAlerts';
 
 interface DoctorDashboardProps {
   onViewPatient: (patientId: string) => void;
@@ -165,6 +166,9 @@ const DoctorDashboardComponent: React.FC<DoctorDashboardProps> = ({
               </div>
             </Card>
           </div>
+
+          {/* Critical Lab Alerts */}
+          <CriticalLabAlerts onViewPatient={onViewPatient} />
 
           {/* Patient Management */}
           <Card padding={false}>

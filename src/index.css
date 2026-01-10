@@ -1,6 +1,9 @@
 /* Import print styles */
 @import './styles/print.css';
 
+/* Import lab results styles */
+@import './styles/labResults.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

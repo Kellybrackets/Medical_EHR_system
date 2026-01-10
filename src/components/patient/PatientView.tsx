@@ -6,6 +6,7 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { PatientHeader } from './PatientHeader';
 import { ContactInfoCard, MedicalAidCard } from './PatientSectionCards';
 import { ConsultationHistory } from './ConsultationHistory';
+import { LabResultsTab } from './LabResultsTab';
 import { useToast } from '../../hooks/useToast';
 import { usePatients } from '../../hooks/usePatients';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -148,6 +149,17 @@ const PatientViewComponent: React.FC<PatientViewProps> = ({
             canAddConsultation={user?.role === 'doctor'}
             canEditConsultation={user?.role === 'doctor'}
           />
+
+          {/* Lab Results Section */}
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Laboratory Results</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                View and analyze all lab test results for this patient
+              </p>
+            </div>
+            <LabResultsTab patientId={patientId} />
+          </div>
         </div>
       </AppLayout>
 
