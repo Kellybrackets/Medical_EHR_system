@@ -18,78 +18,75 @@ export const usePatients = () => {
         return;
       }
 
-      const { data: basicPatientsData, error: basicError } = await supabase
-        .from('patients')
-        .select('*');
+      // PERFORMANCE FIX: Use optimized RPC function that fetches all data in single query
+      // This eliminates N+1 query pattern (3 queries -> 1 query)
+      const { data: patientsData, error } = await supabase.rpc('get_all_patients_with_relations');
 
-      if (basicPatientsData && !basicError) {
-        const patientIds = basicPatientsData.map((p) => p.id);
-
-        const [insuranceDetails, nextOfKinData] = await Promise.all([
-          supabase.from('insurance_details').select('*').in('patient_id', patientIds),
-          supabase.from('next_of_kin').select('*').in('patient_id', patientIds),
-        ]);
-
-        const fallbackPatients: Patient[] = basicPatientsData.map((patient: any) => {
-          const insurance = insuranceDetails.data?.find((ins) => ins.patient_id === patient.id);
-          const nextOfKin = nextOfKinData.data?.find((nok) => nok.patient_id === patient.id);
-
-          return {
-            id: patient.id,
-            firstName: patient.first_name,
-            surname: patient.surname,
-            idType: patient.id_type || 'id_number',
-            idNumber: patient.id_number,
-            sex: patient.sex,
-            dateOfBirth: patient.date_of_birth,
-            age: patient.age,
-            contactNumber: patient.contact_number,
-            alternateNumber: patient.alternate_number,
-            email: patient.email,
-            address: patient.address,
-            city: patient.city,
-            postalCode: patient.postal_code,
-            createdAt: patient.created_at,
-            updatedAt: patient.updated_at,
-            consultationStatus: patient.consultation_status,
-            currentDoctorId: patient.current_doctor_id,
-            lastStatusChange: patient.last_status_change,
-            visitType: patient.visit_type,
-            visitReason: patient.visit_reason,
-            paymentMethod: patient.payment_method || 'cash',
-            parentId: patient.parent_id,
-            isDependent: patient.is_dependent,
-
-            insuranceDetails: insurance
-              ? {
-                  id: insurance.id,
-                  patientId: patient.id,
-                  fundName: insurance.fund_name,
-                  memberNumber: insurance.member_number,
-                  plan: insurance.plan,
-                  schemeCode: insurance.scheme_code,
-                  createdAt: patient.created_at,
-                  updatedAt: patient.updated_at,
-                }
-              : undefined,
-            nextOfKin: nextOfKin
-              ? {
-                  id: nextOfKin.id,
-                  patientId: patient.id,
-                  name: nextOfKin.name,
-                  relationship: nextOfKin.relationship,
-                  phone: nextOfKin.phone,
-                  alternatePhone: nextOfKin.alternate_phone,
-                  email: nextOfKin.email,
-                  createdAt: patient.created_at,
-                  updatedAt: patient.updated_at,
-                }
-              : undefined,
-          };
-        });
-
-        setPatients(fallbackPatients);
+      if (error) {
+        console.error('Error loading patients:', error);
+        setPatients([]);
         return;
+      }
+
+      if (patientsData) {
+        // Transform database format to application format
+        const transformedPatients: Patient[] = patientsData.map((patient: any) => ({
+          id: patient.id,
+          firstName: patient.first_name,
+          surname: patient.surname,
+          idType: patient.id_type || 'id_number',
+          idNumber: patient.id_number,
+          sex: patient.sex,
+          dateOfBirth: patient.date_of_birth,
+          age: patient.age,
+          contactNumber: patient.contact_number,
+          alternateNumber: patient.alternate_number,
+          email: patient.email,
+          address: patient.address,
+          city: patient.city,
+          postalCode: patient.postal_code,
+          createdAt: patient.created_at,
+          updatedAt: patient.updated_at,
+          consultationStatus: patient.consultation_status,
+          currentDoctorId: patient.current_doctor_id,
+          lastStatusChange: patient.last_status_change,
+          visitType: patient.visit_type,
+          visitReason: patient.visit_reason,
+          paymentMethod: patient.payment_method || 'cash',
+          parentId: patient.parent_id,
+          isDependent: patient.is_dependent,
+
+          // Insurance details already in JSONB format from RPC
+          insuranceDetails: patient.insurance_details
+            ? {
+                id: patient.insurance_details.id,
+                patientId: patient.insurance_details.patient_id,
+                fundName: patient.insurance_details.fund_name,
+                memberNumber: patient.insurance_details.member_number,
+                plan: patient.insurance_details.plan,
+                schemeCode: patient.insurance_details.scheme_code,
+                createdAt: patient.insurance_details.created_at,
+                updatedAt: patient.insurance_details.updated_at,
+              }
+            : undefined,
+
+          // Next of kin already in JSONB format from RPC
+          nextOfKin: patient.next_of_kin
+            ? {
+                id: patient.next_of_kin.id,
+                patientId: patient.next_of_kin.patient_id,
+                name: patient.next_of_kin.name,
+                relationship: patient.next_of_kin.relationship,
+                phone: patient.next_of_kin.phone,
+                alternatePhone: patient.next_of_kin.alternate_phone,
+                email: patient.next_of_kin.email,
+                createdAt: patient.next_of_kin.created_at,
+                updatedAt: patient.next_of_kin.updated_at,
+              }
+            : undefined,
+        }));
+
+        setPatients(transformedPatients);
       } else {
         setPatients([]);
       }
@@ -122,75 +119,19 @@ export const usePatients = () => {
           const newPatientId = payload.new.id;
 
           try {
-            const [insurance, nextOfKin] = await Promise.all([
-              supabase
-                .from('insurance_details')
-                .select('*')
-                .eq('patient_id', newPatientId)
-                .single(),
-              supabase.from('next_of_kin').select('*').eq('patient_id', newPatientId).single(),
-            ]);
+            // PERFORMANCE FIX: Use the single RPC function instead of multiple queries
+            const patient = await getPatientById(newPatientId);
 
-            const completePatient: Patient = {
-              id: payload.new.id,
-              firstName: payload.new.first_name,
-              surname: payload.new.surname,
-              idType: payload.new.id_type || 'id_number',
-              idNumber: payload.new.id_number,
-              sex: payload.new.sex,
-              dateOfBirth: payload.new.date_of_birth,
-              age: payload.new.age,
-              contactNumber: payload.new.contact_number,
-              alternateNumber: payload.new.alternate_number,
-              email: payload.new.email,
-              address: payload.new.address,
-              city: payload.new.city,
-              postalCode: payload.new.postal_code,
-              createdAt: payload.new.created_at,
-              updatedAt: payload.new.updated_at,
-              consultationStatus: payload.new.consultation_status,
-              currentDoctorId: payload.new.current_doctor_id,
-              lastStatusChange: payload.new.last_status_change,
-              visitType: payload.new.visit_type,
-              visitReason: payload.new.visit_reason,
-              parentId: payload.new.parent_id,
-              isDependent: payload.new.is_dependent,
-
-              insuranceDetails: insurance.data
-                ? {
-                    id: insurance.data.id,
-                    patientId: newPatientId,
-                    fundName: insurance.data.fund_name,
-                    memberNumber: insurance.data.member_number,
-                    plan: insurance.data.plan,
-                    schemeCode: insurance.data.scheme_code,
-                    createdAt: insurance.data.created_at,
-                    updatedAt: insurance.data.updated_at,
-                  }
-                : undefined,
-              nextOfKin: nextOfKin.data
-                ? {
-                    id: nextOfKin.data.id,
-                    patientId: newPatientId,
-                    name: nextOfKin.data.name,
-                    relationship: nextOfKin.data.relationship,
-                    phone: nextOfKin.data.phone,
-                    alternatePhone: nextOfKin.data.alternate_phone,
-                    email: nextOfKin.data.email,
-                    createdAt: nextOfKin.data.created_at,
-                    updatedAt: nextOfKin.data.updated_at,
-                  }
-                : undefined,
-            };
-
-            setPatients((prev) => {
-              const exists = prev.find((p) => p.id === completePatient.id);
-              if (exists) {
-                return prev;
-              }
-              setNewPatientAdded(completePatient);
-              return [...prev, completePatient];
-            });
+            if (patient) {
+              setPatients((prev) => {
+                const exists = prev.find((p) => p.id === patient.id);
+                if (exists) {
+                  return prev;
+                }
+                setNewPatientAdded(patient);
+                return [...prev, patient];
+              });
+            }
           } catch (error) {
             console.error('Error fetching complete patient data:', error);
             await loadPatients();
@@ -208,69 +149,12 @@ export const usePatients = () => {
           const updatedPatientId = payload.new.id;
 
           try {
-            const [insurance, nextOfKin] = await Promise.all([
-              supabase
-                .from('insurance_details')
-                .select('*')
-                .eq('patient_id', updatedPatientId)
-                .single(),
-              supabase.from('next_of_kin').select('*').eq('patient_id', updatedPatientId).single(),
-            ]);
+            // PERFORMANCE FIX: Use the single RPC function instead of multiple queries
+            const patient = await getPatientById(updatedPatientId);
 
-            const updatedPatient: Patient = {
-              id: payload.new.id,
-              firstName: payload.new.first_name,
-              surname: payload.new.surname,
-              idType: payload.new.id_type || 'id_number',
-              idNumber: payload.new.id_number,
-              sex: payload.new.sex,
-              dateOfBirth: payload.new.date_of_birth,
-              age: payload.new.age,
-              contactNumber: payload.new.contact_number,
-              alternateNumber: payload.new.alternate_number,
-              email: payload.new.email,
-              address: payload.new.address,
-              city: payload.new.city,
-              postalCode: payload.new.postal_code,
-              createdAt: payload.new.created_at,
-              updatedAt: payload.new.updated_at,
-              consultationStatus: payload.new.consultation_status,
-              currentDoctorId: payload.new.current_doctor_id,
-              lastStatusChange: payload.new.last_status_change,
-              visitType: payload.new.visit_type,
-              visitReason: payload.new.visit_reason,
-              parentId: payload.new.parent_id,
-              isDependent: payload.new.is_dependent,
-
-              insuranceDetails: insurance.data
-                ? {
-                    id: insurance.data.id,
-                    patientId: updatedPatientId,
-                    fundName: insurance.data.fund_name,
-                    memberNumber: insurance.data.member_number,
-                    plan: insurance.data.plan,
-                    createdAt: insurance.data.created_at,
-                    updatedAt: insurance.data.updated_at,
-                  }
-                : undefined,
-              nextOfKin: nextOfKin.data
-                ? {
-                    id: nextOfKin.data.id,
-                    patientId: updatedPatientId,
-                    name: nextOfKin.data.name,
-                    relationship: nextOfKin.data.relationship,
-                    phone: nextOfKin.data.phone,
-                    alternatePhone: nextOfKin.data.alternate_phone,
-                    email: nextOfKin.data.email,
-                    createdAt: nextOfKin.data.created_at,
-                    updatedAt: nextOfKin.data.updated_at,
-                  }
-                : undefined,
-            };
-
-            setPatients((prev) =>
-              prev.map((p) => (p.id === updatedPatient.id ? updatedPatient : p)),
-            );
+            if (patient) {
+              setPatients((prev) => prev.map((p) => (p.id === patient.id ? patient : p)));
+            }
           } catch (error) {
             console.error('Error fetching updated patient data:', error);
           }
@@ -293,12 +177,11 @@ export const usePatients = () => {
         }
       });
 
-    const pollInterval = setInterval(() => {
-      loadPatients();
-    }, 15000);
+    // PERFORMANCE FIX: Removed 15-second polling
+    // Realtime subscriptions already handle updates, polling was redundant and wasteful
+    // This eliminates ~240 unnecessary database queries per hour per user
 
     return () => {
-      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   }, [loadPatients]);
